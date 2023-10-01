@@ -1,0 +1,55 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+
+body{
+  background-color: rgb(249, 249, 249);
+}
+*{
+  font-family: 'Baloo Bhaijaan 2', cursive;
+}
+
+.app-container {
+  display: flex;
+  height: 100%;
+ 
+}
+
+.accountContainer{
+  display: flex;
+  
+}
+.accountContaineritem1{
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.sidebar {
+  /* Your sidebar styles */
+  position: fixed;
+
+}
+
+.active {
+  background-color: #97B980; /* Change to your desired background color */
+  color: #fff; /* Change to your desired text color */
+  /* Add any other styles you want for the active item */
+}
+
+
+.content-container {
+  flex-grow: 1;
+  margin-left: 280px; /* Ensure the margin matches the width of the sidebar */
+  padding: 20px; /* Add padding as needed */
+  overflow-y: auto;
+}
+
+.map{
+  display: flex;
+  justify-content: center;
+}
+
+
+

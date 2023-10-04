@@ -23,25 +23,36 @@ import {
  import { 
   MdManageAccounts,
  } from 'react-icons/md';
-
 import logo from "/tabouaNo.png" ;
+import  { getAuth,  signOut} from "firebase/auth";
+import { useNavigate } from 'react-router-dom';
 
+   function Sidebar({authorized}) {
 
-
-
-   function Sidebar() {
     const [activeItem, setActiveItem] = React.useState(null);
+    const navigate = useNavigate();
 
   const handleItemClick = (item) => {
     setActiveItem(item);
   };
+    
+  const handleLogout = async () => {
+    const auth = getAuth();
+    try {
+      await signOut(auth); // Sign the user out
+      navigate('/login'); // Redirect to the login page
+    } catch (error) {
+      console.error('Logout error:', error);
+    }
+  };
+ 
 
 
     return (
         <div className="sidebar">
       <Card className="h-[calc(100vh-2rem)] w-full max-w-[20rem] p-4 shadow-xl shadow-blue-gray-900/5"  >
         <div>
-            <div className='pl-10'>
+            <div className='pr-10'>
             <img src={logo} className="h-40 w-40"/>
             </div>
             
@@ -50,43 +61,45 @@ import logo from "/tabouaNo.png" ;
             <ListItemPrefix>
               <HomeIcon className="h-5 w-5" />
             </ListItemPrefix>
-            <Link  to="/" onClick={() => handleItemClick('home')}>الرئيسية </Link>
+            <Link  to="" onClick={() => handleItemClick('home')}>الرئيسية </Link>
           </ListItem>
           <ListItem  className={activeItem === 'garbage' ? 'active' : ''}>
             <ListItemPrefix>
               <TrashIcon className="h-5 w-5" />
             </ListItemPrefix>  
-            <Link to="/garbage" onClick={() => handleItemClick('garbage')}>إدارة حاويات النفايات</Link>
+            <Link to="/mainpage/garbage" onClick={() => handleItemClick('garbage')}>إدارة حاويات النفايات</Link>
           </ListItem>
           <ListItem className={activeItem === 'recycle' ? 'active' : ''}>
             <ListItemPrefix>
               <FaRecycle className="h-5 w-5" />
             </ListItemPrefix>
-            <Link to="/recycle" onClick={() => handleItemClick('recycle')}> إدارة مراكز إعادةالتدوير</Link>
+            <Link to="/mainpage/recycle" onClick={() => handleItemClick('recycle')}> إدارة مراكز إعادةالتدوير</Link>
           </ListItem>
           <ListItem className={activeItem === 'complaints' ? 'active' : ''}>
             <ListItemPrefix>
               <TbMessageReport className="h-6 w-6" />
             </ListItemPrefix>
-            <Link to="/complaints" onClick={() => handleItemClick('complaints')}> إدارةالبلاغات</Link>
+            <Link to="/mainpage/complaints" onClick={() => handleItemClick('complaints')}> إدارةالبلاغات</Link>
           </ListItem>
           <ListItem className={activeItem === 'heatmap' ? 'active' : ''}>
             <ListItemPrefix>
               <AiOutlineHeatMap className="h-5 w-5"  />
             </ListItemPrefix>
-            <Link to="/heatmap" onClick={() => handleItemClick('heatmap')}>الخريطة الحرارية</Link> 
+            <Link to="/mainpage/heatmap" onClick={() => handleItemClick('heatmap')}>الخريطة الحرارية</Link> 
            </ListItem>
-          <ListItem className={activeItem === 'manage' ? 'active' : ''}>
+         
+         {authorized && <ListItem className={activeItem === 'manage' ? 'active' : ''}>
             <ListItemPrefix>
               <MdManageAccounts className="h-6 w-6" />
             </ListItemPrefix>
-            <Link to="/manage" onClick={() => handleItemClick('manage')}> إدارة صلاحيات المشرفين</Link> 
-          </ListItem>
+            <Link to="/mainpage/manage" onClick={() => handleItemClick('manage')}> إدارة صلاحيات المشرفين</Link> 
+          </ListItem>} 
+            
           <ListItem>
             <ListItemPrefix>
               <PowerIcon className="h-5 w-5" />
             </ListItemPrefix>
-            تسجيل الخروج
+        <button onClick={handleLogout}> تسجيل الخروج </button>
           </ListItem>
         </List>
         </div>

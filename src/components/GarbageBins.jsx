@@ -115,7 +115,7 @@ export default  function GarbageBins() {
                 <>
               
                     <div className='map'>
-                    <Map  />
+                    <Map  className="mapItem"/>
                     </div>
                     {/* <Map  garbageBins={garbageBins} onMapClick={handleMapClick} onDeleteGarbageBin={onDeleteGarbageBin}/>
                    */}

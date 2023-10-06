@@ -10,6 +10,7 @@ import {
 import { db , app , auth } from "../../firebase";
 import {createUserWithEmailAndPassword} from 'firebase/auth';
 import { collection, addDoc } from 'firebase/firestore';
+import SummeryStaffInfo from "../viewInfo/SummeryStaffInfo";
 
 
 import makeAnimated from 'react-select/animated';
@@ -26,6 +27,9 @@ export default function AddStaff({ open, handler}){
         isAdmin:false,
       });
 
+      const [ShowAddForm , setAddForm] = useState(true);
+      const[showSummery, setShowSummery] = useState(false);
+      
       
       const [error, setError] = useState('');
 
@@ -68,6 +72,7 @@ const handleSubmit = async (e) => {
 
   });
 
+ 
 
 
 /*
@@ -96,6 +101,19 @@ const handleSubmit = async (e) => {
   
 
 };
+
+const handleInfo = () => {
+  //const { name, value } = e.target;
+
+ // console.log(formData.email);
+  
+//<SummeryStaffInfo firstName={formData.firstName} lastName ={formData.lastName} email={formData.email} password={formData.password} />
+setAddForm(false)
+setShowSummery(true);
+
+
+}
+
 
 /*
       const handleSubmit = async (e) => {
@@ -155,17 +173,27 @@ const handleSubmit = async (e) => {
              </DialogBody>
 
              <DialogFooter className="flex gap-3 justify-center font-baloo text-right">
-             <Button variant="gradient" style={{background:"#97B980", color:'#ffffff'} } onClick={handleSubmit}  >
-               <span>إضافة</span>
+             <Button variant="gradient" style={{background:"#97B980", color:'#ffffff'} } onClick={handleInfo}  >
+               <span aria-hidden="true">إضافة</span>
               </Button>
              <Button variant="outlined"  onClick={handler}>
-               <span>إلغاء</span>
+               <span aria-hidden="true">إلغاء</span>
              </Button>
               
           </DialogFooter>
 
             </form>
 
+
+           
+        <SummeryStaffInfo
+         open = {showSummery}
+          firstName={formData.firstName}
+          lastName={formData.lastName}
+          email={formData.email}
+          password={formData.password}
+        />
+      
         </Dialog>
     //  </div>
        

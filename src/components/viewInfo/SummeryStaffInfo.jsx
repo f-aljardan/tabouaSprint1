@@ -6,6 +6,7 @@ import {
   DialogBody,
   DialogFooter,
 } from "@material-tailwind/react";
+import AddStaff from "../forms/AddStaff";
  
 export default function SummeryStaffInfo({open,firstName , lastName , email, password }) {
   const [size, setSize] = React.useState(null);
@@ -13,7 +14,7 @@ export default function SummeryStaffInfo({open,firstName , lastName , email, pas
 
   const handleOpen = (value) => setSize(value);
   const [openViewInfo , handleOpeing] = useState(false);
-
+const [update , SetUpdate] = useState(false);
 console.log(firstName , lastName , email , password);
  
   return (
@@ -48,7 +49,7 @@ console.log(firstName , lastName , email , password);
           <Button
             variant="text"
             color="red"
-            onClick={() => handleOpeing(true)}
+            onClick={() => SetUpdate(true)}
             className="mr-1"
           >
 

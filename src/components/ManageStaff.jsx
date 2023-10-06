@@ -6,11 +6,11 @@ import {
    
   } from "@material-tailwind/react";
 
-import "@material-tailwind/react";
 
 export default function ManageStaff(){
 
   // to show add staff as popup window
+
     const [showAddStaffDialog, setShowAddStaffDialog] = useState(false);
 
     
@@ -29,7 +29,7 @@ export default function ManageStaff(){
       };
 
     return(
-    
+    <>
     <div> {/* Big div*/}
 
 <div> {/* div for hold all staff*/}
@@ -38,11 +38,13 @@ export default function ManageStaff(){
 </div>
 
 <div>
-<Button className="float-left" onClick={handleAddStaffDialogOpen}>إضافة مشرف</Button>
-{showAddStaffDialog && <AddStaff open={true} handler={handleAddStaffDialogClose} method={handleAddStaffClick} />}
+<Button className="float-left" onClick={handleAddStaffDialogOpen} aria-hidden="false" >إضافة مشرف</Button>
+{<AddStaff open={showAddStaffDialog} handler={handleAddStaffDialogClose} method={handleAddStaffClick} />}
     </div>
 
     </div>
 
+    </>
+    
     );
 }

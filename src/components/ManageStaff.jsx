@@ -34,12 +34,11 @@ export default function ManageStaff(){
 
 <div> {/* div for hold all staff*/}
   <div>{/* div for one staff*/}
-
   </div>
 </div>
 
 <div>
-<Button className="float-left" onClick={handleAddStaffDialogOpen}>إضافة مشرف</Button>
+<Button className="float-left" onClick={handleAddStaffDialogOpen} style={{background:"#97B980", color:'#ffffff'} }>إضافة مشرف</Button>
 {showAddStaffDialog && <AddStaff open={true} handler={handleAddStaffDialogClose} method={handleAddStaffClick} />}
     </div>
 

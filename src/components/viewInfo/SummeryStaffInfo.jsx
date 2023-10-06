@@ -7,34 +7,34 @@ import {
   DialogFooter,
 } from "@material-tailwind/react";
 import AddStaff from "../forms/AddStaff";
+import {useNavigate} from "react-router-dom"
  
-export default function SummeryStaffInfo({open,firstName , lastName , email, password }) {
+export default function SummeryStaffInfo({openWindow,firstName , lastName , email, password }) {
   const [size, setSize] = React.useState(null);
-  console.log("hellp summery");
+  //console.log("hellp summery");
 
   const handleOpen = (value) => setSize(value);
   const [openViewInfo , handleOpeing] = useState(false);
-const [update , SetUpdate] = useState(false);
-console.log(firstName , lastName , email , password);
+const [update , SetUpdate] = useState(true);
+//console.log(firstName , lastName , email , password);
  
+
+const navigate = useNavigate();
+const onUpdate  =() => {
+console.log("inside addstaf");
+
+};
+
+const handleAddStaffDialogClose = () => {
+  SetUpdate(false);
+};
   return (
     <>
       
       <Dialog
-        open={
-          /*
-          size === "xs" ||
-          size === "sm" ||
-          size === "md" ||
-          size === "lg" ||
-          size === "xl" ||
-          size === "xxl" ||
-          */
-          
-          open
-        }
+        open={openWindow}
         size={size || "md"}
-        handler={openViewInfo}
+      //  handler={openViewInfo}
       >
         <DialogHeader>معلومات المشرف</DialogHeader>
         <DialogBody divider>
@@ -46,16 +46,19 @@ console.log(firstName , lastName , email , password);
 
         </DialogBody>
         <DialogFooter>
+
+
           <Button
             variant="text"
             color="red"
-            onClick={() => SetUpdate(true)}
+            onClick={() => handleAddStaffDialogClose}
             className="mr-1"
           >
-
-            
             <span>تعديل</span>
           </Button>
+
+
+
           <Button
             variant="gradient"
             color="green"
@@ -65,6 +68,8 @@ console.log(firstName , lastName , email , password);
           </Button>
         </DialogFooter>
       </Dialog>
+
+
     </>
   );
 }

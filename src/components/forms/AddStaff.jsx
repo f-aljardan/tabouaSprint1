@@ -30,6 +30,7 @@ export default function AddStaff({ open, handler}){
       const [ShowAddForm , setAddForm] = useState(true);
       const[showSummery, setShowSummery] = useState(false);
       
+      console.log("Hello fronAddStaff");
       
       const [error, setError] = useState('');
 
@@ -50,14 +51,14 @@ export default function AddStaff({ open, handler}){
 
 const handleSubmit = async (e) => {
   e.preventDefault();
-  console.log(e.email);
+ // console.log(e.email);
   // Call the callback function to add the recycling center
    
   
     
     //const auth = getAuth(app);
     //console.log(auth);
-    console.log("before");
+  //  console.log("before");
 
   await createUserWithEmailAndPassword(auth, formData.email, formData.password)
   .then((userCredential) => {
@@ -187,7 +188,7 @@ setShowSummery(true);
 
            
         <SummeryStaffInfo
-         open = {showSummery}
+         openWindow = {showSummery}
           firstName={formData.firstName}
           lastName={formData.lastName}
           email={formData.email}

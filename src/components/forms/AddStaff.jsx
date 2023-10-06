@@ -119,7 +119,7 @@ const handleSubmit = async (e) => {
       //<div aria-hidden="false">
  <Dialog open={open} handler={handler} aria-hidden="true">
              <form >
-             <DialogHeader className="flex justify-center font-baloo text-right">إضافة موظف</DialogHeader>
+             <DialogHeader className="flex justify-center font-baloo text-right">إضافة مشرف</DialogHeader>
              <DialogBody divider className="font-baloo text-right">
              <div className="grid gap-6">
                
@@ -155,12 +155,13 @@ const handleSubmit = async (e) => {
              </DialogBody>
 
              <DialogFooter className="flex gap-3 justify-center font-baloo text-right">
+             <Button variant="gradient" style={{background:"#97B980", color:'#ffffff'} } onClick={handleSubmit}  >
+               <span>إضافة</span>
+              </Button>
              <Button variant="outlined"  onClick={handler}>
                <span>إلغاء</span>
              </Button>
-              <Button variant="gradient" style={{background:"#97B980", color:'#ffffff'} } onClick={handleSubmit}  >
-               <span>إضافة</span>
-              </Button>
+              
           </DialogFooter>
 
             </form>

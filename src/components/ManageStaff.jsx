@@ -30,9 +30,19 @@ export default function ManageStaff(){
 
     return(
     
+    <div> {/* Big div*/}
+
+<div> {/* div for hold all staff*/}
+  <div>{/* div for one staff*/}
+
+  </div>
+</div>
+
 <div>
-<Button className="float-left" onClick={handleAddStaffDialogOpen}>Add Staff</Button>
+<Button onClick={handleAddStaffDialogOpen}>Add Staff</Button>
 {showAddStaffDialog && <AddStaff open={true} handler={handleAddStaffDialogClose} method={handleAddStaffClick} />}
+    </div>
+
     </div>
 
     );

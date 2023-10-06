@@ -4,6 +4,7 @@ import { getDocs, collection, addDoc, GeoPoint, deleteDoc, doc} from "firebase/f
 import Map from "./maps/GarbageBinMap"
 import Success from "./messages/Success"
 import Confirm from "./messages/Confirm"
+import { Button } from "@material-tailwind/react";
 
 
  
@@ -113,9 +114,14 @@ export default  function GarbageBins() {
         
             return (
                 <>
-              
-                    <div className='map'>
-                    <Map  className="mapItem"/>
+               
+                     <div className="font-baloo text-xl "> * لإضافة موقع حاوية جديدة قم بالضغط على الموقع المحدد</div>
+                     <div className="font-baloo text-xl "> * لإزالة موقع حاوية قم بالضغط على موقع الحاوية</div>
+                 
+                   
+
+                    <div className='map' >
+                    <Map  className="mapItem" />
                     </div>
                     {/* <Map  garbageBins={garbageBins} onMapClick={handleMapClick} onDeleteGarbageBin={onDeleteGarbageBin}/>
                    */}

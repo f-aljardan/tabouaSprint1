@@ -28,7 +28,7 @@ body{
 
 .sidebar {
   /* Your sidebar styles */
-  position: fixed;
+  /* position: fixed; */
 
 }
 
@@ -40,16 +40,16 @@ body{
 
 
 .content-container {
-  flex-grow: 1;
-  /* margin-left: 280px;  Ensure the margin matches the width of the sidebar 
-  padding: 20px;  */
+ /* Adjust margin to the width of the sidebar */
+ /* margin-right: 20rem; */
+  padding: 1rem; /* Add padding to the content */
+  flex: 1;
   overflow-y: auto;
 }
 
 .map{
   display: flex;
   justify-content: left;
-padding: 20px;
 }
 
 .loginPage{

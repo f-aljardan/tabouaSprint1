@@ -8,6 +8,7 @@ import {
     DialogFooter,
   } from "@material-tailwind/react";
 
+  
 export default function Confirm({open, handler , method, message}){
     
     return(
@@ -16,6 +17,7 @@ export default function Confirm({open, handler , method, message}){
         <DialogHeader className="font-baloo flex justify-center" >تأكيد</DialogHeader>
        
         <DialogBody divider className="font-baloo text-right">
+
         {message}
         </DialogBody>
 

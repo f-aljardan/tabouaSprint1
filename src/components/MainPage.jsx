@@ -9,6 +9,8 @@ import RecyclingCenters from './RecyclingCenters';
 import Complaints from './Complaints';
 import Heatmap from './Heatmap';
 import ManageStaff from './ManageStaff';
+import Footer from "./Footer"
+
 function MainPage() {
     const navigate = useNavigate();
     const [isAdmin, setIsAdmin] = useState(false);
@@ -45,18 +47,25 @@ function MainPage() {
     <>
      
       <div className="app-container">
-        <Sidebar authorized={isAdmin}/>
-        <div className="content-container">
+
+       <Sidebar authorized={isAdmin}/>
+      
+        <div className="content-container"> 
           <Routes>
-            <Route path="" exact element={<Home/>} />
-            <Route path="/garbage" element={<GarbageBins/>} />
-            <Route path="/recycle" element={<RecyclingCenters/>} />
-            <Route path="/complaints" element={<Complaints/>} /> 
-            <Route path="/heatmap" element={<Heatmap/>} />
-            {isAdmin && <Route path="/manage" element={<ManageStaff/>} /> }
+         
+            <Route path='' exact element={<Home/>} />
+            <Route path="garbage" element={<GarbageBins/>} />
+            <Route path="recycle" element={<RecyclingCenters/>} />
+            <Route path="complaints" element={<Complaints/>} /> 
+            <Route path="heatmap" element={<Heatmap/>} />
+            {isAdmin && <Route path="manage" element={<ManageStaff/>} /> }
+           
           </Routes>
+
         </div>
-      </div>
+
+      </div> 
+      <Footer/>
   
   </>
 

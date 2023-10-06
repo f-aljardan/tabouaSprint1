@@ -168,7 +168,7 @@ const onDeleteGarbageBin = async (centerId) => {
       <GoogleMap
         mapContainerStyle={containerStyle}
         center={center}
-        zoom={12}
+        zoom={10}
         onLoad={onLoad} //Callback function that gets executed when the map is loaded.
         onUnmount={onUnmount}//Callback function that gets executed when the component unmounts.
         onClick={onMapClick}

@@ -31,7 +31,7 @@ export default function ManageStaff(){
     return(
     
 <div>
-<Button onClick={handleAddStaffDialogOpen}>Add Staff</Button>
+<Button className="float-left" onClick={handleAddStaffDialogOpen}>Add Staff</Button>
 {showAddStaffDialog && <AddStaff open={true} handler={handleAddStaffDialogClose} method={handleAddStaffClick} />}
     </div>
 

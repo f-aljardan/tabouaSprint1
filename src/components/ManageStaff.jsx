@@ -1,6 +1,7 @@
 
 import React, {useState} from "react";
 import AddStaff from "./forms/AddStaff.jsx";
+
 import {
     Button,
    
@@ -38,8 +39,8 @@ export default function ManageStaff(){
 </div>
 
 <div>
-<Button className="float-left" onClick={handleAddStaffDialogOpen} aria-hidden="false" >إضافة مشرف</Button>
-{<AddStaff open={showAddStaffDialog} handler={handleAddStaffDialogClose} method={handleAddStaffClick} />}
+{<Button className="float-left" onClick={handleAddStaffDialogOpen} aria-hidden="false" >إضافة مشرف</Button> }
+{<AddStaff open={showAddStaffDialog} handler={handleAddStaffDialogClose} method={handleAddStaffClick} />} 
     </div>
 
     </div>

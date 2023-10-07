@@ -1,3 +1,5 @@
+
+
 import { useState } from 'react';
 import {
   Button,
@@ -15,7 +17,7 @@ import SummeryStaffInfo from "../viewInfo/SummeryStaffInfo";
 
 import makeAnimated from 'react-select/animated';
 
-export default function AddStaff({ open, handler}){
+export default function AddStaff({open , handler}){
    // const animatedComponents = makeAnimated(); //animating dialog
 
     //Defulte values for forms
@@ -138,6 +140,22 @@ function validate(){
   }
 }
 
+const handleSubmit = (e) => {
+  e.preventDefault();
+
+  // Validate input fields
+  if (
+    formData.firstName.trim() === '' ||
+    formData.lastName.trim() === '' ||
+    formData.email.trim() === '' ||
+    formData.password.trim() === ''
+  ) {
+    alert('Please fill in all fields');
+    return;
+  }
+
+  setShowSummary(true);
+};
 
 
 /*
@@ -227,3 +245,5 @@ function validate(){
 
     );
 }
+
+

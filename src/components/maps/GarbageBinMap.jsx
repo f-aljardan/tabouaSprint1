@@ -1,12 +1,12 @@
 import React , {useState, useEffect, useRef} from 'react'
 import { GoogleMap, useJsApiLoader, Marker } from '@react-google-maps/api';
 import { db } from "/src/firebase";
-import { getDocs, collection, addDoc, GeoPoint, deleteDoc, doc} from "firebase/firestore"; // Import the necessary Firestore functions
+import { getDocs, collection, addDoc, GeoPoint, deleteDoc, doc ,getDoc, Timestamp } from "firebase/firestore"; // Import the necessary Firestore functions
 
 import Confirm from '../messages/Confirm';
 import Success from "../messages/Success"
 import GarbageBinForm from "../forms/GarbageBinForm"
-
+import ViewGarbageInfo from "../viewInfo/ViewGarbageInfo"
 
 const containerStyle = {
   width: '950px',
@@ -22,8 +22,10 @@ function Map() {
 
   
   const [garbageBins, setGarbageBins] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [confirmationVisible, setConfirmationVisible] = useState(false); // To control confirmation message visibility
+  const [binData ,SetBinData] = React.useState([]);
+  const [binId , setBinId] = useState();
+
+  const [formVisible, setFormVisible] = useState(false);// To control confirmation message visibility
   const [newGarbageBinLocation, setNewGarbageBinLocation] = useState(null);
   const [showAlert, setShowAlert] = useState(false);
   const [showAlertDeletion, setShowAlertDeletion] = useState(false);
@@ -34,8 +36,8 @@ function Map() {
 
 
 
-  
-  const handleConfirm = () => setConfirmationVisible(!confirmationVisible);
+
+  const handleForm = () => setFormVisible(!formVisible);
   const handlealert = () => setShowAlert(!showAlert);
   const handlealertDeletion = () => setShowAlertDeletion(!showAlertDeletion);
 
@@ -51,7 +53,7 @@ function Map() {
                });
 
       setGarbageBins(binsData);
-      setLoading(false);
+    
   } catch (error) {
       console.error("Error fetching garbage bins:", error);
   }
@@ -95,9 +97,32 @@ fetchGarbageBins();
   const [selectedLocation, setSelectedLocation] = React.useState(false);
 
 
+  const [open, setOpen] = React.useState(false);
+ 
+  const openDrawer = () => setOpen(true);
+  const closeDrawer = () => setOpen(false);
 
-  const handleMarkerClick = (bin) => {
+  const handleMarkerClick = async (bin) => {
+    
+    try {
+      // Fetch data for the selected recycling center using its ID
+      const BinDocRef = doc(db, "garbageBins", bin.id);
+      const BinDocSnapshot = await getDoc(BinDocRef);
+  
+      if (BinDocSnapshot.exists()) {
+        SetBinData(BinDocSnapshot.data());
+        setBinId(bin.id);
+        // You can use this data as needed in your component
+      } else {
+        console.error("Bin not found.");
+      }
+    } catch (error) {
+      console.error("Error fetching Bin data:", error);
+    }
+    openDrawer();
+
     setSelectedLocation(bin);
+  
   };
 
   const onZoomChanged = () => {
@@ -125,7 +150,7 @@ console.log(currentZoomLevelRef.current)
   if (currentZoomLevelRef.current >= minZoomLevel) {
     console.log("Adding a garbage bin at this location.");
     setNewGarbageBinLocation({ lat, lng });
-    setConfirmationVisible(true);
+    setFormVisible(true);
   } else {
     console.log("Zoom level not sufficient for adding a garbage bin.");
     alert('تحتاج إلى تكبير الخريطة لتتمكن من إضافة حاوية القمامة');
@@ -154,13 +179,13 @@ const saveCoordinatesToFirestore = async (data) => {
     const docRef = await addDoc(collection(db, "garbageBins"), {
       location: geoPoint,
       size: data.size,
-      addedDate: data.date,
+      date: Timestamp.fromDate(new Date()),
     });
 
     console.log("Document added with ID:", docRef.id); // Log the document ID
 
     setGarbageBins([...garbageBins, { id: docRef.id, location: geoPoint }]);
-    setConfirmationVisible(false);
+    setFormVisible(false);
     setShowAlert(true);
 
     
@@ -209,12 +234,18 @@ const onDeleteGarbageBin = async (garbageBinId) => {
             onClick={() => handleMarkerClick(bin)}
           >
         
-           <Confirm  open={selectedLocation && selectedLocation.id === bin.id} handler={() => setSelectedLocation(false)} method={handleDeleteConfirmation} message="هل انت متأكد من حذف حاوية نفاية بالموقع المحدد؟"/>
-           
-             
+         {/* <Confirm  open={selectedLocation && selectedLocation.id === bin.id} handler={() => setSelectedLocation(false)} method={handleDeleteConfirmation} message="هل انت متأكد من حذف حاوية نفاية بالموقع المحدد؟"/>
+          */}
+{/*           
+          <ViewGarbageInfo  open={selectedLocation && selectedLocation.id === bin.id} handler={() => setSelectedLocation(false)} Deletemethod={handleDeleteConfirmation} bin={binData}/>
+        */}
+            
           </Marker>
     ))}
-<GarbageBinForm open={confirmationVisible} handler={handleConfirm} method={saveCoordinatesToFirestore}  message="   هل انت متأكد من إضافة حاوية نفاية بالموقع المحدد؟"/>
+
+  <ViewGarbageInfo open={open} onClose={closeDrawer}  Deletemethod={handleDeleteConfirmation} bin={binData} binId={binId}/>
+  
+<GarbageBinForm open={formVisible} handler={handleForm} method={saveCoordinatesToFirestore}  message="   هل انت متأكد من إضافة حاوية نفاية بالموقع المحدد؟"/>
 {/*  
  <Confirm  open={confirmationVisible} handler={handleConfirm} method={saveCoordinatesToFirestore}  message="   هل انت متأكد من إضافة حاوية نفاية بالموقع المحدد؟"/>
    */}

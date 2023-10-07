@@ -13,13 +13,12 @@ export default function GarbageBinForm({ open, handler, method, message }) {
     const animatedComponents = makeAnimated();
   
     const options = [
-      { value: 'كبير', label: 'كبير' },
-      { value: 'صغير', label: 'صغير' },
+      { value: 'حاوية كبيرة', label: 'حاوية كبيرة' },
+      { value: 'حاوية صغيرة', label: 'حاوية صغيرة' },
     ];
   
     const [formData, setFormData] = useState({
       size: '',
-      date: '',
     });
   
     const [showValidationMessage, setShowValidationMessage] = useState(false);
@@ -46,16 +45,9 @@ export default function GarbageBinForm({ open, handler, method, message }) {
   
       // Check if a size is selected
       if (formData.size) {
-        const currentDate = new Date();
-        const formattedDate = currentDate.toLocaleDateString();
-        const updatedFormData = {
-          ...formData,
-          date: formattedDate, // Store the formatted date
-        };
-        method(updatedFormData);
+        method(formData);
         setFormData({
-          size: '',
-          date: '', // Reset the date field
+          size: '', // Reset the size field
         });
         setShowValidationMessage(false); // Hide the validation message after successful submission
       } else {
@@ -111,7 +103,7 @@ export default function GarbageBinForm({ open, handler, method, message }) {
               variant="gradient"
               style={{ background: '#97B980', color: '#ffffff' }}
               onClick={validate}
-             // Disable the "Add" button when no size is selected
+             
             >
               <span>إضافة</span>
             </Button>

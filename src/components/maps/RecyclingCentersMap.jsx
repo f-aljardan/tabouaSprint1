@@ -23,7 +23,8 @@ const center = {
 function Map() {
 
     const [recyclingCenters, setRecyclingCenters] = useState([]);
-
+    const [selectedLocation, setSelectedLocation] = React.useState(false);
+    const [centerData ,SetCenterData] = React.useState([]);
     const [formVisible, setFormVisible] = useState(false); // To control confirmation message visibility
     const [newRecyclingCenterLocation, setNewRecyclingCenterLocation] = useState(null);
     const [showAlert, setShowAlert] = useState(false);
@@ -106,11 +107,9 @@ const handleAddRecyclingCenter = async (data) => {
     setMap(null)
   }, [])
 
-  const [selectedLocation, setSelectedLocation] = React.useState(false);
-  const [centerData ,SetCenterData] = React.useState([]);
-  const [viewInfo, setViewInfo] = React.useState(false);
 
-  const handleviewInfo = () => setViewInfo(!viewInfo);
+
+ 
 
   const handleMarkerClick = async (recycleCenter) => {
     
@@ -130,7 +129,7 @@ const handleAddRecyclingCenter = async (data) => {
     }
 
     setSelectedLocation(recycleCenter);
-    setViewInfo(true);
+   
   
   };
 

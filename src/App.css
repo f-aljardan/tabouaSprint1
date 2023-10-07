@@ -50,6 +50,8 @@ body{
 .map{
   display: flex;
   justify-content: left;
+  border:  #97B980 solid 10px;
+  border-radius: 20px;
 }
 
 .loginPage{

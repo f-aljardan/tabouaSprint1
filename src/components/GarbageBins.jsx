@@ -114,10 +114,10 @@ export default  function GarbageBins() {
         
             return (
                 <>
-               
-                     <div className="font-baloo text-xl "> * لإضافة موقع حاوية جديدة قم بالضغط على الموقع المحدد</div>
-                     <div className="font-baloo text-xl "> * لإزالة موقع حاوية قم بالضغط على موقع الحاوية</div>
-                 
+               <div className="flex gap-5 direction-coulmn justify-center"><div className="font-baloo text-md text-gray-600 "> * لإضافة موقع حاوية جديدة قم بالضغط على الموقع المحدد</div>
+                     <div className="font-baloo text-md text-gray-600 "> * لإزالة موقع حاوية قم بالضغط على موقع الحاوية</div>
+                 </div>
+                     
                    
 
                     <div className='map' >

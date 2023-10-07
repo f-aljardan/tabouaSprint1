@@ -109,11 +109,17 @@ const handleInfo = () => {
  // console.log(formData.email);
   
 //<SummeryStaffInfo firstName={formData.firstName} lastName ={formData.lastName} email={formData.email} password={formData.password} />
-setAddForm(false)
+setAddForm(true);
 setShowSummery(true);
 
 
-}
+};const handleClose = () => {
+  handler(); // Call the handler function passed as a prop to close the dialog
+};
+
+
+
+
 
 
 /*
@@ -136,7 +142,7 @@ setShowSummery(true);
       
     return(
       //<div aria-hidden="false">
- <Dialog open={open} handler={handler} aria-hidden="true">
+ <Dialog open={open} handler={handleClose} aria-hidden="true">
              <form >
              <DialogHeader className="flex justify-center font-baloo text-right">إضافة مشرف</DialogHeader>
              <DialogBody divider className="font-baloo text-right">

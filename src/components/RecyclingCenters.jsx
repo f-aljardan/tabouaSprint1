@@ -81,6 +81,10 @@ export default function RecyclingCenters(){
 
     return(
         <>
+          <div className="flex gap-5 direction-coulmn justify-center"><div className="font-baloo text-md text-gray-600 "> * لإضافة موقع مركز تدوير جديد قم بالضغط على الموقع المحدد</div>
+                     <div className="font-baloo text-md text-gray-600 "> * لإزالة موقع مركز تدوير قم بالضغط على موقع المركز</div>
+                 </div>
+                
         <div className='map'> 
         <Map/>
         </div>

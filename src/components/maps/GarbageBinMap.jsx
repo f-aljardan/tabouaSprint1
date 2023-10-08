@@ -24,11 +24,15 @@ function Map() {
   const [garbageBins, setGarbageBins] = useState([]);
   const [binData ,SetBinData] = React.useState([]);
   const [binId , setBinId] = useState();
-
   const [formVisible, setFormVisible] = useState(false);// To control confirmation message visibility
   const [newGarbageBinLocation, setNewGarbageBinLocation] = useState(null);
   const [showAlert, setShowAlert] = useState(false);
   const [showAlertDeletion, setShowAlertDeletion] = useState(false);
+  const [viewInfo, setViewInfo] = React.useState(false);
+ 
+  const openInfoDrawer = () => setViewInfo(true);
+  const closeInfoDrawer = () => setViewInfo(false);
+
  // Define the acceptable zoom level range
  const minZoomLevel = 18;
  const currentZoomLevelRef = useRef(null);
@@ -97,10 +101,6 @@ fetchGarbageBins();
   const [selectedLocation, setSelectedLocation] = React.useState(false);
 
 
-  const [open, setOpen] = React.useState(false);
- 
-  const openDrawer = () => setOpen(true);
-  const closeDrawer = () => setOpen(false);
 
   const handleMarkerClick = async (bin) => {
     
@@ -119,8 +119,7 @@ fetchGarbageBins();
     } catch (error) {
       console.error("Error fetching Bin data:", error);
     }
-    openDrawer();
-
+    openInfoDrawer();
     setSelectedLocation(bin);
   
   };
@@ -243,7 +242,7 @@ const onDeleteGarbageBin = async (garbageBinId) => {
           </Marker>
     ))}
 
-  <ViewGarbageInfo open={open} onClose={closeDrawer}  Deletemethod={handleDeleteConfirmation} bin={binData} binId={binId}/>
+  <ViewGarbageInfo open={viewInfo} onClose={closeInfoDrawer}  Deletemethod={handleDeleteConfirmation} bin={binData} binId={binId}/>
   
 <GarbageBinForm open={formVisible} handler={handleForm} method={saveCoordinatesToFirestore}  message="   هل انت متأكد من إضافة حاوية نفاية بالموقع المحدد؟"/>
 {/*  

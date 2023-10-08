@@ -11,8 +11,8 @@ import Success from "../messages/Success"
 
 
 const containerStyle = {
-  width: '800px',
-  height: '500px'
+    width: '950px',
+    height: '500px'
 };
 
 const center = {
@@ -29,7 +29,10 @@ function Map() {
     const [newRecyclingCenterLocation, setNewRecyclingCenterLocation] = useState(null);
     const [showAlert, setShowAlert] = useState(false);
     const [showAlertDeletion, setShowAlertDeletion] = useState(false);
+    const [viewInfo, setViewInfo] = React.useState(false);
 
+    const openInfoDrawer = () => setViewInfo(true);
+    const closeInfoDrawer = () => setViewInfo(false);
     const handlealert = () => setShowAlert(!showAlert);
     const handleForm = () => setFormVisible(!formVisible);
   const handlealertDeletion = () => setShowAlertDeletion(!showAlertDeletion);
@@ -74,12 +77,12 @@ const handleAddRecyclingCenter = async (data) => {
             description: data.description,
             type: data.types,
             location: new GeoPoint(newRecyclingCenterLocation.lat, newRecyclingCenterLocation.lng),
+            imageURL: data.imageURL, // Add imageURL to the document
+            openingHours: data.openingHours, // Add openingHours to the document
+            phoneNo: data.phoneNo, // Add phoneNo to the document
         });
         setRecyclingCenters([...recyclingCenters, {  
             id: docRef.id ,
-            name: data.name,
-            description: data.description,
-            type: data.types,
             location: new GeoPoint(newRecyclingCenterLocation.lat, newRecyclingCenterLocation.lng), }]);
         // Show success message here
         setShowAlert(true); 
@@ -127,7 +130,7 @@ const handleAddRecyclingCenter = async (data) => {
     } catch (error) {
       console.error("Error fetching recycling center data:", error);
     }
-
+    openInfoDrawer();
     setSelectedLocation(recycleCenter);
    
   
@@ -179,15 +182,17 @@ const onDeleteGarbageBin = async (centerId) => {
             position={{ lat: recycleCenter.location._lat, lng: recycleCenter.location._long }} // Update here
             onClick={() => handleMarkerClick(recycleCenter)}
           >    
-
+{/* 
           <ViewCenterInfo  open={selectedLocation && selectedLocation.id === recycleCenter.id} handler={() => setSelectedLocation(false)} Deletemethod={handleDeleteConfirmation} center={centerData}/>
-          
+           */}
           {/* <ViewCenterInfo  open={viewInfo} handler={handleviewInfo} Deletemethod={handleDeleteConfirmation} center={centerData}/>
            */}
           </Marker>
         ))}
 
-     
+       
+          <ViewCenterInfo  open={viewInfo} onClose={closeInfoDrawer} Deletemethod={handleDeleteConfirmation} center={centerData}/>
+          
         <RecyclingCenterForm open={formVisible} handler={handleForm} method={handleAddRecyclingCenter} />
         <Success open={showAlert} handler={handlealert} message=" !تم إضافة مركز التدوير بنجاح" />
         <Success open={showAlertDeletion} handler={handlealertDeletion} message=" !تم حذف مركز التدوير بنجاح" />

@@ -20,7 +20,7 @@ import
 
 
 export default function ViewGarbageInfo({open, onClose , Deletemethod, bin , binId}){
-console.log(bin)
+
 // Convert Firestore Timestamp to JavaScript Date
 const formattedDate = bin.date && bin.date.toDate().toLocaleString();
 

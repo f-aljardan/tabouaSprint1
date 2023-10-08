@@ -9,7 +9,7 @@ import {
 import AddStaff from "../forms/AddStaff";
 import {useNavigate} from "react-router-dom"
  
-export default function SummeryStaffInfo({openWindow,firstName , lastName , email, password }) {
+export default function SummeryStaffInfo({openWindow,firstName , lastName , email, password  ,handler }) {
   const [size, setSize] = React.useState(null);
   //console.log("hellp summery");
 
@@ -34,7 +34,7 @@ const handleAddStaffDialogClose = () => {
       <Dialog
         open={openWindow}
         size={size || "md"}
-      //  handler={openViewInfo}
+       handler={handler}
       >
         <DialogHeader>معلومات المشرف</DialogHeader>
         <DialogBody divider>
@@ -51,7 +51,7 @@ const handleAddStaffDialogClose = () => {
           <Button
             variant="text"
             color="red"
-            onClick={() => handleAddStaffDialogClose}
+            onClick={() => <AddStaff open={openWindow} handler={handler}></AddStaff>}
             className="mr-1"
           >
             <span>تعديل</span>

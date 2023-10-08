@@ -1,3 +1,5 @@
+
+
 import { useState } from 'react';
 import {
   Button,
@@ -15,7 +17,7 @@ import SummeryStaffInfo from "../viewInfo/SummeryStaffInfo";
 
 import makeAnimated from 'react-select/animated';
 
-export default function AddStaff({ open, handler}){
+export default function AddStaff({open , handler}){
    // const animatedComponents = makeAnimated(); //animating dialog
 
     //Defulte values for forms
@@ -29,6 +31,8 @@ export default function AddStaff({ open, handler}){
 
       const [ShowAddForm , setAddForm] = useState(true);
       const[showSummery, setShowSummery] = useState(false);
+      
+
       
       console.log("Hello fronAddStaff");
       
@@ -49,8 +53,8 @@ export default function AddStaff({ open, handler}){
 //Prevnt Defalut submit , and clear fields after sumbit
 
 
-const handleSubmit = async (e) => {
-  e.preventDefault();
+//const handleSubmit = async (e) => {
+//  e.preventDefault();
  // console.log(e.email);
   // Call the callback function to add the recycling center
    
@@ -60,6 +64,7 @@ const handleSubmit = async (e) => {
     //console.log(auth);
   //  console.log("before");
 
+  /*
   await createUserWithEmailAndPassword(auth, formData.email, formData.password)
   .then((userCredential) => {
     // Signed up 
@@ -73,7 +78,7 @@ const handleSubmit = async (e) => {
 
   });
 
- 
+ */
 
 
 /*
@@ -101,19 +106,56 @@ const handleSubmit = async (e) => {
    */
   
 
+//}; // sumbit---------------------------------------------------------
+
+const handleClose = () => {
+
+  handler(false); // Call the handler function passed as a prop with the argument `false` to close the dialog
+
 };
 
-const handleInfo = () => {
+const handleInfo = async(e) => {
   //const { name, value } = e.target;
 
  // console.log(formData.email);
   
 //<SummeryStaffInfo firstName={formData.firstName} lastName ={formData.lastName} email={formData.email} password={formData.password} />
-setAddForm(false)
-setShowSummery(true);
+e.preventDefault();
+
+//setShowSummery(true);
 
 
+//setAddForm(false);
+//handleClose();
+};
+
+
+
+
+function validate(){
+  if(!formData.size){
+  setShowValidationMessage(true);
+  }else{
+      handler();
+  }
 }
+
+const handleSubmit = (e) => {
+  e.preventDefault();
+
+  // Validate input fields
+  if (
+    formData.firstName.trim() === '' ||
+    formData.lastName.trim() === '' ||
+    formData.email.trim() === '' ||
+    formData.password.trim() === ''
+  ) {
+    alert('Please fill in all fields');
+    return;
+  }
+
+  setShowSummary(true);
+};
 
 
 /*
@@ -136,8 +178,8 @@ setShowSummery(true);
       
     return(
       //<div aria-hidden="false">
- <Dialog open={open} handler={handler} aria-hidden="true">
-             <form >
+ <Dialog open={open} handler={handleClose} aria-hidden="true" > 
+             <form onSubmit={handleInfo} >
              <DialogHeader className="flex justify-center font-baloo text-right">إضافة مشرف</DialogHeader>
              <DialogBody divider className="font-baloo text-right">
              <div className="grid gap-6">
@@ -174,7 +216,7 @@ setShowSummery(true);
              </DialogBody>
 
              <DialogFooter className="flex gap-3 justify-center font-baloo text-right">
-             <Button variant="gradient" style={{background:"#97B980", color:'#ffffff'} } onClick={handleInfo}  >
+             <Button type = "submit" variant="gradient" style={{background:"#97B980", color:'#ffffff'}} onClick={() =>setShowSummery(true)}>
                <span aria-hidden="true">إضافة</span>
               </Button>
              <Button variant="outlined"  onClick={handler}>
@@ -185,15 +227,15 @@ setShowSummery(true);
 
             </form>
 
-
+{console.log(showSummery)}
            
-        <SummeryStaffInfo
+           {(<SummeryStaffInfo
          openWindow = {showSummery}
           firstName={formData.firstName}
           lastName={formData.lastName}
           email={formData.email}
           password={formData.password}
-        />
+        />)}
       
         </Dialog>
     //  </div>
@@ -203,3 +245,5 @@ setShowSummery(true);
 
     );
 }
+
+

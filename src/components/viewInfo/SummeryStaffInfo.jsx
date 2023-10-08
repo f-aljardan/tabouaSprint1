@@ -9,7 +9,7 @@ import {
 import AddStaff from "../forms/AddStaff";
 import {useNavigate} from "react-router-dom"
  
-export default function SummeryStaffInfo({openWindow,firstName , lastName , email, password  ,handler }) {
+export default function SummeryStaffInfo({openSummary,handler ,staffData }) {
   const [size, setSize] = React.useState(null);
   //console.log("hellp summery");
 
@@ -20,10 +20,7 @@ const [update , SetUpdate] = useState(true);
 const [openAddStaff, setOpenAddStaff] = useState(false);
 
 const navigate = useNavigate();
-const onUpdate  =() => {
-console.log("inside addstaf");
 
-};
 const [formData, setFormData] = useState({
   firstName: firstName,
   lastName: lastName,
@@ -50,16 +47,16 @@ const handleConfirm = () => {
     <>
       
       <Dialog
-        open={openWindow}
+        open={openSummary}
         size={size || "md"}
        handler={handler}
       >
         <DialogHeader>معلومات المشرف</DialogHeader>
         <DialogBody divider>
 
-         <p> الاسم الأول : {firstName}</p>{'\n'}
-         <p>الاسم الأخير : {lastName}</p>{'\n'}
-         <p> البريد الإلكتروني : {email}</p>{'\n'}
+         <p> الاسم الأول : {staffData.firstName}</p>{'\n'}
+         <p>الاسم الأخير : {staffData.lastName}</p>{'\n'}
+         <p> البريد الإلكتروني : {staffData.email}</p>{'\n'}
          <p>الرقم السري : {password}</p>
 
         </DialogBody>
@@ -69,7 +66,6 @@ const handleConfirm = () => {
           <Button
             variant="text"
             color="red"
-            onClick={() => setOpenAddStaff(true)}
             className="mr-1"
           >
             <span>تعديل</span>
@@ -87,17 +83,19 @@ const handleConfirm = () => {
         </DialogFooter>
       </Dialog>
 
+      {/*}
       {openAddStaff && (
         <AddStaff
           open={openAddStaff}
           handler={handleAddStaffDialogClose}
-         // firstName={firstName}
-          //lastName={lastName}
-          //email={email}
-         // password={password}
-         method={formData}
+          formData={{
+            firstName: firstName,
+            lastName: lastName,
+            email: email,
+            password: password,
+          }}
         />)}
-
+        */}
     </>
   );
 }

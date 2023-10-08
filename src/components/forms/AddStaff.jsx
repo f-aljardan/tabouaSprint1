@@ -17,7 +17,7 @@ import SummeryStaffInfo from "../viewInfo/SummeryStaffInfo";
 
 import makeAnimated from 'react-select/animated';
 
-export default function AddStaff({open , handler}){
+export default function AddStaff({open , handler , method}){
    // const animatedComponents = makeAnimated(); //animating dialog
 
     //Defulte values for forms
@@ -153,9 +153,21 @@ const handleSubmit = (e) => {
     alert('Please fill in all fields');
     return;
   }
+  else {
+    setShowSummery(true);
 
-  setShowSummary(true);
+    method(formData); 
+  
+    setFormData({
+      firstName: '',
+      lastName: '',
+      email: '',
+      password: '',
+    });
+  }
+  
 };
+
 
 
 /*
@@ -178,8 +190,8 @@ const handleSubmit = (e) => {
       
     return(
       //<div aria-hidden="false">
- <Dialog open={open} handler={handleClose} aria-hidden="true" > 
-             <form onSubmit={handleInfo} >
+ <Dialog open={open} onClose={handler} aria-hidden="true" > 
+             <form onSubmit={handleSubmit} >
              <DialogHeader className="flex justify-center font-baloo text-right">إضافة مشرف</DialogHeader>
              <DialogBody divider className="font-baloo text-right">
              <div className="grid gap-6">
@@ -216,7 +228,8 @@ const handleSubmit = (e) => {
              </DialogBody>
 
              <DialogFooter className="flex gap-3 justify-center font-baloo text-right">
-             <Button type = "submit" variant="gradient" style={{background:"#97B980", color:'#ffffff'}} onClick={() =>setShowSummery(true)}>
+             <Button type = "submit" variant="gradient" style={{background:"#97B980", color:'#ffffff'}} 
+   >
                <span aria-hidden="true">إضافة</span>
               </Button>
              <Button variant="outlined"  onClick={handler}>

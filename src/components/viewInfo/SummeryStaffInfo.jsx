@@ -17,16 +17,34 @@ export default function SummeryStaffInfo({openWindow,firstName , lastName , emai
   const [openViewInfo , handleOpeing] = useState(false);
 const [update , SetUpdate] = useState(true);
 //console.log(firstName , lastName , email , password);
- 
+const [openAddStaff, setOpenAddStaff] = useState(false);
 
 const navigate = useNavigate();
 const onUpdate  =() => {
 console.log("inside addstaf");
 
 };
+const [formData, setFormData] = useState({
+  firstName: firstName,
+  lastName: lastName,
+  email: email,
+  password: password,
+  isAdmin:false,
+});
 
 const handleAddStaffDialogClose = () => {
-  SetUpdate(false);
+  setOpenAddStaff(false);
+}
+
+const handleConfirm = () => {
+  // Perform any necessary actions before confirming
+  console.log("inside handleConfirm");
+
+  // Close the dialog
+  handler();
+
+  // Navigate to another page if needed
+  navigate("/another-page");
 };
   return (
     <>
@@ -51,7 +69,7 @@ const handleAddStaffDialogClose = () => {
           <Button
             variant="text"
             color="red"
-            onClick={() => <AddStaff open={openWindow} handler={handler}></AddStaff>}
+            onClick={() => setOpenAddStaff(true)}
             className="mr-1"
           >
             <span>تعديل</span>
@@ -62,13 +80,23 @@ const handleAddStaffDialogClose = () => {
           <Button
             variant="gradient"
             color="green"
-            onClick={() => handleOpeing(false)}
+            onClick={handleConfirm}
           >
             <span>تأكيد</span>
           </Button>
         </DialogFooter>
       </Dialog>
 
+      {openAddStaff && (
+        <AddStaff
+          open={openAddStaff}
+          handler={handleAddStaffDialogClose}
+         // firstName={firstName}
+          //lastName={lastName}
+          //email={email}
+         // password={password}
+         method={formData}
+        />)}
 
     </>
   );

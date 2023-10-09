@@ -9,7 +9,7 @@ import {
 import AddStaff from "../forms/AddStaff";
 import {useNavigate} from "react-router-dom"
  
-export default function SummeryStaffInfo({openSummary,handler ,staffData }) {
+export default function SummeryStaffInfo({open,handler ,formData }) {
   const [size, setSize] = React.useState(null);
   //console.log("hellp summery");
 
@@ -21,13 +21,6 @@ const [openAddStaff, setOpenAddStaff] = useState(false);
 
 const navigate = useNavigate();
 
-const [formData, setFormData] = useState({
-  firstName: firstName,
-  lastName: lastName,
-  email: email,
-  password: password,
-  isAdmin:false,
-});
 
 const handleAddStaffDialogClose = () => {
   setOpenAddStaff(false);
@@ -47,17 +40,17 @@ const handleConfirm = () => {
     <>
       
       <Dialog
-        open={openSummary}
+        open={open}
         size={size || "md"}
        handler={handler}
       >
         <DialogHeader>معلومات المشرف</DialogHeader>
         <DialogBody divider>
 
-         <p> الاسم الأول : {staffData.firstName}</p>{'\n'}
-         <p>الاسم الأخير : {staffData.lastName}</p>{'\n'}
-         <p> البريد الإلكتروني : {staffData.email}</p>{'\n'}
-         <p>الرقم السري : {password}</p>
+         <p> الاسم الأول : {formData.firstName}</p>{'\n'}
+         <p>الاسم الأخير : {formData.lastName}</p>{'\n'}
+         <p> البريد الإلكتروني : {formData.email}</p>{'\n'}
+         <p>الرقم السري : {formData.password}</p>
 
         </DialogBody>
         <DialogFooter>

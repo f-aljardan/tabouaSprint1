@@ -50,13 +50,15 @@ export default function ManageStaff(){
             handler={handleAddStaffDialogClose}
             method={handleAddStaffClick}
           />
+          {/*
+          
           {showSummeryDialog && staffData && (
             <SummeryStaffInfo
               openSummary={showSummeryDialog}
               handler={() => setShowSummeryDialog(false)}
               staffData={staffData} // Pass the staff data to the SummeryStaffInfo component
             />
-          )}
+          )} */}
         </div>
       </div>
     </>

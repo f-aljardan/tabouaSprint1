@@ -18,8 +18,10 @@ import SummeryStaffInfo from "../viewInfo/SummeryStaffInfo";
 import "@material-tailwind/react";
 
 import makeAnimated from 'react-select/animated';
+ // State to control SummeryStaffInfo dialog
 
 export default function AddStaff({open , handler , method }){
+  const [summeryStaffOpen, setSummeryStaffOpen] = useState(false);
   const [formData, setFormData] = useState({
     firstName: '',
     lastName: '',
@@ -82,10 +84,17 @@ export default function AddStaff({open , handler , method }){
       // No errors, you can handle the submission here
       console.log("Form data is valid:", formData);
       handler(); // Close the dialog or perform any other desired action
+      setSummeryStaffOpen(true);
+
     }
+
   };
 
+  
+
+
   return (
+    <>
     <Dialog open={open} onClose={handler} aria-hidden="true" >
       <form onSubmit={validate}>
         <DialogHeader className="flex justify-center font-baloo text-right">إضافة مشرف</DialogHeader>
@@ -155,5 +164,13 @@ export default function AddStaff({open , handler , method }){
         </DialogFooter>
       </form>
     </Dialog>
+    
+   {/* SummeryStaffInfo dialog */}
+   <SummeryStaffInfo
+        open={summeryStaffOpen}
+        handler={() => setSummeryStaffOpen(false)} // Function to close SummeryStaffInfo
+        formData={formData} // Pass form data to SummeryStaffInfo
+      />
+    </>
   );
 }

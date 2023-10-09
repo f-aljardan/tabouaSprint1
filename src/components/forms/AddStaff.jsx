@@ -9,6 +9,8 @@ import {
   DialogFooter,
   Input,
 } from "@material-tailwind/react";
+
+
 import { db , app , auth } from "../../firebase";
 import {createUserWithEmailAndPassword} from 'firebase/auth';
 import { collection, addDoc } from 'firebase/firestore';
@@ -18,157 +20,137 @@ import "@material-tailwind/react";
 import makeAnimated from 'react-select/animated';
 
 export default function AddStaff({open , handler , method }){
-   // const animatedComponents = makeAnimated(); //animating dialog
+  const [formData, setFormData] = useState({
+    firstName: '',
+    lastName: '',
+    email: '',
+    password: '',
+  });
 
-    //Defulte values for forms
-    const [formData, setFormData] = useState({
-        firstName: '',
-        lastName: '',
-        email: '',
-        password:'',
-        isAdmin:false,
-      });
+  const [errors, setErrors] = useState({
+    firstName: '',
+    lastName: '',
+    email: '',
+    password: '',
+  });
 
-      const[showSummery, setShowSummery] = useState(false);
-      
-      console.log("Hello fronAddStaff");
-      const[ShowErrorMessage , SetError] = useState(false);
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setFormData({
+      ...formData,
+      [name]: value,
+    });
 
-      //Called when user change input fields
-      const handleChange = (e) => {
-        const { name, value } = e.target;
-       // console.log(name , value);
-        setFormData({
-          ...formData, //copy the exact data before fields
-          [name]: value,//add new data updated ,name-> name of varible , Value-> updated value
-        });
-      };
+    // Clear error message when user starts typing
+    setErrors({
+      ...errors,
+      [name]: '',
+    });
+  };
 
-      const handleSubmit =  (e) => {
-        e.preventDefault();
-        console.log("hiii sumbit22222");
-        // Validate input fields
-        if( formData.firstName.trim() === '' ||
-        formData.lastName.trim() === '' ||
-        formData.email.trim() === '' ||
-        formData.password.trim() === '') {
-      
-          SetError(true);
-        }
+  const validate = async(e) => {
+    e.preventDefault();
+    const newErrors = {};
 
-        else {
-          method(formData);
-          setFormData({
-            firstName: '',
-            lastName: '',
-            email: '',
-            password: '',
-          });
-          SetError(false);
-        }
-         
-        
-        
-      };
-      
-      const validate = () =>{
-        if (
-          formData.firstName.trim() === '' ||
-          formData.lastName.trim() === '' ||
-          formData.email.trim() === '' ||
-          formData.password.trim() === ''
-        ) {
-         // alert('Please fill in all fields');
-         SetError(true);
-        }
-        else {
-          handler();
-        }
-      };
-        
-      
-      
+    if (!formData.firstName.trim()) {
+      newErrors.firstName = 'الاسم الأول مطلوب';
+    }
 
+    if (!formData.lastName.trim()) {
+      newErrors.lastName = 'الاسم الأخير مطلوب';
+    }
 
+    if (!formData.email.trim()) {
+      newErrors.email = 'البريد الإلكتروني مطلوب';
+    } else if (!/^\S+@\S+\.\S+$/.test(formData.email)) {
+      newErrors.email = 'صيغة البريد الإلكتروني غير صحيحة';
+    }
 
-      
-    return(
-      //<div aria-hidden="false">
- <Dialog open={open} onClose={handler} aria-hidden="true" > 
-             <form onSubmit={handleSubmit} >
-             <DialogHeader className="flex justify-center font-baloo text-right">إضافة مشرف</DialogHeader>
-             <DialogBody divider className="font-baloo text-right">
-             <div className="grid gap-6">
-               
-             <Input label="الاسم الأول" type="text"
+    if (!formData.password.trim()) {
+      newErrors.password = 'الرقم السري مطلوب';
+    }
+
+    // Check if there are any errors
+    const hasErrors = Object.values(newErrors).some((error) => error);
+
+    if (hasErrors) {
+      setErrors(newErrors);
+    } else {
+      // No errors, you can handle the submission here
+      console.log("Form data is valid:", formData);
+      handler(); // Close the dialog or perform any other desired action
+    }
+  };
+
+  return (
+    <Dialog open={open} onClose={handler} aria-hidden="true" >
+      <form onSubmit={validate}>
+        <DialogHeader className="flex justify-center font-baloo text-right">إضافة مشرف</DialogHeader>
+        <DialogBody divider className="font-baloo text-right">
+          <div className="grid gap-6">
+            <Input
+              label="الاسم الأول"
+              type="text"
               id="firstName"
               name="firstName"
               value={formData.firstName}
               onChange={handleChange}
-              required/>
+              required
+            />
+            {errors.firstName && (
+              <div className="text-red-500 font-bold">{errors.firstName}</div>
+            )}
 
-             <Input label="الاسم الأخير" type="text"
+            <Input
+              label="الاسم الأخير"
+              type="text"
               id="lastName"
               name="lastName"
               value={formData.lastName}
               onChange={handleChange}
-              required/>
-              
-              <Input label="البريد الإلكتروني" type="text"
+              required
+            />
+            {errors.lastName && (
+              <div className="text-red-500 font-bold">{errors.lastName}</div>
+            )}
+
+            <Input
+              label="البريد الإلكتروني"
+              type="text"
               id="email"
               name="email"
               value={formData.email}
               onChange={handleChange}
-              required/>
+              required
+            />
+            {errors.email && (
+              <div className="text-red-500 font-bold">{errors.email}</div>
+            )}
 
-             <Input label="الرقم السري" type="text"
+            <Input
+              label="الرقم السري"
+              type="password"
               id="password"
               name="password"
               value={formData.password}
               onChange={handleChange}
-              required/>
+              required
+            />
+            {errors.password && (
+              <div className="text-red-500 font-bold">{errors.password}</div>
+            )}
+          </div>
+        </DialogBody>
 
-
-{
-  ShowErrorMessage && (
-      <p className="text-red-500 font-bold">
-        يرجى تعبئة جميع البيانات
-      </p>
-  )
-  
+        <DialogFooter className="flex gap-3 justify-center font-baloo text-right">
+          <Button type="submit" variant="gradient" style={{ background: "#97B980", color: '#ffffff' }} onClick={validate}>
+            <span aria-hidden="true">إضافة</span>
+          </Button>
+          <Button variant="outlined" onClick={handler}>
+            <span aria-hidden="true">إلغاء</span>
+          </Button>
+        </DialogFooter>
+      </form>
+    </Dialog>
+  );
 }
-             </div>
-
- 
-             </DialogBody>
-
-             <DialogFooter className="flex gap-3 justify-center font-baloo text-right">
-             <Button type = "submit" variant="gradient" style={{background:"#97B980", color:'#ffffff'}}  onClick={validate}
-
-   >
-               <span aria-hidden="true">إضافة</span>
-              </Button>
-             <Button variant="outlined"  onClick={handler}>
-               <span aria-hidden="true">إلغاء</span>
-             </Button>
-
-            
-             
-            
-          </DialogFooter>
-
-            </form>
-
-           
-          
-      
-        </Dialog>
-    //  </div>
-       
-
-
-
-    );
-}
-
-

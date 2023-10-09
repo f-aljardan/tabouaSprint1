@@ -66,9 +66,12 @@ export default function AddStaff({open , handler , method }){
       newErrors.email = 'صيغة البريد الإلكتروني غير صحيحة';
     }
 
-    if (!formData.password.trim()) {
-      newErrors.password = 'الرقم السري مطلوب';
-    }
+    const passwordPattern = /^\d{10}$/; // Check for exactly 10 digits
+  if (!formData.password.trim()) {
+    newErrors.password = 'الرقم السري مطلوب';
+  } else if (!passwordPattern.test(formData.password)) {
+    newErrors.password = 'الرقم السري يجب أن يحتوي على 10 أرقام فقط';
+  }
 
     // Check if there are any errors
     const hasErrors = Object.values(newErrors).some((error) => error);

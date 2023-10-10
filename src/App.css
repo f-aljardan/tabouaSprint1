@@ -49,9 +49,11 @@ body{
 
 .map{
   display: flex;
-  justify-content: left;
+  justify-content: center;
   border:  #97B980 solid 10px;
   border-radius: 20px;
+  width: '950px';
+  height: '500px';
 }
 
 .loginPage{

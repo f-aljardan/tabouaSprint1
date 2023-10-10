@@ -9,7 +9,7 @@ import GarbageBinForm from "../forms/GarbageBinForm"
 import ViewGarbageInfo from "../viewInfo/ViewGarbageInfo"
 
 const containerStyle = {
-  width: '950px',
+  width: '1300px',
   height: '500px'
 };
 

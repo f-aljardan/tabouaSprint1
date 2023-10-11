@@ -37,19 +37,7 @@ export default function AddStaff({open , handler , method ,data }){
     password: '',
   });
 
-  /*
-  useEffect(() => {
-    if (data) {
-      setFormData({
-        firstName: data.firstName,
-        lastName: data.lastName,
-        email: data.email,
-        password: data.password,
-      });
-      console.log(data.firstName ,data.lastName);
-    }
-  }, [data]);
-*/
+ 
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData({
@@ -110,7 +98,7 @@ export default function AddStaff({open , handler , method ,data }){
   return (
     <>
     <Dialog open={open} onClose={handler} aria-hidden="true" >
-      <form onSubmit={validate}>
+      <form>
         <DialogHeader className="flex justify-center font-baloo text-right">إضافة مشرف</DialogHeader>
         <DialogBody divider className="font-baloo text-right">
           <div className="grid gap-6">
@@ -169,7 +157,7 @@ export default function AddStaff({open , handler , method ,data }){
         </DialogBody>
 
         <DialogFooter className="flex gap-3 justify-center font-baloo text-right">
-          <Button type="submit" variant="gradient" style={{ background: "#97B980", color: '#ffffff' }}>
+          <Button type="submit" variant="gradient" style={{ background: "#97B980", color: '#ffffff' }} onClick={validate}>
             <span aria-hidden="true">إضافة</span>
           </Button>
           <Button variant="outlined" onClick={handler}>

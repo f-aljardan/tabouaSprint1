@@ -19,7 +19,7 @@ function MainPage() {
         const unsubscribe = auth.onAuthStateChanged(async (user) => {
           if (user) {
             // User is signed in, fetch user profile data from Firestore
-             const userRef = doc(db, 'users', user.uid);
+             const userRef = doc(db, 'staff', user.uid);
             
              try {
                 const docSnapshot = await getDoc(userRef);

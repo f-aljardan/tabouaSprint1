@@ -22,8 +22,9 @@ const navigate = useNavigate();
 
 
 const handleAddStaffDialogClose = () => {
+  handler();
   setOpenAddStaff(false);
-  handler()
+  updateClicked(false);
 }
 
 const handleConfirm = () => {
@@ -39,7 +40,9 @@ const handleConfirm = () => {
 
 
 const handleUpdateClick = () => {
-  setUpdateClicked(true);
+  handler();
+  setOpenAddStaff(true);
+  //setUpdateClicked(true);
 };
 
 
@@ -52,14 +55,15 @@ const handleUpdateClick = () => {
         open={open}
         size={size || "md"}
        handler={handler}
+       aria-hidden="true"
       >
         <DialogHeader>معلومات المشرف</DialogHeader>
         <DialogBody divider>
 
-         <p> الاسم الأول : {formData.firstName}</p>{'\n'}
-         <p>الاسم الأخير : {formData.lastName}</p>{'\n'}
-         <p> البريد الإلكتروني : {formData.email}</p>{'\n'}
-         <p>الرقم السري : {formData.password}</p>
+         <p aria-hidden="true"> الاسم الأول : {formData.firstName}</p>{'\n'}
+         <p aria-hidden="true">الاسم الأخير : {formData.lastName}</p>{'\n'}
+         <p aria-hidden="true"> البريد الإلكتروني : {formData.email}</p>{'\n'}
+         <p aria-hidden="true">الرقم السري : {formData.password}</p>
 
         </DialogBody>
         <DialogFooter>
@@ -72,19 +76,19 @@ const handleUpdateClick = () => {
             color="green"
             onClick={handleConfirm}
           >
-            <span>تأكيد</span>
+            <span aria-hidden="true">تأكيد</span>
           </Button>
 
-          {!updateClicked && (<Button 
+          <Button 
             variant="text"
             color="red"
             className="mr-1"
             onClick={handleUpdateClick}
           >
-            <span>تعديل</span>
+            <span aria-hidden="true">تعديل</span>
           </Button>
 
-)}
+
         </DialogFooter>
       </Dialog>
 
@@ -102,13 +106,15 @@ const handleUpdateClick = () => {
         />)}
         */}
 
-{updateClicked && (
+{/* Open AddStaff */}
+{openAddStaff && (
         <AddStaff
-          open={true}
-          handler={handleAddStaffDialogClose}
+          open={openAddStaff}
+          handler={() => setOpenAddStaff(false)} // Close the AddStaff dialog
           data={formData}
         />
       )}
+      
     </>
   );
 }

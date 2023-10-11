@@ -38,17 +38,19 @@ export default function AddStaff({open , handler , method ,data }){
     password: '',
   });
 
+  /*
   useEffect(() => {
-    if (data && !formData) {
+    if (data) {
       setFormData({
         firstName: data.firstName,
         lastName: data.lastName,
         email: data.email,
         password: data.password,
       });
+      console.log(data.firstName ,data.lastName);
     }
   }, [data]);
-
+*/
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData({

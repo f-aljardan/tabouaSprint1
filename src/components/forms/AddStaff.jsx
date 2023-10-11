@@ -17,7 +17,6 @@ import { collection, addDoc } from 'firebase/firestore';
 import SummeryStaffInfo from "../viewInfo/SummeryStaffInfo";
 import "@material-tailwind/react";
 
-import makeAnimated from 'react-select/animated';
  // State to control SummeryStaffInfo dialog
 
 export default function AddStaff({open , handler , method ,data }){
@@ -170,7 +169,7 @@ export default function AddStaff({open , handler , method ,data }){
         </DialogBody>
 
         <DialogFooter className="flex gap-3 justify-center font-baloo text-right">
-          <Button type="submit" variant="gradient" style={{ background: "#97B980", color: '#ffffff' }} onClick={validate}>
+          <Button type="submit" variant="gradient" style={{ background: "#97B980", color: '#ffffff' }}>
             <span aria-hidden="true">إضافة</span>
           </Button>
           <Button variant="outlined" onClick={handler}>

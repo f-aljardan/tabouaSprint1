@@ -14,16 +14,16 @@ export default function SummeryStaffInfo({open,handler ,formData }) {
   //console.log("hellp summery");
 
   const handleOpen = (value) => setSize(value);
-  const [openViewInfo , handleOpeing] = useState(false);
-const [update , SetUpdate] = useState(true);
+  
 //console.log(firstName , lastName , email , password);
 const [openAddStaff, setOpenAddStaff] = useState(false);
-
+const [updateClicked, setUpdateClicked] = useState(false);
 const navigate = useNavigate();
 
 
 const handleAddStaffDialogClose = () => {
   setOpenAddStaff(false);
+  handler()
 }
 
 const handleConfirm = () => {
@@ -36,6 +36,15 @@ const handleConfirm = () => {
   // Navigate to another page if needed
   navigate("/another-page");
 };
+
+
+const handleUpdateClick = () => {
+  setUpdateClicked(true);
+};
+
+
+
+
   return (
     <>
       
@@ -56,15 +65,7 @@ const handleConfirm = () => {
         <DialogFooter>
 
 
-          <Button
-            variant="text"
-            color="red"
-            className="mr-1"
-          >
-            <span>تعديل</span>
-          </Button>
-
-
+        
 
           <Button
             variant="gradient"
@@ -73,6 +74,17 @@ const handleConfirm = () => {
           >
             <span>تأكيد</span>
           </Button>
+
+          {!updateClicked && (<Button 
+            variant="text"
+            color="red"
+            className="mr-1"
+            onClick={handleUpdateClick}
+          >
+            <span>تعديل</span>
+          </Button>
+
+)}
         </DialogFooter>
       </Dialog>
 
@@ -89,6 +101,14 @@ const handleConfirm = () => {
           }}
         />)}
         */}
+
+{updateClicked && (
+        <AddStaff
+          open={true}
+          handler={handleAddStaffDialogClose}
+          data={formData}
+        />
+      )}
     </>
   );
 }

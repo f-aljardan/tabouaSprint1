@@ -13,6 +13,7 @@ export default function ManageStaff(){
   const [showAddStaffDialog, setShowAddStaffDialog] = useState(false);
   const [showSummeryDialog, setShowSummeryDialog] = useState(false);
   const [staffData, setStaffData] = useState(null);
+  
 
   const handleAddStaffClick = (formData) => {
     // Handle your add staff logic here
@@ -49,6 +50,7 @@ export default function ManageStaff(){
             open={showAddStaffDialog}
             handler={handleAddStaffDialogClose}
             method={handleAddStaffClick}
+            data={{}}
           />
           {/*
           

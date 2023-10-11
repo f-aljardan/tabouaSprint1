@@ -1,6 +1,6 @@
 
 
-import { useState } from 'react';
+import { useState , useEffect } from 'react';
 import {
   Button,
   Dialog,
@@ -20,7 +20,7 @@ import "@material-tailwind/react";
 import makeAnimated from 'react-select/animated';
  // State to control SummeryStaffInfo dialog
 
-export default function AddStaff({open , handler , method }){
+export default function AddStaff({open , handler , method ,data }){
   const [summeryStaffOpen, setSummeryStaffOpen] = useState(false);
   const [formData, setFormData] = useState({
     firstName: '',
@@ -29,12 +29,25 @@ export default function AddStaff({open , handler , method }){
     password: '',
   });
 
+  
+
   const [errors, setErrors] = useState({
     firstName: '',
     lastName: '',
     email: '',
     password: '',
   });
+
+  useEffect(() => {
+    if (data && !formData) {
+      setFormData({
+        firstName: data.firstName,
+        lastName: data.lastName,
+        email: data.email,
+        password: data.password,
+      });
+    }
+  }, [data]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;

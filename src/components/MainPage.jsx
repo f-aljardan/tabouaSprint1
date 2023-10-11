@@ -20,11 +20,13 @@ function MainPage() {
           if (user) {
             // User is signed in, fetch user profile data from Firestore
              const userRef = doc(db, 'users', user.uid);
-            
+             
              try {
                 const docSnapshot = await getDoc(userRef);
                 if (docSnapshot.exists()) {
                   const userData = docSnapshot.data();
+                  console.log(userData.isAdmin);
+
                   setIsAdmin(userData.isAdmin);
                 } else {
                 // Handle the case where user data is not found

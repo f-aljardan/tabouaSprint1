@@ -25,6 +25,8 @@ function MainPage() {
                 const docSnapshot = await getDoc(userRef);
                 if (docSnapshot.exists()) {
                   const userData = docSnapshot.data();
+                  console.log(userData.isAdmin);
+
                   setIsAdmin(userData.isAdmin);
                 } else {
                 // Handle the case where user data is not found

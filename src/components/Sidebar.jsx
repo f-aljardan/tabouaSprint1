@@ -24,15 +24,26 @@ import {
   import logo from "/tabouaNo.png";
 
 
-   function Sidebar({authorized}) {
+  function Sidebar({ authorized, showSidebar, setShowSidebar , activeItem, setActiveItem}) {
+  
+  
 
-    const [activeItem, setActiveItem] = React.useState(null);
+    // const [activeItem, setActiveItem] = React.useState(null);
     const [openAccordion, setOpenAccordion] = React.useState(0);
    
-
-  const handleItemClick = (item) => {
-    setActiveItem(item);
-  };
+    const handleItemClick = (item) => {
+      
+      if (item === 'home') {
+        // Only hide the sidebar when navigating to the 'home' page
+        setShowSidebar(false);
+        setActiveItem("") ;
+      } else {
+        // Keep the sidebar visible for other pages
+        setShowSidebar(true);
+        setActiveItem(item) ;
+      }
+    };
+    
     
  
   const handleAccordionToggle = (accordionIndex) => {
@@ -41,7 +52,7 @@ import {
 
 
     return (
-     
+      <div className={`sidebar ${showSidebar ? '' : 'hidden'}`}>
           <div className='sidebar'>
       <Card className="h-[calc(105vh-2rem)] w-full max-w-[20rem] p-4 shadow-xl shadow-blue-gray-900/5 "  >
         <div>
@@ -82,13 +93,13 @@ import {
                   <ListItemPrefix>
               <ChevronLeftIcon className="h-3 w-3" />
             </ListItemPrefix> 
-                  <Link to="/mainpage/garbage" onClick={() => handleItemClick('garbage')}> إضافة و حذف الحاويات</Link>
+                  <Link to="garbage"  onClick={() => handleItemClick('garbage')}> إضافة و حذف الحاويات</Link>
                   </ListItem>
-                  <ListItem>
+                  <ListItem className={activeItem === 'requestedgarbage' ? 'active' : ''}>
                   <ListItemPrefix>
               <ChevronLeftIcon className="h-3 w-3" />
             </ListItemPrefix> 
-                    <Link to="/mainpage/requestedgarbage">إدارة طلبات الحاويات</Link>
+                    <Link to="requestedgarbage" onClick={() => handleItemClick('requestedgarbage')}>إدارة طلبات الحاويات</Link>
                   </ListItem>
                 </List>
               </AccordionBody>
@@ -97,26 +108,26 @@ import {
             <ListItemPrefix>
               <FaRecycle className="h-5 w-5" />
             </ListItemPrefix>
-            <Link to="/mainpage/recycle" onClick={() => handleItemClick('recycle')}> إدارة مراكز إعادةالتدوير</Link>
+            <Link to="recycle" onClick={() => handleItemClick('recycle')}> إدارة مراكز إعادةالتدوير</Link>
           </ListItem>
           <ListItem className={activeItem === 'complaints' ? 'active' : ''}>
             <ListItemPrefix>
               <TbMessageReport className="h-6 w-6" />
             </ListItemPrefix>
-            <Link to="/mainpage/complaints" onClick={() => handleItemClick('complaints')}> إدارةالبلاغات</Link>
+            <Link to="complaints" onClick={() => handleItemClick('complaints')}> إدارةالبلاغات</Link>
           </ListItem>
           <ListItem className={activeItem === 'heatmap' ? 'active' : ''}>
             <ListItemPrefix>
               <AiOutlineHeatMap className="h-5 w-5"  />
             </ListItemPrefix>
-            <Link to="/mainpage/heatmap" onClick={() => handleItemClick('heatmap')}>الخريطة الحرارية</Link> 
+            <Link to="heatmap" onClick={() => handleItemClick('heatmap')}>الخريطة الحرارية</Link> 
            </ListItem>
          
          {authorized && <ListItem className={activeItem === 'manage' ? 'active' : ''}>
             <ListItemPrefix>
               <MdManageAccounts className="h-6 w-6" />
             </ListItemPrefix>
-            <Link to="/mainpage/manage" onClick={() => handleItemClick('manage')}> إدارة صلاحيات المشرفين</Link> 
+            <Link to="manage" onClick={() => handleItemClick('manage')}> إدارة صلاحيات المشرفين</Link> 
           </ListItem>} 
             
          
@@ -124,7 +135,7 @@ import {
         </div>
       </Card>
       </div>
-
+      </div>
   
     
   

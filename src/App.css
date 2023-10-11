@@ -91,3 +91,8 @@ body{
   overflow: auto;
 }
 
+.ProfileMenu{
+  background-color: #97B980;
+ border-radius: 10px;
+
+}

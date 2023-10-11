@@ -2,8 +2,8 @@ import { useState , useEffect} from 'react';
 import {  Route, Routes , useNavigate } from 'react-router-dom';
 import { db, auth }  from "/src/firebase";
 import { doc, getDoc } from 'firebase/firestore';
+import Home from './Home';
 import Sidebar from './Sidebar';
-import Home from './Home'; 
 import GarbageBins from './GarbageBins'; 
 import RecyclingCenters from './RecyclingCenters'; 
 import Complaints from './Complaints';
@@ -14,6 +14,8 @@ import Footer from "./Footer"
 function MainPage() {
     const navigate = useNavigate();
     const [isAdmin, setIsAdmin] = useState(false);
+    const [showSidebar, setShowSidebar] = useState(false);
+    const [activeItem, setActiveItem] = useState(null);
     
     useEffect(() => {
         const unsubscribe = auth.onAuthStateChanged(async (user) => {
@@ -44,16 +46,28 @@ function MainPage() {
       }, [navigate]);
 
     
-
-  return (
-    <>
-     
-      <div className="app-container">
-
-       <Sidebar authorized={isAdmin}/>
-      
-        <div className="content-container"> 
-          <Routes>
+      return (
+        <>
+          <div className="app-container">
+            <Sidebar authorized={isAdmin} showSidebar={showSidebar} setShowSidebar={setShowSidebar} activeItem={activeItem} setActiveItem={setActiveItem}/>
+            <div className="content-container">
+              <Routes>
+              <Route path="/" element={<Home showSidebar={showSidebar} setShowSidebar={setShowSidebar} setActiveItem={setActiveItem}/>} />
+               {showSidebar && (
+                  <>
+                    <Route path="/garbage"  element={<GarbageBins/>} />
+                    <Route path="/recycle" element={<RecyclingCenters />} />
+                    <Route path="/complaints" element={<Complaints />} />
+                    <Route path="/heatmap" element={<Heatmap />} />
+                    {isAdmin && <Route path="/manage" element={<ManageStaff />} />}
+                  </>
+                )}
+              </Routes>
+            </div>
+          </div>
+          <Footer />
+          
+               {/* <Routes>
          
             <Route path='' exact element={<Home/>} />
             <Route path="garbage" element={<GarbageBins/>} />
@@ -62,16 +76,11 @@ function MainPage() {
             <Route path="heatmap" element={<Heatmap/>} />
             {isAdmin && <Route path="manage" element={<ManageStaff/>} /> }
            
-          </Routes>
+          </Routes> */}
+        </>
 
-        </div>
+      );
 
-      </div> 
-      <Footer/>
-  
-  </>
-
-  )
-}
+        }
 
 export default MainPage

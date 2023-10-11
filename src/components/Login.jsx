@@ -1,12 +1,10 @@
 
 import {
     Card,
-    CardHeader,
     CardBody,
     CardFooter,
     Input,
     Button,
-    Typography,
   } from "@material-tailwind/react";
   import logo from "/tabouaNo.png" ;
 import { useState } from 'react';

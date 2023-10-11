@@ -1,85 +1,80 @@
-import React from "react";
-import {
-    ListItem,
-    ListItemPrefix,
-  } from "@material-tailwind/react";
-  import{PowerIcon, } from "@heroicons/react/24/solid";
-import { getAuth, signOut } from "firebase/auth";
-import { useNavigate } from 'react-router-dom';
 
+import {  useNavigate } from 'react-router-dom';
+import ProfileMenu from "./ProfileMenu";
+import logo from "/tabouaNo.png" ;
 import {
-  Drawer,
-  Button,
-  Typography,
-  IconButton,
-} from "@material-tailwind/react";
+   TrashIcon,
+ } from "@heroicons/react/24/solid";
+ import { FaRecycle } from 'react-icons/fa';
+ import { AiOutlineHeatMap } from 'react-icons/ai';
+ import { TbMessageReport } from 'react-icons/tb';
+import { Button } from '@material-tailwind/react';
 
-export default function Home(){
+export default function Home({ showSidebar, setShowSidebar ,setActiveItem }) {
     const navigate = useNavigate();
-
-  const handleLogout = async () => {
-    const auth = getAuth();
-    try {
-      await signOut(auth); // Sign the user out
-      navigate('/'); // Redirect to the login page
-    } catch (error) {
-      console.error('Logout error:', error);
-    }
-  };
-
-
-  const [open, setOpen] = React.useState(false);
- 
-  const openDrawer = () => setOpen(true);
-  const closeDrawer = () => setOpen(false);
-
-
-    return(
-        <>
-
-      <Button onClick={openDrawer}>Open Drawer</Button>
-      <Drawer open={open} onClose={closeDrawer} className="p-4" placement="right">
-        <div className="mb-6 flex items-center justify-between">
-          <Typography variant="h5" color="blue-gray">
-            Material Tailwind
-          </Typography>
-          <IconButton variant="text" color="blue-gray" onClick={closeDrawer}>
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              fill="none"
-              viewBox="0 0 24 24"
-              strokeWidth={2}
-              stroke="currentColor"
-              className="h-5 w-5"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                d="M6 18L18 6M6 6l12 12"
-              />
-            </svg>
-          </IconButton>
-        </div>
-        <Typography color="gray" className="mb-8 pr-4 font-normal">
-          Material Tailwind features multiple React and HTML components, all
-          written with Tailwind CSS classes and Material Design guidelines.
-        </Typography>
-        <div className="flex gap-2">
-          <Button size="sm">Get Started</Button>
-          <Button size="sm" variant="outlined">
-            Documentation
-          </Button>
-        </div>
-      </Drawer>
+  
     
 
-     homebbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb
-     <ListItem>
-            <ListItemPrefix>
-              <PowerIcon className="h-5 w-5" />
-            </ListItemPrefix>
-        <button onClick={handleLogout}> تسجيل الخروج </button>
-          </ListItem>
-        </>
-    )
-}
+  
+    const handleClick = (item) => {
+      setShowSidebar(true);
+      navigate(item);
+      setActiveItem(item);
+    };
+  
+   
+   
+    return (
+      <>
+<ProfileMenu/>
+<div className='flex  justify-around items-center'> 
+
+
+
+      <div className="control-panel flex gap-10 flex-col justify-center items-center min-h-screen  ">
+      
+        <Button  className="flex items-center gap-3 rounded-full"
+              size="sm"
+              fullWidth={true}
+              variant="gradient"
+              style={{ background: "#07512D", color: "#ffffff" }} 
+              onClick={()=>handleClick('garbage')}> <TrashIcon className='w-5 h-5'/> <span>إدارة حاويات النفايات</span> </Button>
+
+<Button  className="flex items-center gap-3 rounded-full"
+              size="sm"
+              fullWidth={true}
+              variant="gradient"
+              style={{ background: "#97B980", color: "#ffffff" }} 
+              onClick={()=>handleClick('recycle')}> <FaRecycle className='w-5 h-5'/> <span>إدارة مراكز إعادةالتدوير </span> </Button>
+
+<Button  className="flex items-center gap-3 rounded-full"
+              size="sm"
+              fullWidth={true}
+              variant="gradient"
+              style={{ background: "#07512D", color: "#ffffff" }} 
+              onClick={()=>handleClick('complaints')}> <TbMessageReport className='w-5 h-5'/> <span>إدارةالبلاغات  </span> </Button>
+
+
+<Button  className="flex items-center gap-3 rounded-full"
+              size="sm"
+              fullWidth={true}
+              variant="gradient"
+              style={{ background: "#97B980", color: "#ffffff" }} 
+              onClick={()=>handleClick('heatmap')}> <AiOutlineHeatMap className='w-5 h-5'/> <span>الخريطة الحرارية  </span> </Button>
+
+
+       
+        
+      </div>
+
+      <div className='flex justify-center items-center min-h-screen'>
+            <img src={logo} className="h-60 w-60"/>
+      </div>
+
+      </div>
+
+
+      </>
+    );
+  }
+  

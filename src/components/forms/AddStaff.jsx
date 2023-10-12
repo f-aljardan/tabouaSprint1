@@ -99,7 +99,39 @@ export default function AddStaff({open , handler }){
 
  const HandleAddStaff = async()=> { //add to database
   handler();
-  console.log("addtion method")
+  console.log("addtion method");
+
+try{
+
+  const userCredential = await createUserWithEmailAndPassword(auth, formData.email, formData.password);
+  const user = userCredential.user;
+
+
+    const docRef = await addDoc(collection(db, "staff"), {
+      uid: user.uid,
+    firstName: formData.firstName,  
+    lastName: formData.lastName,   
+    email: user.email, 
+    //password: user.password,
+    isAdmin: false,  
+  });
+    
+    //const userDocRef = await addDoc(collection(db, 'staff'), userDoc);
+    setFormData({
+      firstName: '',
+      lastName: '',
+      email: '',
+     // password:'',
+      
+      });
+
+}catch(error) {
+  console.error('Authentication or Database Error:', error);
+}
+
+
+
+
  }
 
 
@@ -149,7 +181,9 @@ export default function AddStaff({open , handler }){
               <div className="text-red-500 font-bold">{errors.email}</div>
             )}
 
-            <Input
+
+
+<Input
               label="الرقم السري"
               type="password"
               id="password"
@@ -162,6 +196,10 @@ export default function AddStaff({open , handler }){
             {errors.password && (
               <div className="text-red-500 font-bold">{errors.password}</div>
             )}
+
+
+
+            
           </div>
         </DialogBody>
 

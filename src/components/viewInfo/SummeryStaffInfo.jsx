@@ -49,15 +49,16 @@ const handleConfirm = () => {
 
           <Button
             variant="gradient"
-            style={{ background: "#FE5500", color: '#ffffff' }}
+            style={{ background: "#97B980", color: '#ffffff' }}
             onClick={handleConfirm}
           >
             <span aria-hidden="true">تأكيد</span>
           </Button>
 
+          
           <Button 
             variant="text"
-            style={{ background: "#97B980", color: '#ffffff' }}
+            style={{ background: "#FE5500", color: '#ffffff' }}
             className="mr-1"
             onClick={handler}
           >

@@ -1,5 +1,5 @@
 
-import React from 'react';
+import React, { useEffect } from 'react';
 import { Link } from 'react-router-dom'; 
 import {
     Card,
@@ -26,7 +26,9 @@ import {
 
   function Sidebar({ authorized, showSidebar, setShowSidebar , activeItem, setActiveItem}) {
   
-  
+  useEffect(()=>{
+    setShowSidebar(true);
+  }, []);
 
     // const [activeItem, setActiveItem] = React.useState(null);
     const [openAccordion, setOpenAccordion] = React.useState(0);
@@ -39,7 +41,7 @@ import {
         setActiveItem("") ;
       } else {
         // Keep the sidebar visible for other pages
-        setShowSidebar(true);
+       
         setActiveItem(item) ;
       }
     };

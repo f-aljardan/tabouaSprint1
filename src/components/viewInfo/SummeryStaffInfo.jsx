@@ -6,44 +6,20 @@ import {
   DialogBody,
   DialogFooter,
 } from "@material-tailwind/react";
-import AddStaff from "../forms/AddStaff";
-import {useNavigate} from "react-router-dom"
+
  
-export default function SummeryStaffInfo({open,handler ,formData }) {
-  const [size, setSize] = React.useState(null);
-  //console.log("hellp summery");
+export default function SummeryStaffInfo({open, handler ,formData , addMethod }) {
 
-  const handleOpen = (value) => setSize(value);
   
-//console.log(firstName , lastName , email , password);
-const [openAddStaff, setOpenAddStaff] = useState(false);
-const [updateClicked, setUpdateClicked] = useState(false);
-const navigate = useNavigate();
-
-
-const handleAddStaffDialogClose = () => {
-  handler();
-  setOpenAddStaff(false);
-  updateClicked(false);
-}
-
 const handleConfirm = () => {
   // Perform any necessary actions before confirming
   console.log("inside handleConfirm");
-
-  // Close the dialog
+  addMethod();
   handler();
-
-  // Navigate to another page if needed
-  navigate("/another-page");
 };
 
 
-const handleUpdateClick = () => {
-  handler();
-  setOpenAddStaff(true);
-  //setUpdateClicked(true);
-};
+
 
 
 
@@ -53,11 +29,11 @@ const handleUpdateClick = () => {
       
       <Dialog
         open={open}
-        size={size || "md"}
+        size="md"
        handler={handler}
        aria-hidden="true"
       >
-        <DialogHeader>معلومات المشرف</DialogHeader>
+        <DialogHeader><span>معلومات المشرف</span></DialogHeader>
         <DialogBody divider>
 
          <p aria-hidden="true"> الاسم الأول : {formData.firstName}</p>{'\n'}
@@ -73,7 +49,7 @@ const handleUpdateClick = () => {
 
           <Button
             variant="gradient"
-            color="green"
+            style={{ background: "#FE5500", color: '#ffffff' }}
             onClick={handleConfirm}
           >
             <span aria-hidden="true">تأكيد</span>
@@ -81,9 +57,9 @@ const handleUpdateClick = () => {
 
           <Button 
             variant="text"
-            color="red"
+            style={{ background: "#97B980", color: '#ffffff' }}
             className="mr-1"
-            onClick={handleUpdateClick}
+            onClick={handler}
           >
             <span aria-hidden="true">تعديل</span>
           </Button>
@@ -92,28 +68,8 @@ const handleUpdateClick = () => {
         </DialogFooter>
       </Dialog>
 
-      {/*}
-      {openAddStaff && (
-        <AddStaff
-          open={openAddStaff}
-          handler={handleAddStaffDialogClose}
-          formData={{
-            firstName: firstName,
-            lastName: lastName,
-            email: email,
-            password: password,
-          }}
-        />)}
-        */}
 
-{/* Open AddStaff */}
-{openAddStaff && (
-        <AddStaff
-          open={openAddStaff}
-          handler={() => setOpenAddStaff(false)} // Close the AddStaff dialog
-          data={formData}
-        />
-      )}
+
       
     </>
   );

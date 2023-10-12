@@ -42,7 +42,7 @@ body{
 .content-container {
  /* Adjust margin to the width of the sidebar */
  /* margin-right: 20rem; */
-  padding: 1rem; /* Add padding to the content */
+  /* padding: 1rem; */
   flex: 1;
   overflow-y: auto;
 }
@@ -50,10 +50,10 @@ body{
 .map{
   display: flex;
   justify-content: center;
-  border:  #97B980 solid 10px;
-  border-radius: 20px;
-  width: '950px';
-  height: '500px';
+  /* border:  #97B980 solid 5px;
+  border-radius: 20px; */
+  /* width: '950px';
+  height: '500px';  */
 }
 
 .loginPage{
@@ -96,3 +96,5 @@ body{
  border-radius: 10px;
 
 }
+
+

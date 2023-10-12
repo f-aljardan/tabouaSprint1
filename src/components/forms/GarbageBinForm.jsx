@@ -103,7 +103,6 @@ export default function GarbageBinForm({ open, handler, method, message }) {
               variant="gradient"
               style={{ background: '#97B980', color: '#ffffff' }}
               onClick={validate}
-             
             >
               <span>إضافة</span>
             </Button>

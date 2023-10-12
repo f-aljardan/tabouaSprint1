@@ -1,6 +1,6 @@
 
 
-import { useState , useEffect } from 'react';
+import { useState  } from 'react';
 import {
   Button,
   Dialog,
@@ -15,12 +15,17 @@ import { db , app , auth } from "../../firebase";
 import {createUserWithEmailAndPassword} from 'firebase/auth';
 import { collection, addDoc } from 'firebase/firestore';
 import SummeryStaffInfo from "../viewInfo/SummeryStaffInfo";
-import "@material-tailwind/react";
+import "@material-tailwind/react"; 
 
  // State to control SummeryStaffInfo dialog
 
-export default function AddStaff({open , handler , method ,data }){
+export default function AddStaff({open , handler }){
   const [summeryStaffOpen, setSummeryStaffOpen] = useState(false);
+
+  const handleSummeryStaff = () =>setSummeryStaffOpen(!summeryStaffOpen); 
+ 
+
+
   const [formData, setFormData] = useState({
     firstName: '',
     lastName: '',
@@ -85,21 +90,24 @@ export default function AddStaff({open , handler , method ,data }){
     } else {
       // No errors, you can handle the submission here
       console.log("Form data is valid:", formData);
-      handler(); // Close the dialog or perform any other desired action
-      setSummeryStaffOpen(true);
+      //handler(); // Close the dialog or perform any other desired action
+      handleSummeryStaff();
 
     }
 
   };
 
-  
+ const HandleAddStaff = async()=> { //add to database
+  handler();
+  console.log("addtion method")
+ }
 
 
   return (
     <>
     <Dialog open={open} onClose={handler} aria-hidden="true" >
       <form>
-        <DialogHeader className="flex justify-center font-baloo text-right">إضافة مشرف</DialogHeader>
+        <DialogHeader className="flex justify-center font-baloo text-right">إضافة موظف</DialogHeader>
         <DialogBody divider className="font-baloo text-right">
           <div className="grid gap-6">
             <Input
@@ -148,6 +156,7 @@ export default function AddStaff({open , handler , method ,data }){
               name="password"
               value={formData.password}
               onChange={handleChange}
+              autoComplete="current-password"
               required
             />
             {errors.password && (
@@ -160,7 +169,8 @@ export default function AddStaff({open , handler , method ,data }){
           <Button type="submit" variant="gradient" style={{ background: "#97B980", color: '#ffffff' }} onClick={validate}>
             <span aria-hidden="true">إضافة</span>
           </Button>
-          <Button variant="outlined" onClick={handler}>
+
+          <Button variant="gradient" onClick={handler} style={{ background: "#FE5500", color: '#ffffff' }}>
             <span aria-hidden="true">إلغاء</span>
           </Button>
         </DialogFooter>
@@ -170,8 +180,9 @@ export default function AddStaff({open , handler , method ,data }){
    {/* SummeryStaffInfo dialog */}
    <SummeryStaffInfo
         open={summeryStaffOpen}
-        handler={() => setSummeryStaffOpen(false)} // Function to close SummeryStaffInfo
+        handler={handleSummeryStaff} // Function to close SummeryStaffInfo
         formData={formData} // Pass form data to SummeryStaffInfo
+        addMethod={HandleAddStaff}
       />
     </>
   );

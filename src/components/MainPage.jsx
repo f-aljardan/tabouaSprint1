@@ -13,9 +13,9 @@ import Footer from "./Footer"
 
 function MainPage() {
     const navigate = useNavigate();
-    const [isAdmin, setIsAdmin] = useState(false);
     const [showSidebar, setShowSidebar] = useState(false);
-    const [activeItem, setActiveItem] = useState(null);
+    const [activeItem, setActiveItem] = useState(false);
+    const [userData, setUserData] = useState([]);
     
     useEffect(() => {
         const unsubscribe = auth.onAuthStateChanged(async (user) => {
@@ -26,10 +26,8 @@ function MainPage() {
              try {
                 const docSnapshot = await getDoc(userRef);
                 if (docSnapshot.exists()) {
-                  const userData = docSnapshot.data();
-                  console.log(userData.isAdmin);
-
-                  setIsAdmin(userData.isAdmin);
+                    setUserData(docSnapshot.data());
+                  
                 } else {
                 // Handle the case where user data is not found
               }
@@ -49,17 +47,17 @@ function MainPage() {
       return (
         <>
           <div className="app-container">
-            <Sidebar authorized={isAdmin} showSidebar={showSidebar} setShowSidebar={setShowSidebar} activeItem={activeItem} setActiveItem={setActiveItem}/>
+            <Sidebar authorized={userData.isAdmin} showSidebar={showSidebar} setShowSidebar={setShowSidebar} activeItem={activeItem} setActiveItem={setActiveItem}/>
             <div className="content-container">
               <Routes>
-              <Route path="/" element={<Home showSidebar={showSidebar} setShowSidebar={setShowSidebar} setActiveItem={setActiveItem}/>} />
+              <Route path="/" element={<Home  authorized={userData.isAdmin} userData={userData} showSidebar={showSidebar} setShowSidebar={setShowSidebar} setActiveItem={setActiveItem}/>} />
                {showSidebar && (
                   <>
                     <Route path="/garbage"  element={<GarbageBins/>} />
                     <Route path="/recycle" element={<RecyclingCenters />} />
                     <Route path="/complaints" element={<Complaints />} />
                     <Route path="/heatmap" element={<Heatmap />} />
-                    {isAdmin && <Route path="/manage" element={<ManageStaff />} />}
+                    {userData.isAdmin && <Route path="/manage" element={<ManageStaff />} />}
                   </>
                 )}
               </Routes>

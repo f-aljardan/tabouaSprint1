@@ -1,22 +1,25 @@
 import React , {useState, useEffect, useRef} from 'react'
-import { GoogleMap, useJsApiLoader, Marker } from '@react-google-maps/api';
+import { GoogleMap, useJsApiLoader, Marker , OverlayView } from '@react-google-maps/api';
 import { db } from "/src/firebase";
 import { getDocs, collection, addDoc, GeoPoint, deleteDoc, doc ,getDoc, Timestamp } from "firebase/firestore"; // Import the necessary Firestore functions
-
+import { Button , Tooltip} from "@material-tailwind/react";
 import Confirm from '../messages/Confirm';
 import Success from "../messages/Success"
 import GarbageBinForm from "../forms/GarbageBinForm"
 import ViewGarbageInfo from "../viewInfo/ViewGarbageInfo"
 
 const containerStyle = {
-  width: '1300px',
-  height: '500px'
+  width: '100%', // Set a width as needed
+  height: '550px'
 };
 
 const center = {
   lat: 24.7136,
   lng: 46.6753
 };
+
+
+
 
 function Map() {
 
@@ -217,7 +220,27 @@ const onDeleteGarbageBin = async (garbageBinId) => {
 
 
 
-  return isLoaded ? (
+return isLoaded ? (
+  <div style={{ position: 'relative' , width:'100%',}}>
+    <div className="flex gap-5 p-4 mr-12" style={{ position: 'absolute', zIndex: 1000 }}>
+    <Tooltip
+      className="bg-white font-baloo text-md text-gray-600"
+      content="*  لإضافة موقع حاوية جديدة قم بالضغط على الموقع المحدد والالتزام بحدود الطرق"
+      placement="bottom"
+      
+    >
+      <Button style={{ background: "#97B980", color: '#ffffff' }} size='sm'><span>إضافة</span></Button>
+    </Tooltip>
+      
+    <Tooltip
+      className="bg-white font-baloo text-md text-gray-600"
+      content="* لإزالة موقع حاوية قم بالضغط على موقع الحاوية"
+      placement="bottom"
+    >
+      <Button style={{ background: "#FE5500", color: '#ffffff' }} size='sm'><span>إزالة</span></Button>
+    </Tooltip>
+    </div>
+
       <GoogleMap
         mapContainerStyle={containerStyle}
         center={center}
@@ -241,6 +264,8 @@ const onDeleteGarbageBin = async (garbageBinId) => {
             
           </Marker>
     ))}
+    
+
 
   <ViewGarbageInfo open={viewInfo} onClose={closeInfoDrawer}  Deletemethod={handleDeleteConfirmation} bin={binData} binId={binId}/>
   
@@ -254,7 +279,7 @@ const onDeleteGarbageBin = async (garbageBinId) => {
     
         <></>
       </GoogleMap>
-
+</div>
   ) : <></>
 }
 

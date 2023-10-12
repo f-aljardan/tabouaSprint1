@@ -1,7 +1,7 @@
 
 import React, {useState} from "react";
 import AddStaff from "./forms/AddStaff.jsx";
-import SummeryStaffInfo from "./viewInfo/SummeryStaffInfo.jsx";
+
 
 import {
     Button,
@@ -15,23 +15,14 @@ export default function ManageStaff(){
   const [staffData, setStaffData] = useState(null);
   
 
-  const handleAddStaffClick = (formData) => {
-    // Handle your add staff logic here
-    console.log(formData);
-    setShowAddStaffDialog(false); // Dismiss the AddStaff dialog after adding
-    setShowSummeryDialog(true); // Open the SummeryStaffInfo dialog
-    setStaffData(formData); // Set the staff data entered in the AddStaff component
+
+
+  const handleAddStaff = () => {
+    setShowAddStaffDialog(!showAddStaffDialog);
+  
   };
 
-  const handleAddStaffDialogOpen = () => {
-    setShowAddStaffDialog(true);
-    setShowSummeryDialog(false); // Close the SummeryStaffInfo dialog
-  };
-
-  const handleAddStaffDialogClose = () => {
-    setShowAddStaffDialog(false);
-    setShowSummeryDialog(false); // Close the SummeryStaffInfo dialog
-  };
+  
 
   return (
     <>
@@ -43,24 +34,15 @@ export default function ManageStaff(){
         </div>
 
         <div>
-          <Button className="float-left" onClick={handleAddStaffDialogOpen} aria-hidden="false">
-            إضافة مشرف
+          <Button className="float-left" onClick={handleAddStaff} aria-hidden="false">
+            <span>إضافة موظف</span>
           </Button>
+          
           <AddStaff
             open={showAddStaffDialog}
-            handler={handleAddStaffDialogClose}
-            method={handleAddStaffClick}
-            data={{}}
+            handler={handleAddStaff}  
           />
-          {/*
-          
-          {showSummeryDialog && staffData && (
-            <SummeryStaffInfo
-              openSummary={showSummeryDialog}
-              handler={() => setShowSummeryDialog(false)}
-              staffData={staffData} // Pass the staff data to the SummeryStaffInfo component
-            />
-          )} */}
+       
         </div>
       </div>
     </>

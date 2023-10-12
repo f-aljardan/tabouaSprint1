@@ -4,7 +4,7 @@ import { getDocs, collection, addDoc, GeoPoint, deleteDoc, doc} from "firebase/f
 import Map from "./maps/GarbageBinMap"
 import Success from "./messages/Success"
 import Confirm from "./messages/Confirm"
-import { Button } from "@material-tailwind/react";
+import { Button , Tooltip} from "@material-tailwind/react";
 
 
  
@@ -114,14 +114,19 @@ export default  function GarbageBins() {
         
             return (
                 <>
-               <div className="flex gap-5 direction-coulmn justify-center"><div className="font-baloo text-md text-gray-600 "> * لإضافة موقع حاوية جديدة قم بالضغط على الموقع المحدد</div>
-                     <div className="font-baloo text-md text-gray-600 "> * لإزالة موقع حاوية قم بالضغط على موقع الحاوية</div>
-                 </div>
-                     
+               {/* <div className="flex gap-5 direction-coulmn justify-center">
+               <Tooltip className="font-baloo text-md text-gray-600 " content="* لإضافة موقع حاوية جديدة قم بالضغط على الموقع المحدد" placement="bottom">
+                 <Button>إضافة</Button>
+                 </Tooltip>
+                 <Tooltip className="font-baloo text-md text-gray-600 " content="* لإزالة موقع حاوية قم بالضغط على موقع الحاوية" placement="bottom">
+                 <Button>إزالة</Button>
+                 </Tooltip>
+                 </div> */}
+              
                    
 
-                    <div className='map' >
-                    <Map  className="mapItem" />
+                    <div className='map'>
+                    <Map  />
                     </div>
                     {/* <Map  garbageBins={garbageBins} onMapClick={handleMapClick} onDeleteGarbageBin={onDeleteGarbageBin}/>
                    */}

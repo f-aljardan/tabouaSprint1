@@ -16,7 +16,7 @@ import{FaRecycle,} from 'react-icons/fa'
 import { format, parseISO } from 'date-fns';
 import { enUS } from 'date-fns/locale';
 
-const arabicDays = ['الجمعة' , 'السبت', 'ايام الاسبوع' ];
+const arabicDays = ['الجمعة', 'السبت','ايام الاسبوع'  ];
 
 const formatTimeRange = (from, to) => {
   const fromDate = parseISO(from);
@@ -31,16 +31,15 @@ const formatOpeningHours = (center) => {
     return 'معلومات ساعات العمل غير متوفرة';
   }
 
-  const days = Object.keys(center.openingHours);
-
+  const orderedDays = ['fri', 'sat', 'weekdays']; // Define the desired order of days
   return (
     <ul>
-      {days.map((day) => {
+      {orderedDays.map((day) => {
         const dayData = center.openingHours[day];
         return (
           <li key={day}>
             <span style={{ fontWeight: 'bold' }}>
-              {arabicDays[days.indexOf(day)]}:
+              {arabicDays[orderedDays.indexOf(day)]}:
             </span>
             <span style={{ marginLeft: '8px' }}>
               {dayData.isClosed ? 'مغلق' : formatTimeRange(dayData.from, dayData.to)}

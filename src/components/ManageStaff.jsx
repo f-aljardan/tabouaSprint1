@@ -12,6 +12,11 @@ import {
   IconButton,
    
   } from "@material-tailwind/react";
+  import {
+    MagnifyingGlassIcon,
+    ChevronUpDownIcon,
+  } from "@heroicons/react/24/outline";
+  import { PencilIcon, UserPlusIcon } from "@heroicons/react/24/solid"
 
   import { db} from "../firebase";
   import { collection, getDocs , deleteDoc , doc } from 'firebase/firestore';
@@ -61,8 +66,9 @@ export default function ManageStaff(){
       <svg
         xmlns="http://www.w3.org/2000/svg"
         viewBox="0 0 24 24"
-        fill="currentColor"
+        fill="red"
         className="h-5 w-5"
+        style={{ width: "1.5rem", height: "1.5rem" }} 
       >
         <path
           fillRule="evenodd"
@@ -80,8 +86,11 @@ export default function ManageStaff(){
        
 
         <div>
-          <Button className="float-left" onClick={handleAddStaff} aria-hidden="false">
+          <Button className="flex items-center gap-3 bg-green-500 text-white" size="sm" 
+          
+          onClick={handleAddStaff} aria-hidden="false">
             <span>إضافة موظف</span>
+            <UserPlusIcon strokeWidth={2} className="h-4 w-4" />
           </Button>
           
           <AddStaff
@@ -90,28 +99,36 @@ export default function ManageStaff(){
           />
        
         </div>
-<div className="flex justify-center">
+<div 
 
-<Card className="w-96">
+style={{
+  display: "flex",
+  justifyContent: "center", // Center horizontally
+  alignItems: "center", // Center vertically
+  height: "100vh", // Use the full viewport height
+}}
+>
+
+<Card className="w-full md:w-1/2 lg:w-2/3 xl:w-3/4 p-2 m-4">
         <List>
           {staff.map((staffMember) => (
 <ListItem key={staffMember.id} className="py-1 pr-1 pl-4">
 <div className="flex justify-between items-center">
 
-<div className="text-right mr-4" style={{ width: '100px' }}>
+<div className="text-right mr-4" style={{ width: '250px' }}>
 {`${staffMember.firstName} ${staffMember.lastName}`}
 
 </div>
 
-<div className="text-right mr-4" style={{ width: '200px' }}>
+<div className="text-right mr-4" style={{ width: '450px' }}>
 {`${staffMember.email}`}
 
 </div>
 <ListItemSuffix>
   <IconButton
     variant="text"
-    color="red"
     className="ml-4"
+    color="red"
     onClick={() => handleDeleteStaff(staffMember.id)}
   >
     <TrashIcon />

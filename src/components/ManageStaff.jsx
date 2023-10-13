@@ -128,12 +128,26 @@ export default function ManageStaff(){
         <UserPlusIcon strokeWidth={2} className="h-4 w-4" />
       </Button>
       <AddStaff open={showAddStaffDialog} handler={handleAddStaff} />
-    
+      <div 
+style={{ 
+
+
+
+  overflowX: "auto",
+      maxWidth: "800px",
+      margin: "0 auto",
+      maxHeight: "80vh", // Set a maximum height for the tabl
+}}
+
+
+>
 
 <Card className="max-w-lg p-4">
         <h2 className="text-2xl font-semibold mb-4">قائمة الموظفين</h2> {/* Title for the table */}
 
-      <table className="w-full min-w-max table-auto text-left">
+
+
+<table className="w-full min-w-max table-auto text-left">
         <thead>
           <tr>
             <th className="border-b border-blue-gray-100 bg-blue-gray-50 p-4">
@@ -184,8 +198,10 @@ export default function ManageStaff(){
           ))}
         </tbody>
       </table>
+  
     </Card>
   
+    </div>
 
     </div>
     </div>

@@ -71,7 +71,7 @@ return(
   </ListItemPrefix>
   <div>
     <span className="font-medium">رمز الحاوية:</span>
-    <span className="block">{binId}</span> {/* Use block to create a line break */}
+    <span className="block">{binId}</span> {/* display here the serial number instead of the bin id */}
   </div>
 </ListItem>
 
@@ -82,6 +82,16 @@ return(
   <div>
     <span className="font-medium"> تاريخ إضافة الحاوية: </span>
     <span className="block"> {formattedDate}</span> {/* Use block to create a line break */}
+  </div>
+</ListItem>
+
+<ListItem ripple={false}>
+  <ListItemPrefix>
+    <MdOutlineDateRange  className="h-5 w-5 ml-2" /> 
+  </ListItemPrefix>
+  <div>
+    <span className="font-medium"> تاريخ إضافة الحاوية: </span>
+    <span className="block"> </span> {/* display here the maintainanceDate and enable editing the maintainanceDate*/}
   </div>
 </ListItem>
 

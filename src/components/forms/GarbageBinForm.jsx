@@ -9,7 +9,7 @@ import {
 } from "@material-tailwind/react";
 import Select from 'react-select';
 import makeAnimated from 'react-select/animated';
-export default function GarbageBinForm({ open, handler, method, message }) {
+export default function GarbageBinForm({ open, handler, AddMethod }) {
     const animatedComponents = makeAnimated();
   
     const options = [
@@ -45,7 +45,7 @@ export default function GarbageBinForm({ open, handler, method, message }) {
   
       // Check if a size is selected
       if (formData.size) {
-        method(formData);
+        AddMethod(formData);
         setFormData({
           size: '', // Reset the size field
         });

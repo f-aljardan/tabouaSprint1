@@ -70,7 +70,7 @@ function Map() {
   } catch (error) {
       console.error("Error fetching garbage bins:", error);
   }
-                                         };//fetchGarbageBins
+    };//fetchGarbageBins
 fetchGarbageBins();
 
 
@@ -186,18 +186,19 @@ console.log(currentZoomLevelRef.current)
 
 
   
-const saveCoordinatesToFirestore = async (data) => {
+const AddGarbageBin = async (data) => {
   try {
     const geoPoint = new GeoPoint(
       newGarbageBinLocation.lat,
       newGarbageBinLocation.lng
     );
-    console.log("GeoPoint:", geoPoint); // Log the GeoPoint before saving
+  
 
     const docRef = await addDoc(collection(db, "garbageBins"), {
       location: geoPoint,
       size: data.size,
       date: Timestamp.fromDate(new Date()),
+      maintenanceDate: Timestamp.fromDate(new Date()),
     });
 
     console.log("Document added with ID:", docRef.id); // Log the document ID
@@ -296,7 +297,7 @@ return isLoaded ? (
 
   <ViewGarbageInfo open={viewInfo} onClose={closeInfoDrawer}  DeleteMethod={handleDeletion} bin={binData} binId={binId}/>
   
-<GarbageBinForm open={formVisible} handler={handleForm} method={saveCoordinatesToFirestore}  message="   هل انت متأكد من إضافة حاوية نفاية بالموقع المحدد؟"/>
+<GarbageBinForm open={formVisible} handler={handleForm} AddMethod={AddGarbageBin}  />
 {/*  
  <Confirm  open={confirmationVisible} handler={handleConfirm} method={saveCoordinatesToFirestore}  message="   هل انت متأكد من إضافة حاوية نفاية بالموقع المحدد؟"/>
    */}

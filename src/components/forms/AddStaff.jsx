@@ -16,14 +16,19 @@ import {createUserWithEmailAndPassword} from 'firebase/auth';
 import { collection, addDoc } from 'firebase/firestore';
 import SummeryStaffInfo from "../viewInfo/SummeryStaffInfo";
 import "@material-tailwind/react"; 
+import Success from "../messages/Success"
+
 
  // State to control SummeryStaffInfo dialog
 
 export default function AddStaff({open , handler }){
   const [summeryStaffOpen, setSummeryStaffOpen] = useState(false);
+  const [showAlert, setShowAlert] = useState(false);
+
 
   const handleSummeryStaff = () =>setSummeryStaffOpen(!summeryStaffOpen); 
- 
+  const handlealert = () => setShowAlert(!showAlert);
+
 
 
   const [formData, setFormData] = useState({
@@ -116,7 +121,8 @@ try{
     isAdmin: false,  
   });
     
-    //const userDocRef = await addDoc(collection(db, 'staff'), userDoc);
+  handlealert();
+  
     setFormData({
       firstName: '',
       lastName: '',
@@ -222,6 +228,8 @@ try{
         formData={formData} // Pass form data to SummeryStaffInfo
         addMethod={HandleAddStaff}
       />
+              <Success open={showAlert} handler={handlealert} message=" !تم إضافة الموظف بنجاح" />
+
     </>
   );
 }

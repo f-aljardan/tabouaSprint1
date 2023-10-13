@@ -3,8 +3,6 @@ import {
   Button,
   Typography,
   IconButton,
-  List,
-  ListItem,
   ListItemPrefix,
   Chip,
 
@@ -15,24 +13,67 @@ import {
   HiClock,
 } from "react-icons/hi";
 import{FaRecycle,} from 'react-icons/fa'
+import { format, parseISO } from 'date-fns';
+import { enUS } from 'date-fns/locale';
+
+const arabicDays = ['الجمعة' , 'السبت', 'ايام الاسبوع' ];
+
+const formatTimeRange = (from, to) => {
+  const fromDate = parseISO(from);
+  const toDate = parseISO(to);
+  const formattedFrom = format(fromDate, 'hh:mm a', { locale: enUS });
+  const formattedTo = format(toDate, 'hh:mm a', { locale: enUS });
+  return `${formattedFrom} إلى ${formattedTo}`;
+};
+
+const formatOpeningHours = (center) => {
+  if (!center.openingHours) {
+    return 'معلومات ساعات العمل غير متوفرة';
+  }
+
+  const days = Object.keys(center.openingHours);
+
+  return (
+    <ul>
+      {days.map((day) => {
+        const dayData = center.openingHours[day];
+        return (
+          <li key={day}>
+            <span style={{ fontWeight: 'bold' }}>
+              {arabicDays[days.indexOf(day)]}:
+            </span>
+            <span style={{ marginLeft: '8px' }}>
+              {dayData.isClosed ? 'مغلق' : formatTimeRange(dayData.from, dayData.to)}
+            </span>
+          </li>
+        );
+      })}
+    </ul>
+  );
+};
+
 
 
 export default function ViewCenterInfo({open, onClose , Deletemethod, center}){
 
+  
 
-const types = center.type || [];
-const typeList = types.map((type, index) => (
+
+console.log(center.openingHours )
  
-      <Chip  key={index} style={{background:"#FE9B00", color:'#ffffff'}} value={type} />  
-  // <li key={index}>{type}</li>
-));
+  const types = center.type || [];
+  const typeList = types.map((type, index) => (
+    <Chip key={index} style={{ background: "#FE9B00", color: "#ffffff" }} value={type} />
+  ));
+
+
     return(
       <Drawer
       placement="right"
       size={400}
       open={open}
       onClose={onClose}
-      className="p-4 font-baloo "
+      className="p-4 font-baloo overflow-y-auto"
       
     >
       <div className="mb-4 flex items-center justify-between ">
@@ -89,13 +130,35 @@ const typeList = types.map((type, index) => (
         <div className="flex wrap gap-2 justify-end"> {typeList} </div>
        </ul>
     
-        <ul className="flex gap-2">
-          <ListItemPrefix className="flex">
-            <HiClock className="h-5 w-5 ml-2" />
-            <span className="font-medium">ساعات العمل:</span>
-          </ListItemPrefix>
-            <span className="block"> {center.openingHours}</span>
-          </ul>
+      
+
+
+       
+
+ <ul className="flex gap-2">
+  <ListItemPrefix className="flex">
+    <HiClock className="h-5 w-5 ml-2" />
+    <span className="font-medium">ساعات العمل:</span>
+  </ListItemPrefix>
+  {/* <div className="opening-hours">
+    {center.openingHours
+      ? Object.keys(center.openingHours).map((day) => {
+          const dayData = center.openingHours[day];
+          return (
+            <div key={day}>
+              {day}: {dayData.isClosed ? "مغلق" : `من ${dayData.from} إلى ${dayData.to}`}
+            </div>
+          );
+        })
+      : 'Opening hours information not available'}
+  </div> */}
+  <div className="opening-hours">
+    {center.openingHours ? formatOpeningHours(center) : 'معلومات ساعات العمل غير متوفرة'}
+  </div>
+</ul>
+
+
+
 
          <ul className="flex gap-2">
            <ListItemPrefix className="flex">

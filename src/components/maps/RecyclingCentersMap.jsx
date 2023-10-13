@@ -8,12 +8,12 @@ import Confirm from '../messages/Confirm';
 import ViewCenterInfo from "../viewInfo/ViewCenterInfo"
 import RecyclingCenterForm from "../forms/RecyclingCenterForm"
 import Success from "../messages/Success"
-
+import { Button , Tooltip} from "@material-tailwind/react";
 
 const containerStyle = {
-    width: '950px',
-    height: '500px'
-};
+    width: '100%', // Set a width as needed
+    height: '550px'
+  };
 
 const center = {
   lat: 24.7136,
@@ -70,28 +70,54 @@ function Map() {
     };
 
     //  code for adding a new recycling center
-const handleAddRecyclingCenter = async (data) => {
-    try {
-        const docRef = await addDoc(collection(db, "recyclingCenters"), {
+    const handleAddRecyclingCenter = async (data) => {
+        console.log(data);
+        try {
+          const openingHours = {
+            fri: {
+                from: data.openingHours.fri.isClosed ? '' : data.openingHours.fri.from.toDate().toISOString(),
+                to: data.openingHours.fri.isClosed ? '' : data.openingHours.fri.to.toDate().toISOString(),
+                isClosed: data.openingHours.fri.isClosed,
+    
+              },
+           
+            weekdays: {
+              from: data.openingHours.weekdays.from.toDate().toISOString(),
+              to: data.openingHours.weekdays.to.toDate().toISOString(),
+            },
+            sat: {
+                from: data.openingHours.sat.isClosed ? '' : data.openingHours.sat.from.toDate().toISOString(),
+                to: data.openingHours.sat.isClosed ? '' : data.openingHours.sat.to.toDate().toISOString(),
+                isClosed: data.openingHours.sat.isClosed,
+              },
+           
+          };
+      
+          const docRef = await addDoc(collection(db, "recyclingCenters"), {
             name: data.name,
             description: data.description,
             type: data.types,
             location: new GeoPoint(newRecyclingCenterLocation.lat, newRecyclingCenterLocation.lng),
-            imageURL: data.imageURL, // Add imageURL to the document
-            openingHours: data.openingHours, // Add openingHours to the document
-            phoneNo: data.phoneNo, // Add phoneNo to the document
-        });
-        setRecyclingCenters([...recyclingCenters, {  
-            id: docRef.id ,
-            location: new GeoPoint(newRecyclingCenterLocation.lat, newRecyclingCenterLocation.lng), }]);
-        // Show success message here
-        setShowAlert(true); 
-     
-     
-    } catch (error) {
-        console.error("Error adding recycling center:", error);
-    }
-};
+            imageURL: data.imageURL,
+            openingHours: openingHours,
+            phoneNo: data.phoneNo,
+          });
+      
+          setRecyclingCenters([
+            ...recyclingCenters,
+            {
+              id: docRef.id,
+              location: new GeoPoint(newRecyclingCenterLocation.lat, newRecyclingCenterLocation.lng),
+            },
+          ]);
+      
+          // Show success message here
+          setShowAlert(true);
+        } catch (error) {
+          console.error("Error adding recycling center:", error);
+        }
+      };
+      
 
 
   const { isLoaded } = useJsApiLoader({
@@ -123,6 +149,7 @@ const handleAddRecyclingCenter = async (data) => {
   
       if (centerDocSnapshot.exists()) {
         SetCenterData(centerDocSnapshot.data());
+      
         // You can use this data as needed in your component
       } else {
         console.error("Recycling center not found.");
@@ -167,6 +194,26 @@ const onDeleteGarbageBin = async (centerId) => {
   };
 
   return isLoaded ? (
+    <div style={{ position: 'relative' , width:'100%',}}>
+    <div className="flex gap-5 p-4 mr-12" style={{ position: 'absolute', zIndex: 1000 }}>
+    <Tooltip
+      className="bg-white font-baloo text-md text-gray-600"
+      content="* لإضافة موقع مركز تدوير جديد قم بالضغط على الموقع المحدد والالتزام بحدود المباني"
+      placement="bottom"
+      
+    >
+      <Button style={{ background: "#97B980", color: '#ffffff' }} size='sm'><span>إضافة</span></Button>
+    </Tooltip>
+      
+    <Tooltip
+      className="bg-white font-baloo text-md text-gray-600"
+      content="* لإزالة موقع مركز تدوير قم بالضغط على موقع المركز  "
+      placement="bottom"
+    >
+      <Button style={{ background: "#FE5500", color: '#ffffff' }} size='sm'><span>إزالة</span></Button>
+    </Tooltip>
+    </div>
+
       <GoogleMap
         mapContainerStyle={containerStyle}
         center={center}
@@ -191,14 +238,13 @@ const onDeleteGarbageBin = async (centerId) => {
         ))}
 
        
-          <ViewCenterInfo  open={viewInfo} onClose={closeInfoDrawer} Deletemethod={handleDeleteConfirmation} center={centerData}/>
-          
+        <ViewCenterInfo  open={viewInfo} onClose={closeInfoDrawer} Deletemethod={handleDeleteConfirmation} center={centerData}/>
         <RecyclingCenterForm open={formVisible} handler={handleForm} method={handleAddRecyclingCenter} />
         <Success open={showAlert} handler={handlealert} message=" !تم إضافة مركز التدوير بنجاح" />
         <Success open={showAlertDeletion} handler={handlealertDeletion} message=" !تم حذف مركز التدوير بنجاح" />
         
       </GoogleMap>
-
+      </div>
   ) : <></>
 }
 

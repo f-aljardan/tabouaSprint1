@@ -4,11 +4,17 @@ import './App.css'
 import Login from "./components/Login"
 import MainPage from "./components/MainPage"
 import Footer from './components/Footer';
-function App() {
+import { LocalizationProvider } from '@mui/x-date-pickers';
+import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs'
+
+
+function App({ children }) {
 
 
   return (
     <>
+    <LocalizationProvider dateAdapter={AdapterDayjs}>
+    {children}
     <Router>
       <Routes>
 
@@ -17,24 +23,8 @@ function App() {
      
      </Routes>
        
-    </Router> 
-
-   
-       {/* <Router>
-      <div className="app-container">
-        <Sidebar />
-        <div className="content-container">
-          <Routes>
-            <Route path="/home" exact element={<Home/>} />
-            <Route path="/garbage" element={<GarbageBins/>} />
-            <Route path="/recycle" element={<RecyclingCenters/>} />
-            <Route path="/complaints" element={<Complaints/>} /> 
-            <Route path="/heatmap" element={<Heatmap/>} />
-            <Route path="/manage" element={<ManageStaff/>} />
-          </Routes>
-        </div>
-      </div>
-    </Router> */}
+    </Router>  
+    </LocalizationProvider>
   </>
 
   )

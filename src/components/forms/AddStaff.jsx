@@ -102,6 +102,22 @@ export default function AddStaff({open , handler }){
 
   };
 
+  const handlerForm = () => {
+    // Code to close the dialog or perform other actions
+  
+    handler();
+    // Clear the form fields
+    setFormData({
+      firstName: '',
+      lastName: '',
+      email: '',
+      password: '',
+    });
+  
+    // Optionally, close the dialog here if needed
+    // setDialogOpen(false);
+  };
+
  const HandleAddStaff = async()=> { //add to database
   handler();
   console.log("addtion method");
@@ -117,17 +133,17 @@ try{
     firstName: formData.firstName,  
     lastName: formData.lastName,   
     email: user.email, 
-    //password: user.password,
+    password: formData.password,
     isAdmin: false,  
   });
     
   handlealert();
-  
+
     setFormData({
       firstName: '',
       lastName: '',
       email: '',
-     // password:'',
+     password:'',
       
       });
 
@@ -214,7 +230,7 @@ try{
             <span aria-hidden="true">إضافة</span>
           </Button>
 
-          <Button variant="gradient" onClick={handler} style={{ background: "#FE5500", color: '#ffffff' }}>
+          <Button variant="gradient" onClick={handlerForm} style={{ background: "#FE5500", color: '#ffffff' }}>
             <span aria-hidden="true">إلغاء</span>
           </Button>
         </DialogFooter>

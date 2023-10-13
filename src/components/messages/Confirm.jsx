@@ -22,17 +22,19 @@ export default function Confirm({open, handler , method, message}){
         </DialogBody>
 
         <DialogFooter className="flex gap-3 justify-center ">
-          <Button
+
+        <Button variant="gradient"  style={{background:"#97B980", color:'#ffffff'}}   onClick={method}>
+            <span>تأكيد</span>
+          </Button>
+          <Button  
             variant="gradient"
-           style={{background:"#97B980", color:'#ffffff'}}
+           style={{background:"#FE5500", color:'#ffffff'}}
             onClick={handler}
             className="mr-1"
           >
             <span>إلغاء</span>
           </Button>
-          <Button variant="gradient"  style={{background:"#FE5500", color:'#ffffff'}}   onClick={method}>
-            <span>تأكيد</span>
-          </Button>
+         
         </DialogFooter>
       </Dialog>
 

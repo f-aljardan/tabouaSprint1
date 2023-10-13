@@ -1,13 +1,11 @@
 
 import React, {useState , useEffect} from "react";
 import AddStaff from "./forms/AddStaff.jsx";
-
+import Confirm from "../components/messages/Confirm"
+import Success from "./messages/Success";
 
 import {
     Button,
-    List,
-  ListItem,
-  ListItemSuffix,
   Card,
   IconButton,
   Typography,
@@ -15,11 +13,8 @@ import {
 
    
   } from "@material-tailwind/react";
-  import {
-    MagnifyingGlassIcon,
-    ChevronUpDownIcon,
-  } from "@heroicons/react/24/outline";
-  import { PencilIcon, UserPlusIcon } from "@heroicons/react/24/solid"
+ 
+  import { UserPlusIcon } from "@heroicons/react/24/solid"
 
   import { db} from "../firebase";
   import { collection, getDocs , deleteDoc , doc } from 'firebase/firestore';
@@ -29,13 +24,23 @@ import {
 
 export default function ManageStaff(){
   const [showAddStaffDialog, setShowAddStaffDialog] = useState(false);
-  //const [showSummeryDialog, setShowSummeryDialog] = useState(false);
-  const [staff, setStaff] = useState([]);
+  const [showConfirmAlert, setShowConfirmAlert] = useState(false);
+  const [staffToDelete, setStaffToDelete] = useState(null); // State to store staff member to be deleted
+  const [showAlert, setShowAlert] = useState(false);
+
 
   const handleAddStaff = () => {
     setShowAddStaffDialog(!showAddStaffDialog);
-    
   
+  };
+
+  const handlealert = () => setShowAlert(!showAlert);
+
+
+  const handleConfirm  = async (id) => {
+    setShowConfirmAlert(!showConfirmAlert);
+    setStaffToDelete(id);
+console.log("id = " , id);
   };
 
   const [staffMembers, setStaffMembers] = useState([]);
@@ -53,6 +58,7 @@ export default function ManageStaff(){
           firstName: data.firstName,
           lastName: data.lastName,
           email: data.email,
+          id:doc.id,
         });
       });
 
@@ -96,6 +102,27 @@ export default function ManageStaff(){
     );
     
     }
+
+    const handleDelete = async (staffMember) =>{
+
+      try {
+        // Delete the document from the "staff" collection
+        await deleteDoc(doc(db, "staff", staffToDelete));
+        // Remove the deleted staff member from the state
+        setStaffMembers((prevMembers) =>
+          prevMembers.filter((member) => member.id !== staffToDelete)
+        );
+        // Clear the staffToDelete state
+        setStaffToDelete(null);
+        handlealert();
+
+      } catch (error) {
+        console.error("Error deleting document: ", error);
+      }
+    };
+    
+
+
 
   return (
 <>
@@ -189,7 +216,7 @@ style={{
               </td>
               <td className="p-4 border-b border-blue-gray-50 text-right">
               <Tooltip content="Delete User">
-                      <IconButton variant="text" onClick={() => handleDelete(staffMember.id)}>
+                      <IconButton variant="text" onClick={() => handleConfirm(staffMember.id)}>
                         <TrashIcon className="h-4 w-4 text-red-500" />
                       </IconButton>
                     </Tooltip>
@@ -205,6 +232,9 @@ style={{
 
     </div>
     </div>
+    <Confirm open={showConfirmAlert} handler={handleConfirm} method= {handleDelete} message="هل أنت متأكد من حذف الموظف؟" />
+              <Success open={showAlert} handler={handlealert} message="تم حذف الموظف بنجاح"/>
+
 </>
     
     

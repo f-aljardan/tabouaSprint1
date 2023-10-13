@@ -183,7 +183,7 @@ style={{
                 color="blue-gray"
                 className="font-normal leading-none opacity-70 text-right"
               >
-                الاسم
+               <span>الاسم</span> 
               </Typography>
             </th>
             <th className="border-b border-blue-gray-100 bg-blue-gray-50 p-4">
@@ -192,7 +192,7 @@ style={{
                 color="blue-gray"
                 className="font-normal leading-none opacity-70 text-right"
               >
-                البريد الإلكتروني
+                <span>البريد الإلكتروني</span>
               </Typography>
             </th>
             <th className="border-b border-blue-gray-100 bg-blue-gray-50 p-4">
@@ -206,12 +206,12 @@ style={{
             <tr key={index}>
               <td className="p-4 border-b border-blue-gray-50 text-right">
                 <Typography variant="small" color="blue-gray" className="font-normal">
-                  {`${staffMember.firstName} ${staffMember.lastName}`}
+                <span> {`${staffMember.firstName} ${staffMember.lastName}`}</span> 
                 </Typography>
               </td>
               <td className="p-4 border-b border-blue-gray-50 text-right">
                 <Typography variant="small" color="blue-gray" className="font-normal">
-                  {`${staffMember.email}`}
+                 <span> {`${staffMember.email}`}</span>
                 </Typography>
               </td>
               <td className="p-4 border-b border-blue-gray-50 text-right">

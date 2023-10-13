@@ -5,8 +5,8 @@ import { getAuth, signOut, updatePassword } from "firebase/auth";
 import { useNavigate } from 'react-router-dom';
 import Modal from 'react-modal';
 
-import Confirm from '/Users/latifaia/Desktop/website/tabouaSprint1/src/components/messages/Confirm.jsx';
-import Success from '/Users/latifaia/Desktop/website/tabouaSprint1/src/components/messages/Success.jsx';
+import Confirm from "../components/messages/Confirm"
+import Success from "./messages/Success";
 
 export default function ProfileMenu({ userData }) {
   const navigate = useNavigate();

@@ -114,8 +114,7 @@ export default function AddStaff({open , handler }){
       password: '',
     });
   
-    // Optionally, close the dialog here if needed
-    // setDialogOpen(false);
+    
   };
 
  const HandleAddStaff = async()=> { //add to database
@@ -244,7 +243,7 @@ try{
         formData={formData} // Pass form data to SummeryStaffInfo
         addMethod={HandleAddStaff}
       />
-              <Success open={showAlert} handler={handlealert} message=" !تم إضافة الموظف بنجاح" />
+              <Success open={showAlert} handler={handlealert} message="تم إضافة الموظف بنجاح" />
 
     </>
   );

@@ -71,7 +71,7 @@ function Map() {
 
     //  code for adding a new recycling center
     const handleAddRecyclingCenter = async (data) => {
-        console.log(data);
+      
         try {
           const openingHours = {
             fri: {

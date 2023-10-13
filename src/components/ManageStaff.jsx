@@ -11,6 +11,8 @@ import {
   Card,
   IconButton,
   Typography,
+  Tooltip,
+
    
   } from "@material-tailwind/react";
   import {
@@ -172,7 +174,11 @@ export default function ManageStaff(){
                 </Typography>
               </td>
               <td className="p-4 border-b border-blue-gray-50 text-right">
-                <TrashIcon className="h-5 w-5 text-red-500 cursor-pointer" onClick={() => handleDelete(staffMember.id)} />
+              <Tooltip content="Delete User">
+                      <IconButton variant="text" onClick={() => handleDelete(staffMember.id)}>
+                        <TrashIcon className="h-4 w-4 text-red-500" />
+                      </IconButton>
+                    </Tooltip>
               </td>
             </tr>
           ))}

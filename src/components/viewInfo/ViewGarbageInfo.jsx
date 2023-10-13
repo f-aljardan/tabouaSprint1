@@ -17,15 +17,22 @@ import
 
 import
 {HiOutlineHashtag}from 'react-icons/hi';
+import Confirm from "../messages/Confirm"
+import { useState } from "react";
 
+export default function ViewGarbageInfo({open, onClose , DeleteMethod, bin , binId}){
 
-export default function ViewGarbageInfo({open, onClose , Deletemethod, bin , binId}){
+const [deleteConfirmation , setDeleteConfirmation] = useState(false);
+
+const handleDeleteConfirmation = () => (setDeleteConfirmation(!deleteConfirmation));
+
 
 // Convert Firestore Timestamp to JavaScript Date
 const formattedDate = bin.date && bin.date.toDate().toLocaleString();
 
 
 return(
+    <>
     <Drawer
         placement="right"
         open={open}
@@ -92,8 +99,11 @@ return(
 
  </List>
           
-          <Button size="md" fullWidth={true} variant="gradient"  style={{background:"#FE5500", color:'#ffffff'}}   onClick={Deletemethod}> <span>حذف الحاوية </span> </Button>
+          <Button size="md" fullWidth={true} variant="gradient"  style={{background:"#FE5500", color:'#ffffff'}}   onClick={handleDeleteConfirmation}> <span>حذف الحاوية </span> </Button>
      
       </Drawer>
+
+      <Confirm  open={deleteConfirmation} handler={handleDeleteConfirmation} method={DeleteMethod}  message="   هل انت متأكد من حذف حاوية النفاية بالموقع المحدد؟"/>
+ </>
 );
 }

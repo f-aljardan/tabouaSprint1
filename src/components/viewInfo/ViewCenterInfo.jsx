@@ -1,3 +1,5 @@
+import {useState} from "react";
+import Confirm from "../messages/Confirm"
 import {
   Drawer,
   Button,
@@ -53,12 +55,12 @@ const formatOpeningHours = (center) => {
 
 
 
-export default function ViewCenterInfo({open, onClose , Deletemethod, center}){
+export default function ViewCenterInfo({open, onClose , DeleteMethod, center}){
 
-  
+  const [deleteConfirmation , setDeleteConfirmation] = useState(false);
+  const handleDeleteConfirmation = () => (setDeleteConfirmation(!deleteConfirmation));
 
 
-console.log(center.openingHours )
  
   const types = center.type || [];
   const typeList = types.map((type, index) => (
@@ -67,6 +69,7 @@ console.log(center.openingHours )
 
 
     return(
+      <>
       <Drawer
       placement="right"
       size={400}
@@ -174,38 +177,16 @@ console.log(center.openingHours )
         fullWidth={true}
         variant="gradient"
         style={{ background: "#FE5500", color: "#ffffff" }}
-        onClick={Deletemethod}
+        onClick={handleDeleteConfirmation}
       >
         <span>حذف المركز </span>
       </Button>
     </Drawer>
+
+    <Confirm  open={deleteConfirmation} handler={handleDeleteConfirmation} method={DeleteMethod}  message="   هل انت متأكد من حذف حاوية النفاية بالموقع المحدد؟"/>
+    </>
     
     )
 }
 
 
-
-// <Dialog size="md" open={open} handler={handler} >
-                    
-// <DialogHeader className="flex justify-center font-baloo text-center"> {center.name}</DialogHeader>
-
-// <DialogBody divider className="font-baloo text-right">
-// {center.description}
-// <br/>
-// <br/>
-// <div className="flex gap-2 justify-end">
-// {typeList}
-// </div>
-// </DialogBody>
-
-// <DialogFooter  className="flex gap-3 justify-center ">
-
-// <Button variant="outlined"  onClick={handler}>
-//     <span>إغلاق</span>
-//   </Button>
-
-//   <Button variant="gradient"  style={{background:"#FE5500", color:'#ffffff'}}  onClick={Deletemethod}>
-//     <span>حذف</span>
-//   </Button>
-// </DialogFooter>
-// </Dialog>

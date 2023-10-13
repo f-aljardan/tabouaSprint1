@@ -7,6 +7,7 @@ import Confirm from '../messages/Confirm';
 import Success from "../messages/Success"
 import GarbageBinForm from "../forms/GarbageBinForm"
 import ViewGarbageInfo from "../viewInfo/ViewGarbageInfo"
+import AlertMessage from "../messages/AlertMessage"
 
 const containerStyle = {
   width: '100%', // Set a width as needed
@@ -23,18 +24,26 @@ const center = {
 
 function Map() {
 
-  
+  const [zoom, setZoom] = useState(10); // set the initial zoom level
+  const [userPosition, setUserPosition] = useState(null);
   const [garbageBins, setGarbageBins] = useState([]);
   const [binData ,SetBinData] = React.useState([]);
   const [binId , setBinId] = useState();
   const [formVisible, setFormVisible] = useState(false);// To control confirmation message visibility
   const [newGarbageBinLocation, setNewGarbageBinLocation] = useState(null);
   const [showAlert, setShowAlert] = useState(false);
+  const [showSuccessAlert, setShowSuccessAlert] = useState(false);
   const [showAlertDeletion, setShowAlertDeletion] = useState(false);
   const [viewInfo, setViewInfo] = React.useState(false);
- 
+  const [selectedLocation, setSelectedLocation] = React.useState(false);
+
   const openInfoDrawer = () => setViewInfo(true);
   const closeInfoDrawer = () => setViewInfo(false);
+  const handleForm = () => setFormVisible(!formVisible);
+  const handleAlert = () => setShowAlert(!showAlert);
+  const handleSuccessAlert = () => setShowSuccessAlert(!showSuccessAlert);
+  const handlealertDeletion = () => setShowAlertDeletion(!showAlertDeletion);
+
 
  // Define the acceptable zoom level range
  const minZoomLevel = 18;
@@ -44,9 +53,6 @@ function Map() {
 
 
 
-  const handleForm = () => setFormVisible(!formVisible);
-  const handlealert = () => setShowAlert(!showAlert);
-  const handlealertDeletion = () => setShowAlertDeletion(!showAlertDeletion);
 
   useEffect( ()=>{
       const fetchGarbageBins = async () => {
@@ -101,9 +107,20 @@ fetchGarbageBins();
     setMap(null)
   }, [])
 
-  const [selectedLocation, setSelectedLocation] = React.useState(false);
 
-
+// function to handle fetching the user's current position
+  const getUserPosition = () => {
+    if ('geolocation' in navigator) {
+      navigator.geolocation.getCurrentPosition((position) => {
+        const { latitude, longitude } = position.coords;
+        setUserPosition({ lat: latitude, lng: longitude });
+        setZoom(15); 
+      });
+    } else {
+      alert('Geolocation is not available in your browser.');
+    }
+  };
+  
 
   const handleMarkerClick = async (bin) => {
     
@@ -154,15 +171,14 @@ console.log(currentZoomLevelRef.current)
     setNewGarbageBinLocation({ lat, lng });
     setFormVisible(true);
   } else {
-    console.log("Zoom level not sufficient for adding a garbage bin.");
-    alert('تحتاج إلى تكبير الخريطة لتتمكن من إضافة حاوية القمامة');
+    handleAlert();
   }
 };
 
 
-  const handleDeleteConfirmation = () => {
+  const handleDeletion = () => {
    
-       // Call the onDeleteGarbageBin function passed as a prop to handle deletion.
+      // Call the onDeleteGarbageBin function passed as a prop to handle deletion.
       onDeleteGarbageBin(selectedLocation.id);
       setSelectedLocation(false);
 
@@ -188,7 +204,7 @@ const saveCoordinatesToFirestore = async (data) => {
 
     setGarbageBins([...garbageBins, { id: docRef.id, location: geoPoint }]);
     setFormVisible(false);
-    setShowAlert(true);
+    setShowSuccessAlert(true);
 
     
   } catch (error) {
@@ -222,12 +238,11 @@ const onDeleteGarbageBin = async (garbageBinId) => {
 
 return isLoaded ? (
   <div style={{ position: 'relative' , width:'100%',}}>
-    <div className="flex gap-5 p-4 mr-12" style={{ position: 'absolute', zIndex: 1000 }}>
+    <div className="flex gap-5 p-4 mr-12 z-10" style={{ position: 'absolute' }}>
     <Tooltip
       className="bg-white font-baloo text-md text-gray-600"
       content="*  لإضافة موقع حاوية جديدة قم بالضغط على الموقع المحدد والالتزام بحدود الطرق"
-      placement="bottom"
-      
+      placement="bottom"  
     >
       <Button style={{ background: "#97B980", color: '#ffffff' }} size='sm'><span>إضافة</span></Button>
     </Tooltip>
@@ -239,12 +254,24 @@ return isLoaded ? (
     >
       <Button style={{ background: "#FE5500", color: '#ffffff' }} size='sm'><span>إزالة</span></Button>
     </Tooltip>
-    </div>
+    <Button
+  style={{ background: '#FE9B00', color: '#ffffff' }}
+  size="sm"
+  onClick={getUserPosition}
+>
+  <span>عرض الموقع الحالي</span>
+</Button>
+
+  </div>
+    
+<div style={{position: 'absolute', zIndex: 2000, }}>
+  <AlertMessage open={showAlert} handler={handleAlert} message="كبر الخريطة لتتمكن من إضافة حاوية القمامة " />
+</div>
 
       <GoogleMap
         mapContainerStyle={containerStyle}
-        center={center}
-        zoom={10}
+        center={userPosition || center}
+        zoom={zoom}
         onLoad={onLoad} //Callback function that gets executed when the map is loaded.
         onUnmount={onUnmount}//Callback function that gets executed when the component unmounts.
         onClick={onMapClick}
@@ -267,13 +294,14 @@ return isLoaded ? (
     
 
 
-  <ViewGarbageInfo open={viewInfo} onClose={closeInfoDrawer}  Deletemethod={handleDeleteConfirmation} bin={binData} binId={binId}/>
+  <ViewGarbageInfo open={viewInfo} onClose={closeInfoDrawer}  DeleteMethod={handleDeletion} bin={binData} binId={binId}/>
   
 <GarbageBinForm open={formVisible} handler={handleForm} method={saveCoordinatesToFirestore}  message="   هل انت متأكد من إضافة حاوية نفاية بالموقع المحدد؟"/>
 {/*  
  <Confirm  open={confirmationVisible} handler={handleConfirm} method={saveCoordinatesToFirestore}  message="   هل انت متأكد من إضافة حاوية نفاية بالموقع المحدد؟"/>
    */}
-  <Success open={showAlert} handler={handlealert} message=" !تم إضافة حاوية القمامة بنجاح" />
+  
+  <Success open={showSuccessAlert} handler={handleSuccessAlert} message=" !تم إضافة حاوية القمامة بنجاح" />
  <Success open={showAlertDeletion} handler={handlealertDeletion} message=" !تم حذف حاوية القمامة بنجاح" />
   
     

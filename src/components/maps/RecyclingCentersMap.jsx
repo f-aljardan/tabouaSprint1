@@ -1,6 +1,6 @@
 import React from 'react'
 import { GoogleMap, useJsApiLoader, Marker } from '@react-google-maps/api';
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { db } from "/src/firebase";
 import { getDocs, collection, addDoc, GeoPoint, deleteDoc, doc} from "firebase/firestore";
 import {  getDoc } from "firebase/firestore";
@@ -8,6 +8,7 @@ import Confirm from '../messages/Confirm';
 import ViewCenterInfo from "../viewInfo/ViewCenterInfo"
 import RecyclingCenterForm from "../forms/RecyclingCenterForm"
 import Success from "../messages/Success"
+import AlertMessage from "../messages/AlertMessage"
 import { Button , Tooltip} from "@material-tailwind/react";
 
 const containerStyle = {
@@ -22,20 +23,30 @@ const center = {
 
 function Map() {
 
+    const [zoom, setZoom] = useState(10); // set the initial zoom level
+    const [userPosition, setUserPosition] = useState(null);
     const [recyclingCenters, setRecyclingCenters] = useState([]);
     const [selectedLocation, setSelectedLocation] = React.useState(false);
     const [centerData ,SetCenterData] = React.useState([]);
     const [formVisible, setFormVisible] = useState(false); // To control confirmation message visibility
     const [newRecyclingCenterLocation, setNewRecyclingCenterLocation] = useState(null);
     const [showAlert, setShowAlert] = useState(false);
-    const [showAlertDeletion, setShowAlertDeletion] = useState(false);
+    const [showSuccessAlert, setShowSuccessAlert] = useState(false);
+    const [showAlertSuccessDeletion, setShowAlertSuccessDeletion] = useState(false);
     const [viewInfo, setViewInfo] = React.useState(false);
 
     const openInfoDrawer = () => setViewInfo(true);
     const closeInfoDrawer = () => setViewInfo(false);
-    const handlealert = () => setShowAlert(!showAlert);
+    const handleAlert = () => setShowAlert(!showAlert);
+    const handleSuccessAlert = () => setShowSuccessAlert(!showSuccessAlert);
     const handleForm = () => setFormVisible(!formVisible);
-  const handlealertDeletion = () => setShowAlertDeletion(!showAlertDeletion);
+    const handleAlertSuccessDeletion = () => setShowAlertSuccessDeletion(!showAlertSuccessDeletion);
+
+  
+ // Define the acceptable zoom level range
+ const minZoomLevel = 18;
+ const currentZoomLevelRef = useRef(null);
+ const mapRef = useRef(null);
 
     useEffect(() => {
     
@@ -64,9 +75,15 @@ function Map() {
         const lat = event.latLng.lat();
         const lng = event.latLng.lng();
         console.log("Clicked Coordinates:", lat, lng)
+        // Check if the conditions are met
+  if (currentZoomLevelRef.current >= minZoomLevel) {
         // Store the new garbage bin location temporarily
         setNewRecyclingCenterLocation({ lat, lng });
         setFormVisible(true);
+    } else {
+        handleAlert();
+      }
+        
     };
 
     //  code for adding a new recycling center
@@ -112,7 +129,7 @@ function Map() {
           ]);
       
           // Show success message here
-          setShowAlert(true);
+          setShowSuccessAlert(true);
         } catch (error) {
           console.error("Error adding recycling center:", error);
         }
@@ -127,18 +144,44 @@ function Map() {
 
   const [map, setMap] = React.useState(null)
 
+ 
   const onLoad = React.useCallback(function callback(map) {
-    console.log("onload")
-   
-  }, [])
+    console.log("onload");
+    mapRef.current = map; // Store the map object in the ref
+    
+    // Get the initial zoom level and store it in currentZoomLevelRef
+    if (map.getZoom) {
+      const initialZoomLevel = map.getZoom();
+      currentZoomLevelRef.current = initialZoomLevel;
+    }
+  
+    // Attach the onZoomChanged event listener
+    if (map.addListener) {
+      map.addListener('zoom_changed', onZoomChanged);
+    }
+  }, []);
 
   const onUnmount = React.useCallback(function callback(map) {
+    console.log("unmount")
+    mapRef.current = null;
     setMap(null)
   }, [])
 
 
 
  
+// function to handle fetching the user's current position
+const getUserPosition = () => {
+    if ('geolocation' in navigator) {
+      navigator.geolocation.getCurrentPosition((position) => {
+        const { latitude, longitude } = position.coords;
+        setUserPosition({ lat: latitude, lng: longitude });
+        setZoom(15); 
+      });
+    } else {
+      alert('Geolocation is not available in your browser.');
+    }
+  };
 
   const handleMarkerClick = async (recycleCenter) => {
     
@@ -159,12 +202,25 @@ function Map() {
     }
     openInfoDrawer();
     setSelectedLocation(recycleCenter);
-   
-  
   };
 
 
-  const handleDeleteConfirmation = () => {
+  const onZoomChanged = () => {
+    if (mapRef.current && mapRef.current.getZoom) {
+      const zoomLevel = mapRef.current.getZoom();
+      currentZoomLevelRef.current = zoomLevel;
+    }
+  };
+  
+// Attach the onZoomChanged event listener
+useEffect(() => {
+  if (mapRef.current) {
+    mapRef.current.addListener('zoom_changed', onZoomChanged);
+  }
+}, []);
+
+
+  const handleDeletion = () => {
     
       onDeleteGarbageBin(selectedLocation.id);
       setSelectedLocation(false); // Close the info window after deletion.
@@ -184,7 +240,7 @@ const onDeleteGarbageBin = async (centerId) => {
       setRecyclingCenters((prevrecyclingCenters) =>
       prevrecyclingCenters.filter((center) => center.id !== centerId)
       );
-       setShowAlertDeletion(true);
+       setShowAlertSuccessDeletion(true);
       // Display a success message
       
     } catch (error) {
@@ -212,12 +268,26 @@ const onDeleteGarbageBin = async (centerId) => {
     >
       <Button style={{ background: "#FE5500", color: '#ffffff' }} size='sm'><span>إزالة</span></Button>
     </Tooltip>
+    
+    <Button
+  style={{ background: '#FE9B00', color: '#ffffff' }}
+  size="sm"
+  onClick={getUserPosition}
+>
+  <span>عرض الموقع الحالي</span>
+   </Button>
+
     </div>
+
+
+    <div style={{position: 'absolute', zIndex: 2000, }}>
+  <AlertMessage open={showAlert} handler={handleAlert} message="كبر الخريطة لتتمكن من إضافة مركز تدوير " />
+  </div>
 
       <GoogleMap
         mapContainerStyle={containerStyle}
-        center={center}
-        zoom={10}
+        center={userPosition || center}
+        zoom={zoom}
         onLoad={onLoad} //Callback function that gets executed when the map is loaded.
         onUnmount={onUnmount}//Callback function that gets executed when the component unmounts.
         onClick={onMapClick}
@@ -229,19 +299,15 @@ const onDeleteGarbageBin = async (centerId) => {
             position={{ lat: recycleCenter.location._lat, lng: recycleCenter.location._long }} // Update here
             onClick={() => handleMarkerClick(recycleCenter)}
           >    
-{/* 
-          <ViewCenterInfo  open={selectedLocation && selectedLocation.id === recycleCenter.id} handler={() => setSelectedLocation(false)} Deletemethod={handleDeleteConfirmation} center={centerData}/>
-           */}
-          {/* <ViewCenterInfo  open={viewInfo} handler={handleviewInfo} Deletemethod={handleDeleteConfirmation} center={centerData}/>
-           */}
+
           </Marker>
         ))}
 
        
-        <ViewCenterInfo  open={viewInfo} onClose={closeInfoDrawer} Deletemethod={handleDeleteConfirmation} center={centerData}/>
+        <ViewCenterInfo  open={viewInfo} onClose={closeInfoDrawer} DeleteMethod={handleDeletion} center={centerData}/>
         <RecyclingCenterForm open={formVisible} handler={handleForm} method={handleAddRecyclingCenter} />
-        <Success open={showAlert} handler={handlealert} message=" !تم إضافة مركز التدوير بنجاح" />
-        <Success open={showAlertDeletion} handler={handlealertDeletion} message=" !تم حذف مركز التدوير بنجاح" />
+        <Success open={showSuccessAlert} handler={handleSuccessAlert} message=" !تم إضافة مركز التدوير بنجاح" />
+        <Success open={showAlertSuccessDeletion} handler={handleAlertSuccessDeletion} message=" !تم حذف مركز التدوير بنجاح" />
         
       </GoogleMap>
       </div>

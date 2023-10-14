@@ -129,7 +129,7 @@ import {
             <ListItemPrefix>
               <MdManageAccounts className="h-6 w-6" />
             </ListItemPrefix>
-            <Link to="manage" onClick={() => handleItemClick('manage')}> إدارة صلاحيات المشرفين</Link> 
+            <Link to="manage" onClick={() => handleItemClick('manage')}> إدارة صلاحيات الموظفين</Link> 
           </ListItem>} 
             
          

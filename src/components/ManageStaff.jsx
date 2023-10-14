@@ -49,24 +49,30 @@ console.log("id = " , id);
     const staffCollection = collection(db, 'staff');
     const unsubscribe = onSnapshot(staffCollection, (snapshot) => {
       const staffData = [];
+  
       snapshot.forEach((doc) => {
         const data = doc.data();
-        staffData.push({
-          firstName: data.firstName,
-          lastName: data.lastName,
-          email: data.email,
-          id: doc.id,
-        });
+  
+        // Check if the 'isAdmin' field is explicitly set to false
+        if (data.isAdmin === false) {
+          staffData.push({
+            firstName: data.firstName,
+            lastName: data.lastName,
+            email: data.email,
+            id: doc.id,
+          });
+        }
       });
+  
       setStaffMembers(staffData);
     });
-
+  
     // Return the cleanup function to unsubscribe from the listener
     return () => {
       unsubscribe();
     };
-  }, []); // This effect runs only once when the component mounts
-
+  }, []);
+  
 
 
   function TrashIcon() {

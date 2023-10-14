@@ -17,7 +17,7 @@ import {
   import { UserPlusIcon } from "@heroicons/react/24/solid"
 
   import { db} from "../firebase";
-  import { collection, getDocs , deleteDoc , doc } from 'firebase/firestore';
+  import { collection, getDocs , deleteDoc , doc ,  onSnapshot } from 'firebase/firestore';
 
 
 
@@ -46,27 +46,27 @@ console.log("id = " , id);
   const [staffMembers, setStaffMembers] = useState([]);
 
   useEffect(() => {
-    // Fetch data from Firestore collection
-    const fetchData = async () => {
-      const querySnapshot = await getDocs(collection(db, "staff"));
-
+    const staffCollection = collection(db, 'staff');
+    const unsubscribe = onSnapshot(staffCollection, (snapshot) => {
       const staffData = [];
-      querySnapshot.forEach((doc) => {
-        // Extract first name, last name, and email from the document
+      snapshot.forEach((doc) => {
         const data = doc.data();
         staffData.push({
           firstName: data.firstName,
           lastName: data.lastName,
           email: data.email,
-          id:doc.id,
+          id: doc.id,
         });
       });
-
       setStaffMembers(staffData);
-    };
+    });
 
-    fetchData();
-  }, []);
+    // Return the cleanup function to unsubscribe from the listener
+    return () => {
+      unsubscribe();
+    };
+  }, []); // This effect runs only once when the component mounts
+
 
 
   function TrashIcon() {

@@ -184,7 +184,10 @@ console.log(currentZoomLevelRef.current)
 
   };
 
-
+  const generateRandomSerial = () => {
+    const serialNumber = Math.floor(Math.random() * 1000000); // Change the range as needed
+    return serialNumber;
+  };
   
 const AddGarbageBin = async (data) => {
   try {
@@ -193,12 +196,14 @@ const AddGarbageBin = async (data) => {
       newGarbageBinLocation.lng
     );
   
+    const randomSerialNumber = generateRandomSerial();
 
     const docRef = await addDoc(collection(db, "garbageBins"), {
       location: geoPoint,
       size: data.size,
       date: Timestamp.fromDate(new Date()),
       maintenanceDate: Timestamp.fromDate(new Date()),
+      serialNumber: randomSerialNumber, 
     });
 
     console.log("Document added with ID:", docRef.id); // Log the document ID

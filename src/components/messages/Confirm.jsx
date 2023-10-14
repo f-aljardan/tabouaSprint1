@@ -26,6 +26,7 @@ export default function Confirm({open, handler , method, message}){
         <Button variant="gradient"  style={{background:"#97B980", color:'#ffffff'}}   onClick={method}>
             <span>تأكيد</span>
           </Button>
+          
           <Button  
             variant="gradient"
            style={{background:"#FE5500", color:'#ffffff'}}

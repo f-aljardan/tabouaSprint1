@@ -1,20 +1,11 @@
-import {
-    Drawer,
-    Button,
-    Typography,
-    IconButton,
-    List,
-    ListItem,
-    ListItemPrefix,
-  } from "@material-tailwind/react";
-   
+import { Drawer, Button, Typography, IconButton, List, ListItem, ListItemPrefix,} from "@material-tailwind/react"; 
 import {TrashIcon,} from "@heroicons/react/24/solid";
 import{MdOutlineDateRange}from 'react-icons/md';
 import{HiOutlineHashtag}from 'react-icons/hi';
 import Confirm from "../messages/Confirm"
 import { useState, useEffect } from "react";
 import { db } from "/src/firebase";
-import { doc , Timestamp, updateDoc } from "firebase/firestore"; // Import the necessary Firestore functions
+import { doc , Timestamp, updateDoc } from "firebase/firestore";
 
 
 export default function ViewGarbageInfo({open, onClose , DeleteMethod, bin , binId}){
@@ -24,7 +15,7 @@ const [editingMaintenanceDate, setEditingMaintenanceDate] = useState(false);
 const [deleteConfirmation , setDeleteConfirmation] = useState(false);
 
 const handleDeleteConfirmation = () => (setDeleteConfirmation(!deleteConfirmation));
-const handleEditMaintenanceDate = () => {
+const handleEditMaintenanceDate = () => { 
     // When the button is clicked, toggle the editing state
     setEditingMaintenanceDate(!editingMaintenanceDate);
   };
@@ -35,11 +26,14 @@ const handleEditMaintenanceDate = () => {
     setMaintenanceDate(bin.maintenanceDate ? bin.maintenanceDate.toDate() : null);
   }, [bin.maintenanceDate]);
 
+
   const handleMaintenanceDateChange = (e) => {
     // Parse the input value to a Date
     const newDate = new Date(e.target.value);
     setMaintenanceDate(newDate);
   };
+
+
   const saveMaintenanceDate = async () => {
     try {
       const binRef = doc(db, "garbageBins", binId);
@@ -60,11 +54,13 @@ const handleEditMaintenanceDate = () => {
     }
   };
 
+
   // Convert Firestore Timestamp to JavaScript Date
   const formattedDate = bin.date && bin.date.toDate().toLocaleDateString(); // Format the date
   const formattedMaintenanceDate = maintenanceDate ? maintenanceDate.toLocaleDateString() : 'Not set'; // Format maintenanceDate
 
   
+
 return(
     <>
     <Drawer
@@ -159,19 +155,7 @@ return(
           </Button>
         </ListItem>
 
-        {/* <input
-              type="date"
-              value={maintenanceDate ? maintenanceDate.toISOString().substring(0, 10) : ''}
-              onChange={handleMaintenanceDateChange}
-            />
-            <Button
-              size="sm"
-              variant="gradient"
-              style={{ background: '#97B980', color: '#ffffff' }}
-              onClick={saveMaintenanceDate}
-            >
-              <span>حفظ</span>
-            </Button> */}
+    
 
 <ListItem ripple={false}>
   <ListItemPrefix>
@@ -179,14 +163,14 @@ return(
   </ListItemPrefix>
   <div>
     <span className="font-medium">  نوع الحاوية: </span>
-    <span className="block"> {bin.size}</span> {/* Use block to create a line break */}
+    <span className="block"> {bin.size}</span> 
   </div>
 </ListItem>
 
 
  </List>
           
-          <Button size="md" fullWidth={true} variant="gradient"  style={{background:"#FE5500", color:'#ffffff'}}   onClick={handleDeleteConfirmation}> <span>حذف الحاوية </span> </Button>
+        <Button size="md" fullWidth={true} variant="gradient"  style={{background:"#FE5500", color:'#ffffff'}}   onClick={handleDeleteConfirmation}> <span>حذف الحاوية </span> </Button>
      
       </Drawer>
 

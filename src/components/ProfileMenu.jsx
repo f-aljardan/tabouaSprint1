@@ -1,10 +1,9 @@
-import React, { useState } from 'react';
-import { Menu, MenuHandler, MenuList, MenuItem, Avatar, Typography, Button } from "@material-tailwind/react";
+import  { useState } from 'react';
+import { Menu, MenuHandler, MenuList, MenuItem, Avatar, Typography, Button,Input } from "@material-tailwind/react";
 import userIcon from "/userIcon.svg";
 import { getAuth, signOut, updatePassword } from "firebase/auth";
 import { useNavigate } from 'react-router-dom';
-import Modal from 'react-modal';
-
+import { Dialog,DialogHeader, DialogBody, DialogFooter,} from "@material-tailwind/react";
 import Confirm from "../components/messages/Confirm"
 import Success from "./messages/Success";
 
@@ -28,8 +27,6 @@ export default function ProfileMenu({ userData }) {
   const closeModal = () => {
     setIsChangingPassword(false);
     setModalOpen(false);
-    setNewPassword('');
-    setNewPasswordRepeat('');
     setPasswordChangeError(null);
   };
 
@@ -57,8 +54,10 @@ export default function ProfileMenu({ userData }) {
 
   const validatePassword = () => {
     if (!passwordValidationRegex.test(newPassword)) {
-      setPasswordChangeError('Password must contain at least one small letter, one capital letter, one special character, one number, and be at least 8 characters long.');
-      return false;
+
+      setPasswordChangeError(
+        'كلمة المرور يجب أن تحتوي على حرف صغير وحرف كبير وحرف خاص ورقم ويجب أن تكون مكونة من 8 أحرف على الأقل.'
+      );   return false;
     } else {
       setPasswordChangeError(null);
       return true;
@@ -67,12 +66,16 @@ export default function ProfileMenu({ userData }) {
 
   const confirmChangePassword = async () => {
     if (newPassword === newPasswordRepeat) {
+  
       if (validatePassword()) {
+
         const auth = getAuth();
         try {
           await updatePassword(auth.currentUser, newPassword);
           setPasswordChangeError(null);
           setSuccessModalOpen(true); // Open the success modal
+          setNewPassword('');
+          setNewPasswordRepeat('');
         } catch (error) {
           setPasswordChangeError(error.message);
           console.error('Password change error:', error);
@@ -80,20 +83,25 @@ export default function ProfileMenu({ userData }) {
       }
     } else {
       setPasswordChangeError('كلمة المرور غير متطابقة');
+  
     }
   };
 
   const passwordStrengthIndicator = (
     <div className="text-xs mb-2">
       {passwordValidationRegex.test(newPassword) ? (
-        <span className="text-green-600">Password meets the requirements</span>
+        <span className="text-green-600">كلمة المرور تلبي المتطلبات</span>
       ) : (
-        <span className="text-red-600">Password does not meet the requirements</span>
+        <span className="text-red-600">كلمة المرور لا تلبي المتطلبات</span>
       )}
     </div>
   );
 
+
+
+
   return (
+    <>
     <div className="ProfileMenu flex justify-right px-8">
       <Menu placement="bottom-end">
         <div className="flex justify-center items-center gap-3">
@@ -159,61 +167,50 @@ export default function ProfileMenu({ userData }) {
         </MenuList>
       </Menu>
 
-      <Modal
-        isOpen={isModalOpen}
-        onRequestClose={closeModal}
-        contentLabel="Change Password Modal"
-        className="w-64 p-4"
-      >
-        <h2>تغيير كلمة المرور</h2>
-        <div className="text-right">
-              <button onClick={closeModal} className="absolute top-2 right-2 text-red-600">
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="2"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  className="w-6 h-6"
-                >
-                  <line x1="18" y1="6" x2="6" y2="18" />
-                  <line x1="6" y1="6" x2="18" y2="18" />
-                </svg>
-              </button>
-              <input
-                type="password"
-                placeholder="كلمة المرور الجديدة"
-                value={newPassword}
-                onChange={(e) => setNewPassword(e.target.value)}
-                className={`block w-full p-2 mb-2 border ${
-                  passwordValidationRegex.test(newPassword) ? 'border-green-500' : 'border-red-500'
-                }`}
-              />
-              {passwordStrengthIndicator}
-              <input
-                type="password"
-                placeholder="ادخل كلمة المرور مرة اخرى"
-                value={newPasswordRepeat}
-                onChange={(e) => setNewPasswordRepeat(e.target.value)}
-                className={`block w-full p-2 mb-2 border ${
-                  newPassword === newPasswordRepeat && newPassword.length > 0
-                    ? 'border-green-500'
-                    : 'border-red-500'
-                }`}
-              />
-              {newPassword !== newPasswordRepeat && newPasswordRepeat.length > 0 && (
-                <div className="text-xs text-red-600 mb-2">كلمة السر غير متطابقة</div>
-              )}
-              <div className="flex justify-center">
-                <button onClick={openConfirmationModal} className="bg-green-500 text-white p-2">
-                  تأكيد
-                </button>
-              </div>
-            </div>
-          </Modal>
-  
+
+
+
+      <Dialog size="md" open={isModalOpen} handler={closeModal}  >
+        <DialogHeader className="font-baloo flex justify-center" >تغيير كلمة المرور</DialogHeader>
+        <DialogBody divider className="font-baloo text-right">
+          <div className="text-right">
+
+          <Typography variant='small' className='mb-5'><span> كلمة المرور يجب أن تحتوي على الأقل حرف 1 صغير, وحرف 1 كبير, وحرف 1 خاص, ورقم 1, ويجب أن تكون مكونة من 8 أحرف على الأقل.</span>  </Typography>
+           
+            <Input
+              type="password"
+              label="كلمة المرور الجديدة"
+              required
+              value={newPassword}
+              onChange={(e) => setNewPassword(e.target.value)} 
+              className={`block w-full p-2 mb-2 border ${passwordValidationRegex.test(newPassword) ? 'border-green-500' : 'border-red-500'}`}
+            />
+            {passwordStrengthIndicator}
+            <Input
+              type="password"
+              label="أعد إدخال كلمة المرور"
+              required
+              value={newPasswordRepeat}
+              onChange={(e) => setNewPasswordRepeat(e.target.value)}
+              className={`block w-full p-2 mb-2 border ${newPassword === newPasswordRepeat && newPassword.length > 0 ? 'border-green-500' : 'border-red-500'}`}
+            />
+            {newPassword !== newPasswordRepeat && newPasswordRepeat.length > 0 && (
+              <div className="text-xs text-red-600 mb-2">كلمة المرور غير متطابقة</div>
+            )}
+          </div>
+        </DialogBody>
+        <DialogFooter className="flex gap-3 justify-center">
+        
+            <Button  variant="gradient"  onClick={openConfirmationModal} style={{background:"#97B980", color:'#ffffff'}}  disabled={!newPassword || !newPasswordRepeat || newPassword !== newPasswordRepeat || !passwordValidationRegex.test(newPassword)}>
+             <span>تأكيد</span> 
+            </Button>
+            <Button   variant="gradient" style={{background:"#FE5500", color:'#ffffff'}} onClick={closeModal} className="mr-1">
+            <span>إلغاء</span>
+          </Button>
+         
+        </DialogFooter>
+      </Dialog>
+           
           <Confirm
             open={isConfirmationModalOpen}
             handler={closeConfirmationModal}
@@ -227,6 +224,7 @@ export default function ProfileMenu({ userData }) {
             message="تم تغيير كلمة المرور بنجاح"
           />
         </div>
+        </>
       );
   }
 

@@ -20,7 +20,6 @@ import {
   import { collection, getDocs , deleteDoc , doc ,  onSnapshot } from 'firebase/firestore';
   import { getAuth, deleteUser } from 'firebase/auth';
 
-import {adminAuth} from "../service-account.js"
 
 
 

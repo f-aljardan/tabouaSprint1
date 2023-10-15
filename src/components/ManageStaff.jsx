@@ -147,13 +147,13 @@ console.log("id = " , id);
 
       <div  style={{ display: "flex", alignItems: "start" , justifyContent: "flex-start" }}>
       <Button
-        className="flex items-center gap-3 bg-green-500 text-white"
+        className="flex items-center gap-3 text-white"
         size="sm"
         onClick={handleAddStaff}
         aria-hidden="false"
 
         style={{
-          marginTop: "65px", // Add padding to the top of the button
+          marginTop: "65px", backgroundColor: "#97B980"
         }}
   
       >
@@ -161,17 +161,16 @@ console.log("id = " , id);
         <UserPlusIcon strokeWidth={2} className="h-4 w-4" />
       </Button>
       <AddStaff open={showAddStaffDialog} handler={handleAddStaff} />
+     
+     
       <div 
 style={{ 
-
-
 
   overflowX: "auto",
       maxWidth: "800px",
       margin: "0 auto",
       maxHeight: "80vh", // Set a maximum height for the tabl
 }}
-
 
 >
 

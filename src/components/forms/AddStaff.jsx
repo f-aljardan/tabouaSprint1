@@ -11,9 +11,9 @@ import {
 } from "@material-tailwind/react";
 
 
-import { db , app , auth } from "../../firebase";
+import { db , app , auth  } from "../../firebase";
 import {createUserWithEmailAndPassword} from 'firebase/auth';
-import { collection, addDoc } from 'firebase/firestore';
+import { collection, addDoc , setDoc, doc} from 'firebase/firestore';
 import SummeryStaffInfo from "../viewInfo/SummeryStaffInfo";
 import "@material-tailwind/react"; 
 import Success from "../messages/Success"
@@ -134,6 +134,7 @@ try{
     password: formData.password,
     isAdmin: false,  
   });
+
     
   handlealert();
 

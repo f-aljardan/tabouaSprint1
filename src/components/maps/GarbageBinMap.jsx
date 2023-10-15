@@ -11,7 +11,7 @@ import AlertMessage from "../messages/AlertMessage"
 
 const containerStyle = {
   width: '100%', // Set a width as needed
-  height: '550px'
+    height: '100%'
 };
 
 const center = {
@@ -299,7 +299,7 @@ const onDeleteGarbageBin = async (garbageBinId) => {
 
 
 return isLoaded ? (
-  <div style={{ position: 'relative' , width:'100%',}}>
+  <div style={{ position: 'relative' , width:'100%',  height: "%100"}}>
     <div className="flex gap-5 p-4 mr-12 z-10" style={{ position: 'absolute' }}>
     
     <Tooltip
@@ -327,7 +327,7 @@ return isLoaded ? (
 
 {/* Select option for bin type filtering */}
       <div className='bg-white text-gray-900 rounded-md' >
-        <Select className='text-gray-900 ' color="black"  onChange={(value) => handleBinSizeSelect(value)} value={selectedBinSize}>
+        <Select className='text-gray-900 '   onChange={(value) => handleBinSizeSelect(value)} value={selectedBinSize}>
 
           <Option value="">كل المقاسات</Option>
           <Option value="حاوية كبيرة">حاوية كبيرة</Option>

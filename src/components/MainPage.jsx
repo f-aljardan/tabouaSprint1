@@ -4,8 +4,8 @@ import { db, auth }  from "/src/firebase";
 import { doc, getDoc } from 'firebase/firestore';
 import Home from './Home';
 import Sidebar from './Sidebar';
-import GarbageBins from './GarbageBins'; 
-import RecyclingCenters from './RecyclingCenters'; 
+import GarbageBinMap from "./maps/GarbageBinMap"
+import RecyclingCenterMap from "./maps/RecyclingCentersMap"
 import Complaints from './Complaints';
 import Heatmap from './Heatmap';
 import ManageStaff from './ManageStaff';
@@ -36,7 +36,7 @@ function MainPage() {
               }
           } else {
             // User is not signed in, redirect to the login page
-            navigate('/login');
+            navigate('/');
           }
         });
     
@@ -46,15 +46,19 @@ function MainPage() {
     
       return (
         <>
+       
+
+
+
           <div className="app-container">
             <Sidebar authorized={userData.isAdmin} showSidebar={showSidebar} setShowSidebar={setShowSidebar} activeItem={activeItem} setActiveItem={setActiveItem}/>
             <div className="content-container">
               <Routes>
               <Route path="/" element={<Home  authorized={userData.isAdmin} userData={userData} showSidebar={showSidebar} setShowSidebar={setShowSidebar} setActiveItem={setActiveItem}/>} />
                {showSidebar && (
-                  <>
-                    <Route path="/garbage"  element={<GarbageBins/>} />
-                    <Route path="/recycle" element={<RecyclingCenters />} />
+                  <> 
+                    <Route path="/garbage"  element={<div className='map h-[calc(105vh-2rem)]'> <GarbageBinMap/> </div>} />
+                    <Route path="/recycle" element={<div className='map h-[calc(105vh-2rem)]'><RecyclingCenterMap /></div>} />
                     <Route path="/complaints" element={<Complaints />} />
                     <Route path="/heatmap" element={<Heatmap />} />
                     {userData.isAdmin && <Route path="/manage" element={<ManageStaff />} />}
@@ -63,18 +67,10 @@ function MainPage() {
               </Routes>
             </div>
           </div>
+
           <Footer />
           
-               {/* <Routes>
-         
-            <Route path='' exact element={<Home/>} />
-            <Route path="garbage" element={<GarbageBins/>} />
-            <Route path="recycle" element={<RecyclingCenters/>} />
-            <Route path="complaints" element={<Complaints/>} /> 
-            <Route path="heatmap" element={<Heatmap/>} />
-            {isAdmin && <Route path="manage" element={<ManageStaff/>} /> }
-           
-          </Routes> */}
+
         </>
 
       );

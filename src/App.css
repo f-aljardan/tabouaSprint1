@@ -16,15 +16,7 @@ body{
  
 }
 
-.accountContainer{
-  display: flex;
-  
-}
-.accountContaineritem1{
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
-}
+
 
 .sidebar {
   /* Your sidebar styles */
@@ -52,8 +44,8 @@ body{
   justify-content: center;
   /* border:  #97B980 solid 5px;
   border-radius: 20px; */
-  /* width: '950px';
-  height: '500px';  */
+  /* width: '950px';*/
+  /* height: '500px';   */
 }
 
 .loginPage{
@@ -99,10 +91,3 @@ body{
 
 }
 
-
-.large-time-picker {
-  font-size: 16px; /* Adjust the font size as needed */
-  width: 120px; /* Adjust the width as needed */
-  padding: 8px; /* Adjust the padding as needed */
-  /* Add any other styles you need */
-}

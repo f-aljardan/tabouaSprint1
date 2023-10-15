@@ -84,7 +84,7 @@ export default function RecyclingCenters(){
     return(
         <>
         
-        <div className='map'> 
+        <div className='map h-[calc(105vh-2rem)]'> 
         <Map/>
         </div>
        

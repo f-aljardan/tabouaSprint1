@@ -72,7 +72,7 @@ export default function GarbageBinForm({ open, handler, AddMethod }) {
   
           <DialogBody divider className="font-baloo text-right">
             <div className="grid gap-6">
-              <Typography className="font-baloo text-right">
+              <Typography className="font-baloo text-right text-gray-900">
                 أختر نوع الحاوية :
               </Typography>
               <Select
@@ -95,10 +95,7 @@ export default function GarbageBinForm({ open, handler, AddMethod }) {
           </DialogBody>
   
           <DialogFooter className="flex gap-3 justify-center font-baloo text-right">
-            <Button variant="outlined" onClick={handler}>
-              <span>إلغاء</span>
-            </Button>
-            <Button
+          <Button
               type="submit"
               variant="gradient"
               style={{ background: '#97B980', color: '#ffffff' }}
@@ -106,6 +103,10 @@ export default function GarbageBinForm({ open, handler, AddMethod }) {
             >
               <span>إضافة</span>
             </Button>
+            <Button variant="outlined" onClick={handler}>
+              <span>إلغاء</span>
+            </Button>
+          
           </DialogFooter>
         </form>
       </Dialog>

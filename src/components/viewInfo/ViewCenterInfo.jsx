@@ -7,7 +7,9 @@ import {
   IconButton,
   ListItemPrefix,
   Chip,
-
+  List,
+  ListItem,
+  Textarea,
 } from "@material-tailwind/react";
 import {
   HiOutlineInformationCircle,
@@ -18,7 +20,7 @@ import{FaRecycle,} from 'react-icons/fa'
 import { format, parseISO } from 'date-fns';
 import { enUS } from 'date-fns/locale';
 
-const arabicDays = ['الجمعة', 'السبت','ايام الاسبوع'  ];
+const arabicDays = ['- الجمعة', '- السبت','- ايام الاسبوع'  ];
 
 const formatTimeRange = (from, to) => {
   const fromDate = parseISO(from);
@@ -40,11 +42,11 @@ const formatOpeningHours = (center) => {
         const dayData = center.openingHours[day];
         return (
           <li key={day}>
-            <span style={{ fontWeight: 'bold' }}>
-              {arabicDays[orderedDays.indexOf(day)]}:
+            <span style={{ fontWeight: 'bold', marginLeft: '8px'  }}>
+              {arabicDays[orderedDays.indexOf(day)]} : 
             </span>
-            <span style={{ marginLeft: '8px' }}>
-              {dayData.isClosed ? 'مغلق' : formatTimeRange(dayData.from, dayData.to)}
+            <span style={{ marginLeft: '8px' }} >
+               {dayData.isClosed ? 'مغلق' : formatTimeRange(dayData.from, dayData.to)}
             </span>
           </li>
         );
@@ -64,7 +66,7 @@ export default function ViewCenterInfo({open, onClose , DeleteMethod, center}){
  
   const types = center.type || [];
   const typeList = types.map((type, index) => (
-    <Chip key={index} style={{ background: "#FE9B00", color: "#ffffff" }} value={type} />
+    <Chip key={index} style={{ background: "#07512D", color: "#ffffff" }} value={type} />
   ));
 
 
@@ -72,14 +74,14 @@ export default function ViewCenterInfo({open, onClose , DeleteMethod, center}){
       <>
       <Drawer
       placement="right"
-      size={400}
+      size={450}
       open={open}
       onClose={onClose}
-      className="p-4 font-baloo overflow-y-auto"
+      className="p-5 font-baloo overflow-y-auto"
       
     >
       <div className="mb-4 flex items-center justify-between ">
-        <Typography variant="h5" color="blue-gray">
+        <Typography variant="h5">
           <span>{center.name}</span>
         </Typography>
         <IconButton
@@ -107,61 +109,54 @@ export default function ViewCenterInfo({open, onClose , DeleteMethod, center}){
           <div className="flex justify-center">
     <img
       className="h-36 w-full rounded-lg object-cover object-center"
-      src={center.imageURL} alt="nature image"
+      src={center.imageURL} alt="center image"
     />
           </div>
         
 
 <li className="centerInfo"> 
-
+<List>
+          <ListItem ripple={false}>
        <ul> 
-          <ListItemPrefix className="flex mt-3">
+          <ListItemPrefix className="flex mt-3 pb-2">
             <HiOutlineInformationCircle className="h-5 w-5 ml-2" />
             <span className="font-medium">عن المركز :</span>
           </ListItemPrefix>
-          <div className="descriotion"> 
+          <Typography className="description font-baloo"> 
            {center.description}
-           </div>
+           </Typography>
         </ul>
+        </ListItem>
 
+
+        <ListItem ripple={false}>
         <ul>
-          <ListItemPrefix className="flex">
+          <ListItemPrefix className="flex pb-2">
             <FaRecycle className="h-5 w-5 ml-2" />
-            <span className="font-medium">النفايات المستقبلة :</span>
+            <span className="font-medium ">النفايات المستقبلة :</span>
           </ListItemPrefix>
         <div className="flex wrap gap-2 justify-end"> {typeList} </div>
        </ul>
-    
-      
+      </ListItem>
 
 
        
-
- <ul className="flex gap-2">
-  <ListItemPrefix className="flex">
+      <ListItem ripple={false}>
+ <ul className="flex flex-col gap-2 ">
+  <ListItemPrefix className="flex ">
     <HiClock className="h-5 w-5 ml-2" />
     <span className="font-medium">ساعات العمل:</span>
   </ListItemPrefix>
-  {/* <div className="opening-hours">
-    {center.openingHours
-      ? Object.keys(center.openingHours).map((day) => {
-          const dayData = center.openingHours[day];
-          return (
-            <div key={day}>
-              {day}: {dayData.isClosed ? "مغلق" : `من ${dayData.from} إلى ${dayData.to}`}
-            </div>
-          );
-        })
-      : 'Opening hours information not available'}
-  </div> */}
+
   <div className="opening-hours">
     {center.openingHours ? formatOpeningHours(center) : 'معلومات ساعات العمل غير متوفرة'}
   </div>
+
 </ul>
+     </ListItem>
 
 
-
-
+     <ListItem ripple={false}>
          <ul className="flex gap-2">
            <ListItemPrefix className="flex">
             <HiOutlinePhone className="h-5 w-5 ml-2" />
@@ -169,8 +164,12 @@ export default function ViewCenterInfo({open, onClose , DeleteMethod, center}){
           </ListItemPrefix>
             <span className="block"> {center.phoneNo}</span>
         </ul>
+      </ListItem>
 
+        </List>
         </li>
+        
+
       <Button
         size="sm"
         className="mt-3"

@@ -33,14 +33,14 @@ export default function AlertMessage({open, handler, message}) {
             variant="text"
             color="white"
             size="sm"
-            className="!absolute top-3 left-1 "
+            className="!absolute top-3 left-0 "
             onClick={handler}
           >
          <span> إغلاق</span> 
           </Button>
         }
       >
-      <span className="pl-12"> {message}</span> 
+      <span className="ml-44 pl-2"> {message}</span> 
       </Alert>
     </>
   );

@@ -2,7 +2,7 @@ import React , {useState, useEffect, useRef} from 'react'
 import { GoogleMap, useJsApiLoader, Marker , OverlayView } from '@react-google-maps/api';
 import { db } from "/src/firebase";
 import { getDocs, collection, addDoc, GeoPoint, deleteDoc, doc ,getDoc, Timestamp } from "firebase/firestore"; // Import the necessary Firestore functions
-import { Button , Tooltip} from "@material-tailwind/react";
+import { Button , Tooltip,  Select, Option} from "@material-tailwind/react";
 import Confirm from '../messages/Confirm';
 import Success from "../messages/Success"
 import GarbageBinForm from "../forms/GarbageBinForm"
@@ -31,16 +31,20 @@ function Map() {
   const [binId , setBinId] = useState();
   const [formVisible, setFormVisible] = useState(false);// To control confirmation message visibility
   const [newGarbageBinLocation, setNewGarbageBinLocation] = useState(null);
-  const [showAlert, setShowAlert] = useState(false);
+  const [showAlertStreet, setShowAlertStreet] = useState(false);
+  const [showAlertZoom, setShowAlertZoom] = useState(false);
   const [showSuccessAlert, setShowSuccessAlert] = useState(false);
   const [showAlertDeletion, setShowAlertDeletion] = useState(false);
   const [viewInfo, setViewInfo] = React.useState(false);
   const [selectedLocation, setSelectedLocation] = React.useState(false);
+  const [selectedBinSize, setSelectedBinSize] = useState('');
+  const [binsData, setBinsData] = useState([]);
 
   const openInfoDrawer = () => setViewInfo(true);
   const closeInfoDrawer = () => setViewInfo(false);
   const handleForm = () => setFormVisible(!formVisible);
-  const handleAlert = () => setShowAlert(!showAlert);
+  const handleAlertStreet = () => setShowAlertStreet(!showAlertStreet);
+  const handleAlertZoom = () => setShowAlertZoom(!showAlertZoom);
   const handleSuccessAlert = () => setShowSuccessAlert(!showSuccessAlert);
   const handlealertDeletion = () => setShowAlertDeletion(!showAlertDeletion);
 
@@ -53,7 +57,19 @@ function Map() {
 
 
 
+  // Function to filter garbage bins based on type
+  const filterGarbageBins = (size) => {
+    if (size === '') {
+      // If no type is selected, show all bins
+      setGarbageBins(binsData);
+    } else {
+      // Filter bins based on the selected type
+      const filteredBins = binsData.filter((bin) => bin.size === size);
+      setGarbageBins(filteredBins);
+    }
+  };
 
+  // Load the garbage bin data from Firestore
   useEffect( ()=>{
       const fetchGarbageBins = async () => {
       try {
@@ -62,31 +78,38 @@ function Map() {
       querySnapshot.forEach((doc) => {
           const data = doc.data();
           const location = data.location || {}; // Ensure location is an object
-          binsData.push({ id: doc.id, location }); // Include the location field
-               });
+          binsData.push({ id: doc.id, location, size: data.size }); 
+           });
 
-      setGarbageBins(binsData);
-    
-  } catch (error) {
-      console.error("Error fetching garbage bins:", error);
-  }
-    };//fetchGarbageBins
-fetchGarbageBins();
+       // Initially, set all garbage bins
+       setGarbageBins(binsData);
 
-
-
- },[])
+      // Store the bin data for filtering
+       setBinsData(binsData);
+        } catch (error) {
+          console.error('Error fetching garbage bins:', error);
+        }
+      };
+  
+      fetchGarbageBins();
+    }, []);
  
- 
+ // Function to handle the selection of a bin type for filtering
+ const handleBinSizeSelect = (size) => {
+  setSelectedBinSize(size);
+  filterGarbageBins(size);
+};
+
   const { isLoaded } = useJsApiLoader({
     id: 'google-map-script',
     googleMapsApiKey: "AIzaSyA_uotKtYzbjy44Y2IvoQFds2cCO6VmfMk"
   })
 
+
   const [map, setMap] = React.useState(null)
 
+
   const onLoad = React.useCallback(function callback(map) {
-    console.log("onload");
     mapRef.current = map; // Store the map object in the ref
     
     // Get the initial zoom level and store it in currentZoomLevelRef
@@ -100,6 +123,7 @@ fetchGarbageBins();
       map.addListener('zoom_changed', onZoomChanged);
     }
   }, []);
+
 
   const onUnmount = React.useCallback(function callback(map) {
     console.log("unmount")
@@ -144,12 +168,14 @@ fetchGarbageBins();
   
   };
 
+
   const onZoomChanged = () => {
     if (mapRef.current && mapRef.current.getZoom) {
       const zoomLevel = mapRef.current.getZoom();
       currentZoomLevelRef.current = zoomLevel;
     }
   };
+
   
 // Attach the onZoomChanged event listener
 useEffect(() => {
@@ -158,21 +184,52 @@ useEffect(() => {
   }
 }, []);
 
-
-const onMapClick = (event) => {
+const onMapClick = async (event) => {
   // Capture the coordinates and display a confirmation message
   const lat = event.latLng.lat();
   const lng = event.latLng.lng();
-  console.log("Clicked Coordinates:", lat, lng);
-console.log(currentZoomLevelRef.current)
+
   // Check if the conditions are met
   if (currentZoomLevelRef.current >= minZoomLevel) {
-    console.log("Adding a garbage bin at this location.");
-    setNewGarbageBinLocation({ lat, lng });
-    setFormVisible(true);
+    const terrainType = await checkTerrainType(lat, lng);
+    if (terrainType === 'building') {
+      // Show an alert message indicating that a garbage bin cannot be added on a building.
+      handleAlertStreet();
+    } else {
+      // Store the new garbage bin location temporarily
+      setNewGarbageBinLocation({ lat, lng });
+      setFormVisible(true);
+    }
   } else {
-    handleAlert();
+    // Show an alert message indicating that a garbage bin can only be added on a specific scale.
+    handleAlertZoom();
   }
+};
+
+const checkTerrainType = (lat, lng) => {
+  return new Promise((resolve, reject) => {
+    if (window.google) {
+      const geocoder = new window.google.maps.Geocoder();
+      const latLng = new window.google.maps.LatLng(lat, lng);
+
+      geocoder.geocode({ location: latLng }, (results, status) => {
+        if (status === 'OK') {
+          const types = results[0]?.address_components.map((component) => component.types[0]);
+
+          // Check if 'types' array contains 'premise' (building)
+          if (types.includes('premise')) {
+            resolve('building');
+          } else {
+            resolve('other'); 
+          }
+        } else {
+          reject('Error checking terrain type');
+        }
+      });
+    } else {
+      reject('Google Maps API not loaded');
+    }
+  });
 };
 
 
@@ -185,7 +242,7 @@ console.log(currentZoomLevelRef.current)
   };
 
   const generateRandomSerial = () => {
-    const serialNumber = Math.floor(Math.random() * 1000000); // Change the range as needed
+    const serialNumber = Math.floor(Math.random() * 1000000); 
     return serialNumber;
   };
   
@@ -205,8 +262,6 @@ const AddGarbageBin = async (data) => {
       maintenanceDate: Timestamp.fromDate(new Date()),
       serialNumber: randomSerialNumber, 
     });
-
-    console.log("Document added with ID:", docRef.id); // Log the document ID
 
     setGarbageBins([...garbageBins, { id: docRef.id, location: geoPoint }]);
     setFormVisible(false);
@@ -231,8 +286,9 @@ const onDeleteGarbageBin = async (garbageBinId) => {
     setGarbageBins((prevGarbageBins) =>
       prevGarbageBins.filter((bin) => bin.id !== garbageBinId)
     );
+     // Display a success message
      setShowAlertDeletion(true);
-    // Display a success message
+   
     
   } catch (error) {
     console.error("Error deleting garbage bin:", error);
@@ -245,6 +301,7 @@ const onDeleteGarbageBin = async (garbageBinId) => {
 return isLoaded ? (
   <div style={{ position: 'relative' , width:'100%',}}>
     <div className="flex gap-5 p-4 mr-12 z-10" style={{ position: 'absolute' }}>
+    
     <Tooltip
       className="bg-white font-baloo text-md text-gray-600"
       content="*  لإضافة موقع حاوية جديدة قم بالضغط على الموقع المحدد والالتزام بحدود الطرق"
@@ -260,19 +317,33 @@ return isLoaded ? (
     >
       <Button style={{ background: "#FE5500", color: '#ffffff' }} size='sm'><span>إزالة</span></Button>
     </Tooltip>
+
     <Button
   style={{ background: '#FE9B00', color: '#ffffff' }}
   size="sm"
-  onClick={getUserPosition}
->
+  onClick={getUserPosition}>
   <span>عرض الموقع الحالي</span>
-</Button>
+     </Button>
+
+{/* Select option for bin type filtering */}
+      <div className='bg-white text-gray-900 rounded-md' >
+        <Select className='text-gray-900 ' color="black"  onChange={(value) => handleBinSizeSelect(value)} value={selectedBinSize}>
+
+          <Option value="">كل المقاسات</Option>
+          <Option value="حاوية كبيرة">حاوية كبيرة</Option>
+          <Option value="حاوية صغيرة">حاوية صغيرة</Option>
+        </Select>
+      </div>
 
   </div>
     
-<div style={{position: 'absolute', zIndex: 2000, }}>
-  <AlertMessage open={showAlert} handler={handleAlert} message="كبر الخريطة لتتمكن من إضافة حاوية القمامة " />
-</div>
+     <div style={{position: 'absolute', zIndex: 2000, }}>
+  <AlertMessage open={showAlertZoom} handler={handleAlertZoom} message="كبر الخريطة لتتمكن من إضافة حاوية القمامة " />
+     </div>
+
+     <div style={{position: 'absolute', zIndex: 2000, }}>
+  <AlertMessage open={showAlertStreet} handler={handleAlertStreet} message=" إلتزم بحدود الطرق عند إضافة حاوية قمامة" />
+     </div>
 
       <GoogleMap
         mapContainerStyle={containerStyle}
@@ -282,36 +353,25 @@ return isLoaded ? (
         onUnmount={onUnmount}//Callback function that gets executed when the component unmounts.
         onClick={onMapClick}
       >
+
         {garbageBins.map((bin) => (
           <Marker
             key={bin.id}
             position={{ lat: bin.location._lat, lng: bin.location._long }} // Update here
             onClick={() => handleMarkerClick(bin)}
           >
-        
-         {/* <Confirm  open={selectedLocation && selectedLocation.id === bin.id} handler={() => setSelectedLocation(false)} method={handleDeleteConfirmation} message="هل انت متأكد من حذف حاوية نفاية بالموقع المحدد؟"/>
-          */}
-{/*           
-          <ViewGarbageInfo  open={selectedLocation && selectedLocation.id === bin.id} handler={() => setSelectedLocation(false)} Deletemethod={handleDeleteConfirmation} bin={binData}/>
-        */}
-            
           </Marker>
-    ))}
+        ))}
     
 
 
-  <ViewGarbageInfo open={viewInfo} onClose={closeInfoDrawer}  DeleteMethod={handleDeletion} bin={binData} binId={binId}/>
-  
-<GarbageBinForm open={formVisible} handler={handleForm} AddMethod={AddGarbageBin}  />
-{/*  
- <Confirm  open={confirmationVisible} handler={handleConfirm} method={saveCoordinatesToFirestore}  message="   هل انت متأكد من إضافة حاوية نفاية بالموقع المحدد؟"/>
-   */}
-  
-  <Success open={showSuccessAlert} handler={handleSuccessAlert} message=" !تم إضافة حاوية القمامة بنجاح" />
+ <ViewGarbageInfo open={viewInfo} onClose={closeInfoDrawer}  DeleteMethod={handleDeletion} bin={binData} binId={binId}/>
+ <GarbageBinForm open={formVisible} handler={handleForm} AddMethod={AddGarbageBin}  />
+ <Success open={showSuccessAlert} handler={handleSuccessAlert} message=" !تم إضافة حاوية القمامة بنجاح" />
  <Success open={showAlertDeletion} handler={handlealertDeletion} message=" !تم حذف حاوية القمامة بنجاح" />
   
     
-        <></>
+       
       </GoogleMap>
 </div>
   ) : <></>

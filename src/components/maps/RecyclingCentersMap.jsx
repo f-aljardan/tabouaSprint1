@@ -30,14 +30,16 @@ function Map() {
     const [centerData ,SetCenterData] = React.useState([]);
     const [formVisible, setFormVisible] = useState(false); // To control confirmation message visibility
     const [newRecyclingCenterLocation, setNewRecyclingCenterLocation] = useState(null);
-    const [showAlert, setShowAlert] = useState(false);
+    const [showAlertZoom, setShowAlertZoom] = useState(false);
+    const [showAlertBuilding, setShowAlertBuilding] = useState(false);
     const [showSuccessAlert, setShowSuccessAlert] = useState(false);
     const [showAlertSuccessDeletion, setShowAlertSuccessDeletion] = useState(false);
     const [viewInfo, setViewInfo] = React.useState(false);
 
     const openInfoDrawer = () => setViewInfo(true);
     const closeInfoDrawer = () => setViewInfo(false);
-    const handleAlert = () => setShowAlert(!showAlert);
+    const handleAlertZoom = () => setShowAlertZoom(!showAlertZoom);
+    const handleAlertBuilding = () => setShowAlertBuilding(!showAlertBuilding);
     const handleSuccessAlert = () => setShowSuccessAlert(!showSuccessAlert);
     const handleForm = () => setFormVisible(!formVisible);
     const handleAlertSuccessDeletion = () => setShowAlertSuccessDeletion(!showAlertSuccessDeletion);
@@ -70,18 +72,25 @@ function Map() {
        }, []);
 
        
-    const onMapClick = (event) => {
+    const onMapClick = async (event) => {
         // Capture the coordinates and display a confirmation message
         const lat = event.latLng.lat();
         const lng = event.latLng.lng();
         console.log("Clicked Coordinates:", lat, lng)
         // Check if the conditions are met
   if (currentZoomLevelRef.current >= minZoomLevel) {
-        // Store the new garbage bin location temporarily
-        setNewRecyclingCenterLocation({ lat, lng });
-        setFormVisible(true);
+    const terrainType = await checkTerrainType(lat, lng);
+    if (terrainType === 'building') {
+       // Store the new garbage bin location temporarily
+       setNewRecyclingCenterLocation({ lat, lng });
+       setFormVisible(true);
+     } else {
+       // Show an alert message indicating that a recycling center can only be added on a building.
+       handleAlertBuilding();
+     }
     } else {
-        handleAlert();
+        // Show an alert message indicating that a recycling center can only be added on a specefic scale.
+        handleAlertZoom();
       }
         
     };
@@ -136,7 +145,7 @@ function Map() {
       };
       
 
-
+//load the Google Maps JavaScript API 
   const { isLoaded } = useJsApiLoader({
     id: 'google-map-script',
     googleMapsApiKey: "AIzaSyA_uotKtYzbjy44Y2IvoQFds2cCO6VmfMk"
@@ -168,7 +177,32 @@ function Map() {
   }, [])
 
 
-
+  const checkTerrainType = (lat, lng) => {
+    return new Promise((resolve, reject) => {
+      if (window.google) {
+        const geocoder = new window.google.maps.Geocoder();
+        const latLng = new window.google.maps.LatLng(lat, lng);
+  
+        geocoder.geocode({ location: latLng }, (results, status) => {
+          if (status === 'OK') {
+            const types = results[0]?.address_components.map((component) => component.types[0]);
+  
+            // Check if 'types' array contains 'premise' (building)
+            if (types.includes('premise')) {
+              resolve('building');
+            } else {
+              resolve('other'); 
+            }
+          } else {
+            reject('Error checking terrain type');
+          }
+        });
+      } else {
+        reject('Google Maps API not loaded');
+      }
+    });
+  };
+  
  
 // function to handle fetching the user's current position
 const getUserPosition = () => {
@@ -223,11 +257,9 @@ useEffect(() => {
   const handleDeletion = () => {
     
       onDeleteGarbageBin(selectedLocation.id);
-      setSelectedLocation(false); // Close the info window after deletion.
-   // }
+      setSelectedLocation(false); // Close the drawer window after deletion.
   };
 
-  
 const onDeleteGarbageBin = async (centerId) => {
     try {
       // Construct a reference to the center document to be deleted
@@ -281,7 +313,10 @@ const onDeleteGarbageBin = async (centerId) => {
 
 
     <div style={{position: 'absolute', zIndex: 2000, }}>
-  <AlertMessage open={showAlert} handler={handleAlert} message="كبر الخريطة لتتمكن من إضافة مركز تدوير " />
+  <AlertMessage open={showAlertZoom} handler={handleAlertZoom} message="كبر الخريطة لتتمكن من إضافة مركز تدوير " />
+  </div>
+  <div style={{position: 'absolute', zIndex: 2000, }}>
+  <AlertMessage open={showAlertBuilding} handler={handleAlertBuilding} message="  التزم بحدود المباني عند إضافة مركز التدوير" />
   </div>
 
       <GoogleMap

@@ -119,7 +119,6 @@ export default function AddStaff({open , handler }){
 
  const HandleAddStaff = async()=> { //add to database
   handler();
-  console.log("addtion method");
 
 try{
 
@@ -162,7 +161,7 @@ try{
       <form>
         <DialogHeader className="flex justify-center font-baloo text-right">إضافة موظف</DialogHeader>
         <DialogBody divider className="font-baloo text-right">
-          <div className="grid gap-6">
+          <div className="grid gap-3">
             <Input
               label="الاسم الأول"
               type="text"
@@ -173,8 +172,9 @@ try{
               required
             />
             {errors.firstName && (
-              <div className="text-red-500 font-bold">{errors.firstName}</div>
+              <div className="text-red-500 font-bold" >{errors.firstName}</div>
             )}
+          
 
             <Input
               label="الاسم الأخير"

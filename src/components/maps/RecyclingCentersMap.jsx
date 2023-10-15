@@ -341,8 +341,8 @@ const onDeleteGarbageBin = async (centerId) => {
        
         <ViewCenterInfo  open={viewInfo} onClose={closeInfoDrawer} DeleteMethod={handleDeletion} center={centerData}/>
         <RecyclingCenterForm open={formVisible} handler={handleForm} method={handleAddRecyclingCenter} />
-        <Success open={showSuccessAlert} handler={handleSuccessAlert} message=" !تم إضافة مركز التدوير بنجاح" />
-        <Success open={showAlertSuccessDeletion} handler={handleAlertSuccessDeletion} message=" !تم حذف مركز التدوير بنجاح" />
+        <Success open={showSuccessAlert} handler={handleSuccessAlert} message=" تم إضافة مركز التدوير بنجاح" />
+        <Success open={showAlertSuccessDeletion} handler={handleAlertSuccessDeletion} message=" تم حذف مركز التدوير بنجاح" />
         
       </GoogleMap>
       </div>

@@ -367,8 +367,8 @@ return isLoaded ? (
 
  <ViewGarbageInfo open={viewInfo} onClose={closeInfoDrawer}  DeleteMethod={handleDeletion} bin={binData} binId={binId}/>
  <GarbageBinForm open={formVisible} handler={handleForm} AddMethod={AddGarbageBin}  />
- <Success open={showSuccessAlert} handler={handleSuccessAlert} message=" !تم إضافة حاوية القمامة بنجاح" />
- <Success open={showAlertDeletion} handler={handlealertDeletion} message=" !تم حذف حاوية القمامة بنجاح" />
+ <Success open={showSuccessAlert} handler={handleSuccessAlert} message=" تم إضافة حاوية القمامة بنجاح" />
+ <Success open={showAlertDeletion} handler={handlealertDeletion} message=" تم حذف حاوية القمامة بنجاح" />
   
     
        

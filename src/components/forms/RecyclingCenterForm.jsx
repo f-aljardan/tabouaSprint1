@@ -47,7 +47,7 @@ export default function RecyclingCenterForm({ open, handler, method }) {
     const [errors, setErrors] = useState({
       name: '',
       description: '',
-     // openingHour: '',
+      openingHour: '',
       imageURL: '',
       phoneNo: '',
       types: '',
@@ -202,20 +202,25 @@ if(!formData.openingHours ||
     const handleSubmit = (e) => {
     e.preventDefault();
       
-        method(formData);
-        setFormData({
-          name: '',
-          description: '',
-          types: [],
-          imageURL: '',
-          openingHours: {
-            fri: { from: '', to: '', isClosed: false },
-            weekdays: { from: '', to: '' },
-            sat: { from: '', to: '', isClosed: false },
-          },
-          phoneNo: '',
-        });
-      
+    const hasFormErrors = Object.values(errors).some((error) => error);
+
+    if(!hasFormErrors) {
+      method(formData);
+      setFormData({
+        name: '',
+        description: '',
+        types: [],
+        imageURL: '',
+        openingHours: {
+          fri: { from: '', to: '', isClosed: false },
+          weekdays: { from: '', to: '' },
+          sat: { from: '', to: '', isClosed: false },
+        },
+        phoneNo: '',
+      });
+    
+    }
+       
     };
 
      const handleCloseForm = () => {

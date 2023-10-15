@@ -69,7 +69,14 @@ export default function Home({ authorized, userData,  setShowSidebar ,setActiveI
               fullWidth={true}
               variant="gradient"
               style={{ background: "#07512D", color: "#ffffff" , fontSize:"12px" , padding: "15px 30px"}} 
-              onClick={()=>handleClick('manage')}> <MdManageAccounts className='w-5 h-5'/> <span>إدارة صلاحيات المشرفين </span> </Button>}
+               onClick={()=>handleClick('manage')}> <MdManageAccounts className='w-5 h-5'/> <span>إدارة صلاحيات الموظفين </span> </Button>}
+
+
+
+
+
+       
+        
       </div>
 
 

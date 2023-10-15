@@ -43,12 +43,26 @@ export default function RecyclingCenterForm({ open, handler, method }) {
       },
       phoneNo: '',
     });
+
+    const [errors, setErrors] = useState({
+      name: '',
+      description: '',
+     // openingHour: '',
+      imageURL: '',
+      phoneNo: '',
+      types: '',
+    });
   
     const handleChange = (e) => {
       const { name, value } = e.target;
       setFormData({
         ...formData,
         [name]: value,
+      });
+
+      setErrors({
+        ...errors,
+        [name]: '',
       });
     };
   
@@ -58,6 +72,11 @@ export default function RecyclingCenterForm({ open, handler, method }) {
         ...formData,
         types: selectedTypes,
       });
+      setErrors({
+        ...errors,
+        types: '',
+      });
+
     };
   
     const handleOpeningHoursChange = (time, category, field) => {
@@ -71,6 +90,11 @@ export default function RecyclingCenterForm({ open, handler, method }) {
           },
         },
       }));
+
+      setErrors({
+        ...errors,
+        openingHour: '',
+      });
     };
 
     const handleDayClosedChange = (isClosed, day) => {
@@ -86,30 +110,109 @@ export default function RecyclingCenterForm({ open, handler, method }) {
         }));
       };
       
+      const validate = (e) => {
 
+        e.preventDefault();
+        const newErrors = {};
+      
+        if (!formData.name.trim()) {
+          newErrors.name = 'يجب إدخال اسم المركز';
+        }
+      
+        if (!formData.description.trim()) {
+          newErrors.description = 'يجب إدخال وصف المركز';
+        }
+      
 
-    
+        /*
+        if ( 
+        
+        formData.openingHours.weekdays.length == 0
+         ) 
+         
+         {
+          newErrors.openingHour = 'يجب إدخال ساعات العمل';
+        }
+      
+        */
+        if (!formData.imageURL.trim()) {
+          newErrors.imageURL = 'يجب إدخال رابط صورة المركز';
+        }
+      
+        if (!formData.phoneNo.trim()) {
+          newErrors.phoneNo = 'يجب إدخال رقم التواصل';
+        }
+        else if (!/^\d+$/.test(formData.phoneNo)) {
+          newErrors.phoneNo = 'رقم التواصل يجب أن يحتوي على أرقام فقط';
+        }
+
+        if (formData.types.length == 0) {
+          newErrors.types = 'يجب تحديد نوع واحد على الأقل';
+        }
+      
+        // Check if there are any errors
+        const hasErrors = Object.values(newErrors).some((error) => error);
+      
+        if (hasErrors) {
+          setErrors(newErrors);
+        } else {
+          // No errors, you can handle the submission here
+          console.log("Form data is valid:", formData);
+          //handler(); // Close the dialog or perform any other desired action
+          // handleSummeryStaff();
+        }
+      };
+      
     
    
   
     const handleSubmit = (e) => {
       e.preventDefault();
-      // Call the callback function to add the recycling center
-  
-      method(formData);
-      // Clear the form fields after submission
+      
+        method(formData);
+        setFormData({
+          name: '',
+          description: '',
+          types: [],
+          imageURL: '',
+          openingHours: {
+            fri: { from: '', to: '', isClosed: false },
+            weekdays: { from: '', to: '' },
+            sat: { from: '', to: '', isClosed: false },
+          },
+          phoneNo: '',
+        });
+      
+    };
+
+     const handleCloseForm = () => {
+
+      handler();
       setFormData({
         name: '',
         description: '',
         types: [],
         imageURL: '',
         openingHours: {
-            fri: { from: '', to: '', isClosed: false },
-            weekdays: { from: '', to: '' },
-            sat: { from: '', to: '', isClosed: false },
+          fri: { from: '', to: '', isClosed: false },
+          weekdays: { from: '', to: '' },
+          sat: { from: '', to: '', isClosed: false },
         },
         phoneNo: '',
       });
+
+      setErrors({
+        name: '',
+        description: '',
+        openingHour: '',
+        imageURL: '',
+        phoneNo: '',
+        types: '',
+
+
+      });
+
+
     };
 
   return (
@@ -131,6 +234,8 @@ export default function RecyclingCenterForm({ open, handler, method }) {
               onChange={handleChange}
               required
             />
+{errors.name && <Typography color="red">{errors.name}</Typography>}
+            
 
             <Typography className="font-baloo text-right text-lg "> أنواع النفايات المستقبلة:</Typography>
             <Select
@@ -142,6 +247,8 @@ export default function RecyclingCenterForm({ open, handler, method }) {
               onChange={handleTypeChange}
               required
             />
+                  {errors.types && <Typography color="red">{errors.types}</Typography>}
+
             
 <div className='flex items-center gap-5'>
 <div className="  w-3/6">
@@ -154,6 +261,8 @@ export default function RecyclingCenterForm({ open, handler, method }) {
               required
               className='mt-2'
             />
+{errors.description && <Typography color="red">{errors.description}</Typography>}
+
             </div>
 <div className='flex flex-col gap-4 w-3/6'>
             <Input
@@ -165,6 +274,7 @@ export default function RecyclingCenterForm({ open, handler, method }) {
               onChange={handleChange}
               required
             />
+            {errors.imageURL && <Typography color="red">{errors.imageURL}</Typography>}
 
             
 <Input
@@ -176,6 +286,8 @@ export default function RecyclingCenterForm({ open, handler, method }) {
               onChange={handleChange}
               required
             />
+                        {errors.phoneNo && <Typography color="red">{errors.phoneNo}</Typography>}
+
  </div>
 </div>
             <Typography className="font-baloo text-right  text-lg">ساعات العمل خلال:</Typography>
@@ -200,8 +312,17 @@ export default function RecyclingCenterForm({ open, handler, method }) {
       value={formData.openingHours.weekdays.to || time}
       onChange={(time) => handleOpeningHoursChange(time, 'weekdays', 'to')}
     />
+
   </LocalizationProvider>
+
+  
   </div>
+  {/*
+  
+    {errors.openingHour && <Typography color="red">{errors.openingHour}</Typography>}
+
+  */}
+
     </div>
 
 
@@ -274,8 +395,9 @@ export default function RecyclingCenterForm({ open, handler, method }) {
               onChange={(time) => handleOpeningHoursChange(time, 'sat', 'to')}
             />
          </div>
-           
+
           </LocalizationProvider>
+
       </div>
    
       </div>
@@ -294,11 +416,11 @@ export default function RecyclingCenterForm({ open, handler, method }) {
             type="submit"
             variant="gradient"
             style={{ background: '#97B980', color: '#ffffff' }}
-            onClick={handler}
+           onClick={validate}
           >
             <span>إضافة</span>
           </Button>
-          <Button variant="outlined" onClick={handler}>
+          <Button variant="outlined" onClick={handleCloseForm}>
             <span>إلغاء</span>
           </Button>
           
@@ -308,6 +430,8 @@ export default function RecyclingCenterForm({ open, handler, method }) {
 
 
 
+
     </>
+
   ); 
 } 

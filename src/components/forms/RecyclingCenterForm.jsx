@@ -255,14 +255,15 @@ if(!formData.openingHours ||
 
   return (
     <>
-    <Dialog size="xl" open={open} handler={handler}>
-      <form onSubmit={handleSubmit}>
-        <DialogHeader className="flex justify-center font-baloo text-right">
+    <div >
+    <Dialog  size="xl" open={open} handler={handler} >
+      <form onSubmit={handleSubmit}  >
+        <DialogHeader className="flex justify-center font-baloo text-right ">
           أضف مركز إعادة تدوير جديد
         </DialogHeader>
 
-        <DialogBody divider className="font-baloo text-right">
-          <div className="grid gap-1 text-gray-900">
+        <DialogBody divider className="font-baloo text-right " >
+          <div className="grid  text-gray-900  ">
             <Input
               label="إسم المركز"
               type="text"
@@ -275,7 +276,7 @@ if(!formData.openingHours ||
 {errors.name && <Typography color="red">{errors.name}</Typography>}
             
 
-            <Typography className="font-baloo text-right text-lg "> أنواع النفايات المستقبلة:</Typography>
+            <Typography className="font-baloo text-right text-md font-bold "> أنواع النفايات المستقبلة:</Typography>
             <Select
               closeMenuOnSelect={false}
               components={animatedComponents}
@@ -290,6 +291,7 @@ if(!formData.openingHours ||
             
 <div className='flex items-center gap-5'>
 <div className="  w-3/6">
+
             <Textarea
               label="وصف المركز"
               id="description"
@@ -299,10 +301,12 @@ if(!formData.openingHours ||
               required
               className='mt-2'
             />
-{errors.description && <Typography color="red">{errors.description}</Typography>}
+{errors.description && <Typography color="red" >{errors.description}</Typography>}
 
             </div>
-<div className='flex flex-col gap-4 w-3/6'>
+<div className='flex flex-col  gap-2 w-3/6 '>
+<div>
+
             <Input
               label="رابط صورة المركز"
               type="url"
@@ -312,9 +316,12 @@ if(!formData.openingHours ||
               onChange={handleChange}
               required
             />
-            {errors.imageURL && <Typography color="red">{errors.imageURL}</Typography>}
+            {errors.imageURL && <Typography color="red"  className=' '>{errors.imageURL}</Typography>}
+       </div>
 
-            
+
+<div>
+      
 <Input
               label="رقم التواصل"
               type="tel"
@@ -324,11 +331,14 @@ if(!formData.openingHours ||
               onChange={handleChange}
               required
             />
-                        {errors.phoneNo && <Typography color="red">{errors.phoneNo}</Typography>}
+             {errors.phoneNo && <Typography color="red"  className=' '>{errors.phoneNo}</Typography>}      
+     </div>
+
 
  </div>
+
 </div>
-            <Typography className="font-baloo text-right  text-lg">ساعات العمل خلال:</Typography>
+            <Typography className="font-baloo text-right text-md font-bold ">ساعات العمل خلال:</Typography>
             
 
 <div className="flex gap-5 justify-center">
@@ -468,7 +478,7 @@ if(!formData.openingHours ||
 
 
 
-
+    </div>
     </>
 
   ); 

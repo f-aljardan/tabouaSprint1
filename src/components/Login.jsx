@@ -82,6 +82,15 @@ const Login = () => {
         </div>
       </CardBody>
       <CardFooter className="pt-0 font-baloo">
+      <div className="mt-4 text-center">
+    <button 
+      type="button"
+      onClick={() => navigate('/forgotpassword')} 
+      className="text-blue-500 hover:underline"
+    >
+      نسيت كلمة السر؟
+    </button>
+  </div>
         <Button type="submit" variant="gradient" fullWidth style={{background:"#97B980", color:'#ffffff'}} >
         <span>تسجيل الدخول</span>
         </Button>

@@ -112,7 +112,7 @@ export default function RecyclingCenterForm({ open, handler, method }) {
       
       const validate = (e) => {
 
-        e.preventDefault();
+       // e.preventDefault();
         const newErrors = {};
       
         if (!formData.name.trim()) {
@@ -127,14 +127,47 @@ export default function RecyclingCenterForm({ open, handler, method }) {
         /*
         if ( 
         
-        formData.openingHours.weekdays.length == 0
-         ) 
+          !formData.openingHours 
+          || !formData.openingHours.weekdays 
+          || !formData.openingHours.weekdays.from 
+          || !formData.openingHours.weekdays.to
+          )         
          
          {
           newErrors.openingHour = 'يجب إدخال ساعات العمل';
         }
+        else if(!formData.openingHours.fri.isClosed) {
+           if( !formData.openingHours.fri.from  
+            || !formData.openingHours.fri.to) {
+              newErrors.openingHour = 'يجب إدخال ساعات العمل';
+            }
+
+        }
+        else if(!formData.openingHours.sat.isClosed) {
+          if( !formData.openingHours.sat.from  
+           || !formData.openingHours.sat.to) {
+             newErrors.openingHour = 'يجب إدخال ساعات العمل';
+           }
+
+       }
+*/
+
+
+if(!formData.openingHours ||
+  !formData.openingHours.weekdays ||
+  !formData.openingHours.weekdays.from ||
+  !formData.openingHours.weekdays.to ||
+  (!formData.openingHours.fri.isClosed &&
+    (!formData.openingHours.fri.from || !formData.openingHours.fri.to)) ||
+  (!formData.openingHours.sat.isClosed &&
+    (!formData.openingHours.sat.from || !formData.openingHours.sat.to))) {
+      newErrors.openingHour = 'يجب إدخال ساعات العمل';
+
+
+    }
+
       
-        */
+        
         if (!formData.imageURL.trim()) {
           newErrors.imageURL = 'يجب إدخال رابط صورة المركز';
         }
@@ -167,7 +200,7 @@ export default function RecyclingCenterForm({ open, handler, method }) {
    
   
     const handleSubmit = (e) => {
-      e.preventDefault();
+    e.preventDefault();
       
         method(formData);
         setFormData({
@@ -317,11 +350,11 @@ export default function RecyclingCenterForm({ open, handler, method }) {
 
   
   </div>
-  {/*
+  
   
     {errors.openingHour && <Typography color="red">{errors.openingHour}</Typography>}
 
-  */}
+  
 
     </div>
 

@@ -48,15 +48,7 @@ const Login = () => {
 
         <div className="login">
         <Card className="w-96">
-      {/* <CardHeader
-        variant="gradient"
-        color="white"
-        className="mb-4 grid  place-items-center"
-      >
-         <div className=''>
-            <img src={logo} className="h-40 w-40"/>
-            </div>
-      </CardHeader> */}
+    
        <div className='flex justify-center'>
             <img src={logo} className="h-40 w-40"/>
             </div>

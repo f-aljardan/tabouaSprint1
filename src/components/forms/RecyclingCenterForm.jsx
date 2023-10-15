@@ -121,7 +121,7 @@ export default function RecyclingCenterForm({ open, handler, method }) {
         </DialogHeader>
 
         <DialogBody divider className="font-baloo text-right">
-          <div className="grid gap-1">
+          <div className="grid gap-1 text-gray-900">
             <Input
               label="إسم المركز"
               type="text"
@@ -132,7 +132,7 @@ export default function RecyclingCenterForm({ open, handler, method }) {
               required
             />
 
-            <Typography className="font-baloo text-right text-lg "> النفايات المستقبلة:</Typography>
+            <Typography className="font-baloo text-right text-lg "> أنواع النفايات المستقبلة:</Typography>
             <Select
               closeMenuOnSelect={false}
               components={animatedComponents}
@@ -140,7 +140,9 @@ export default function RecyclingCenterForm({ open, handler, method }) {
               options={options}
               value={options.filter((option) => formData.types.includes(option.value))}
               onChange={handleTypeChange}
+              required
             />
+            
 <div className='flex items-center gap-5'>
 <div className="  w-3/6">
             <Textarea
@@ -150,6 +152,7 @@ export default function RecyclingCenterForm({ open, handler, method }) {
               value={formData.description}
               onChange={handleChange}
               required
+              className='mt-2'
             />
             </div>
 <div className='flex flex-col gap-4 w-3/6'>

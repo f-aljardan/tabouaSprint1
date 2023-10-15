@@ -290,10 +290,7 @@ export default function RecyclingCenterForm({ open, handler, method }) {
         </DialogBody>
 
         <DialogFooter className="flex gap-3 justify-center font-baloo text-right">
-          <Button variant="outlined" onClick={handler}>
-            <span>إلغاء</span>
-          </Button>
-          <Button
+        <Button
             type="submit"
             variant="gradient"
             style={{ background: '#97B980', color: '#ffffff' }}
@@ -301,6 +298,10 @@ export default function RecyclingCenterForm({ open, handler, method }) {
           >
             <span>إضافة</span>
           </Button>
+          <Button variant="outlined" onClick={handler}>
+            <span>إلغاء</span>
+          </Button>
+          
         </DialogFooter>
       </form>
     </Dialog>

@@ -123,7 +123,7 @@ export default function ViewCenterInfo({open, onClose , DeleteMethod, center}){
             <span className="font-medium">عن المركز :</span>
           </ListItemPrefix>
           <Typography className="description font-baloo"> 
-           {center.description}
+           <span>{center.description}</span>
            </Typography>
         </ul>
         </ListItem>

@@ -51,6 +51,7 @@ function MainPage() {
       if (user) {
         
 
+
         //    // Check if the user is already signed in and if their data has been loaded
         // if (userData && user.uid === userData.uid) {
         //   return;
@@ -66,8 +67,10 @@ function MainPage() {
               // Assuming there's only one user with a matching UID
               const docSnapshot = querySnapshot.docs[0];
               setUserData(docSnapshot.data());
+
             } else {
               // Handle the case where no user data is found
+              console.log("emptyyy query" , userData.isAdmin);
             }
           } catch (error) {
             console.error('Error fetching user data:', error);

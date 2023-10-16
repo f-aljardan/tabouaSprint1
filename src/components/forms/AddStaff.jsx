@@ -1,6 +1,5 @@
 
-
-import { useState  } from 'react';
+import { useState , useRef } from 'react';
 import {
   Button,
   Dialog,
@@ -9,11 +8,12 @@ import {
   DialogFooter,
   Input,
 } from "@material-tailwind/react";
+import emailjs from 'emailjs-com';
 
 
-import { db , app , auth } from "../../firebase";
+import { db , app , auth  } from "../../firebase";
 import {createUserWithEmailAndPassword} from 'firebase/auth';
-import { collection, addDoc } from 'firebase/firestore';
+import { collection, addDoc , setDoc, doc} from 'firebase/firestore';
 import SummeryStaffInfo from "../viewInfo/SummeryStaffInfo";
 import "@material-tailwind/react"; 
 import Success from "../messages/Success"
@@ -38,7 +38,8 @@ export default function AddStaff({open , handler }){
     password: '',
   });
 
-  
+  const formRef = useRef();
+  const emailRef = useRef();
 
   const [errors, setErrors] = useState({
     firstName: '',
@@ -116,27 +117,58 @@ export default function AddStaff({open , handler }){
   
     
   };
+  const sendEmail =  () => {
+
+    const templateParams = {
+email: formData.email,
+firstName: formData.firstName,
+password: formData.password,
+
+
+
+
+    };
+
+    try {
+      // Replace these with your Email.js Service ID, Template ID, and User ID
+      const serviceId = 'service_1voagw3';
+      const templateId = 'template_zuh1son';
+      const publicKey = 'ZI6WSxhnzAoQ5kF9T';
+     const form = formRef.current;
+     
+
+      const response =  emailjs.send(serviceId, templateId,templateParams , publicKey);
+  
+      console.log('Email sent successfully:', response);
+    } catch (error) {
+      console.error('Email sending error:', error);
+    }
+  };
 
  const HandleAddStaff = async()=> { //add to database
+
   handler();
 
 try{
 
-  const userCredential = await createUserWithEmailAndPassword(auth, formData.email, formData.password);
-  const user = userCredential.user;
+  // const userCredential = await createUserWithEmailAndPassword(auth, formData.email, formData.password);
+  // const user = userCredential.user;
 
 
     const docRef = await addDoc(collection(db, "staff"), {
-      uid: user.uid,
+      // uid: user.uid,
     firstName: formData.firstName,  
     lastName: formData.lastName,   
-    email: user.email, 
+    email: formData.email, 
     password: formData.password,
     isAdmin: false,  
   });
+
+
+
     
   handlealert();
-
+  sendEmail();
     setFormData({
       firstName: '',
       lastName: '',
@@ -145,12 +177,10 @@ try{
       
       });
 
+      
 }catch(error) {
   console.error('Authentication or Database Error:', error);
 }
-
-
-
 
  }
 
@@ -158,7 +188,7 @@ try{
   return (
     <>
     <Dialog open={open} onClose={handler} aria-hidden="true" >
-      <form>
+      <form ref={formRef} id='formID'>
         <DialogHeader className="flex justify-center font-baloo text-right">إضافة موظف</DialogHeader>
         <DialogBody divider className="font-baloo text-right">
           <div className="grid gap-3">
@@ -197,6 +227,7 @@ try{
               value={formData.email}
               onChange={handleChange}
               required
+              ref={emailRef}
             />
             {errors.email && (
               <div className="text-red-500 font-bold">{errors.email}</div>

@@ -13,7 +13,7 @@ import { Button , Tooltip} from "@material-tailwind/react";
 
 const containerStyle = {
     width: '100%', // Set a width as needed
-    height: '550px'
+    height: '100%'
   };
 
 const center = {
@@ -282,7 +282,7 @@ const onDeleteGarbageBin = async (centerId) => {
   };
 
   return isLoaded ? (
-    <div style={{ position: 'relative' , width:'100%',}}>
+    <div style={{ position: 'relative' , width:'100%', height: "%100"}}>
     <div className="flex gap-5 p-4 mr-12" style={{ position: 'absolute', zIndex: 1000 }}>
     <Tooltip
       className="bg-white font-baloo text-md text-gray-600"
@@ -341,8 +341,8 @@ const onDeleteGarbageBin = async (centerId) => {
        
         <ViewCenterInfo  open={viewInfo} onClose={closeInfoDrawer} DeleteMethod={handleDeletion} center={centerData}/>
         <RecyclingCenterForm open={formVisible} handler={handleForm} method={handleAddRecyclingCenter} />
-        <Success open={showSuccessAlert} handler={handleSuccessAlert} message=" !تم إضافة مركز التدوير بنجاح" />
-        <Success open={showAlertSuccessDeletion} handler={handleAlertSuccessDeletion} message=" !تم حذف مركز التدوير بنجاح" />
+        <Success open={showSuccessAlert} handler={handleSuccessAlert} message=" تم إضافة مركز التدوير بنجاح" />
+        <Success open={showAlertSuccessDeletion} handler={handleAlertSuccessDeletion} message=" تم حذف مركز التدوير بنجاح" />
         
       </GoogleMap>
       </div>

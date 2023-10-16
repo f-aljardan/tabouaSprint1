@@ -13,7 +13,6 @@ export default function SummeryStaffInfo({open, handler ,formData , addMethod })
   
 const handleConfirm = () => {
   // Perform any necessary actions before confirming
-  console.log("inside handleConfirm");
   addMethod();
   handler();
 };

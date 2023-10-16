@@ -1,106 +1,99 @@
-import { useState } from "react";
-import { useSearchParams, useNavigate } from "react-router-dom";
-import { confirmThePasswordReset } from "../firebase/firebase";
+import React, { useState } from 'react';
+import { Card, CardBody, CardFooter, Input, Button } from '@material-tailwind/react';
+import { getAuth, confirmPasswordReset } from 'firebase/auth'; // Import necessary Firebase Auth functions
+import { auth } from '../firebase'; // Adjust the import path as needed
 
-const defaultFormFields = {
-  password: "",
-  confirmPassword: "",
-};
+const ResetPassword = () => {
+  const [newPassword, setNewPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
+  const [message, setMessage] = useState('');
+  const [error, setError] = useState('');
 
-function PasswordReset() {
-  const navigate = useNavigate();
-  const [searchParams] = useSearchParams();
-  const [successMessage, setSuccessMessage] = useState(false);
-  const [formFields, setFormFields] = useState(defaultFormFields);
-  const { password, confirmPassword } = formFields;
-
-  let oobCode = searchParams.get("oobCode");
-
-  const resetFormFields = () => {
-    setFormFields(defaultFormFields);
-  };
-
-  const isStrongPassword = (password) => {
-    // Add your password constraints here
-    const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
-    return password.match(passwordRegex) !== null;
-  };
-
-  const handleSubmit = async (e) => {
+  const handleResetPassword = async (e) => {
     e.preventDefault();
 
-    if (password !== confirmPassword) {
-      alert("Passwords did not match.");
+    if (newPassword !== confirmPassword) {
+      setError('كلمة المرور وتأكيدها غير متطابقين.');
+      setMessage('');
       return;
     }
 
-    if (!isStrongPassword(password)) {
-      alert(
-        "Password must be at least 8 characters, include one capital letter, one small letter, one number, and one special character."
-      );
+    if (!isPasswordValid(newPassword)) {
+      setError('كلمة المرور يجب أن تحتوي على ما لا يقل عن 8 أحرف وتتضمن أحرف كبيرة وصغيرة وأرقام.');
+      setMessage('');
       return;
     }
 
     try {
-      if (oobCode) {
-        await confirmThePasswordReset(oobCode, confirmPassword);
-        resetFormFields();
-        setSuccessMessage(true);
-      } else {
-        alert("Something is wrong; try again later!");
-        console.log("missing oobCode");
-      }
+      const authInstance = getAuth();
+      const oobCode = window.location.search.split('oobCode=')[1];
+
+      // Reset the password using the Firebase confirmPasswordReset function
+      await confirmPasswordReset(authInstance, oobCode, newPassword);
+      setMessage('تم إعادة تعيين كلمة المرور بنجاح.');
+      setError('');
     } catch (error) {
-      if (error.code === "auth/invalid-action-code") {
-        alert("Something is wrong; try again later.");
-      }
-      console.log(error.message);
+      setError('حدث خطأ أثناء محاولة إعادة تعيين كلمة المرور. الرجاء المحاولة مرة أخرى.');
+      setMessage('');
+      console.error('Password reset error:', error);
     }
   };
 
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-    setFormFields({ ...formFields, [name]: value });
+  const isPasswordValid = (password) => {
+    const passwordRegex = /^(?=.*\d)(?=.*[a-z])(?=.*[A-Z]).{8,}$/;
+    return passwordRegex.test(password);
   };
 
   return (
-    <div>
-      {successMessage ? (
-        <div>
-          <h3>Success! Your Password change was successful</h3>
-          <button onClick={() => navigate("/")}>Go to the Login page</button>
-        </div>
-      ) : (
-        <div className="card">
-          <form onSubmit={handleSubmit}>
-            <div>
-              <input
+    <div className="resetPasswordPage flex flex-col justify-center items-center h-screen" style={{ marginBottom: '0%', marginTop: '-20%' }}>
+      <div className="welcome text-center mb-2">
+        <div className="font-baloo text-4xl font-bold">إعادة تعيين كلمة المرور</div>
+      </div>
+
+      <div className="resetPassword" style={{ marginTop: '-20%' }}>
+        <Card className="w-96">
+          <form onSubmit={handleResetPassword}>
+            <CardBody className="flex flex-col gap-1 font-baloo">
+              <label htmlFor="newPassword" className="font-semibold text-center mb-2">كلمة المرور الجديدة</label>
+              <Input
                 type="password"
-                name="password"
-                value={password}
-                onChange={handleChange}
-                placeholder="New Password"
+                id="newPassword"
+                value={newPassword}
+                onChange={(e) => setNewPassword(e.target.value)}
+                autoComplete="new-password"
                 required
+                size="lg"
               />
-            </div>
-            <div>
-              <input
+
+              <label htmlFor="confirmPassword" className="font-semibold text-center mb-2">تأكيد كلمة المرور</label>
+              <Input
                 type="password"
-                name="confirmPassword"
+                id="confirmPassword"
                 value={confirmPassword}
-                onChange={handleChange}
-                placeholder="Confirm Password"
+                onChange={(e) => setConfirmPassword(e.target.value)}
+                autoComplete="new-password"
                 required
+                size="lg"
               />
-            </div>
-            <div>
-              <input type="submit" />
-            </div>
+
+              {message && <span style={{ color: 'green' }}>{message}</span>}
+              {error && <span style={{ color: 'red' }}>{error}</span>}
+            </CardBody>
+            <CardFooter className="pt-0 font-baloo">
+              <Button
+                type="submit"
+                variant="gradient"
+                fullWidth
+                style={{ background: '#97B980', color: '#ffffff' }}
+              >
+                <span>إعادة تعيين كلمة المرور</span>
+              </Button>
+            </CardFooter>
           </form>
-        </div>
-      )}
+        </Card>
+      </div>
     </div>
   );
-}
+};
 
-export default PasswordReset;
+export default ResetPassword;

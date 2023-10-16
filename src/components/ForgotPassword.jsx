@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Card, CardBody, CardFooter, Input, Button } from '@material-tailwind/react';
-import { getAuth, sendPasswordResetEmail } from 'firebase/auth'; // Import necessary Firebase Auth functions
-import { auth } from '../firebase'; // Adjust the import path as needed
+//import { getAuth, sendPasswordResetEmail } from 'firebase/auth'; // Import necessary Firebase Auth functions
+//import { auth } from '../firebase'; // Adjust the import path as needed
 
 const ForgotPassword = () => {
   const [email, setEmail] = useState('');

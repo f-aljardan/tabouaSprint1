@@ -19,11 +19,11 @@ import {
   Input,
   Button,
 } from "@material-tailwind/react";
-import logo from "/tabouaNo.png" ;
+import logo from "../../public/tabouaNo.png";
 import {createUserWithEmailAndPassword} from 'firebase/auth';
 import { useNavigate } from 'react-router-dom';
 
-export default function Signup(){
+function Signup(){
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [errorMessage, setErrorMessage] = useState('');
@@ -94,58 +94,62 @@ if (!querySnapshot.empty) {
     
     
       <>
-      <div className="signup"> 
   
-  
-  
-      <div className="welcome">
+  <div className="flex flex-col items-center justify-center h-screen">
+<div className="welcome">
       
-          <div className="font-baloo text-2xl">  أهلا بك !</div>
-          <div className="font-baloo text-4xl font-bold ">أنشئ حسابك</div>
-       </div>
-  
-          <div className="signup">
+
+          <div className="font-baloo text-2xl text-center">  أهلا بك !</div>
+          <div className="font-baloo text-4xl font-bold text-center">أنشئ حسابك</div>
+ 
+
           <Card className="w-96">
       
-         <div className='flex justify-center'>
-              <img src={logo} className="h-40 w-40"/>
-              </div>
-        <form onSubmit={handleSubmit}>
-        <CardBody className="flex flex-col gap-8 font-baloo">
-          <Input type="email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                required
-                label="البريدالالكتروني" 
-                size="lg" />
-          <Input 
-          type="password"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-          autoComplete="current-password"
-          required
-          label="كلمةالمرور"
-           size="lg" />
-          <div className="-ml-2.5">
-          {errorMessage && <p style={{ color: 'red' }}>{errorMessage}</p>}
-          </div>
-        </CardBody>
-        <CardFooter className="pt-0 font-baloo">
+      <div className='flex justify-center'>
+           <img src={logo} className="h-40 w-40"/>
+           </div>
+     <form onSubmit={handleSubmit}>
+     <CardBody className="flex flex-col gap-8 font-baloo">
+       <Input type="email"
+             value={email}
+             onChange={(e) => setEmail(e.target.value)}
+             autoComplete="username"
+             required
+             label="البريدالالكتروني" 
+             size="lg" />
+       <Input 
+       type="password"
+       value={password}
+       onChange={(e) => setPassword(e.target.value)}
+       autoComplete="current-password"
+       required
+       label="كلمةالمرور"
+        size="lg" />
+       <div className="-ml-2.5">
+       {errorMessage && <p style={{ color: 'red' }}>{errorMessage}</p>}
+       </div>
+     </CardBody>
+     <CardFooter className="pt-0 font-baloo">
+   
+       <Button type="submit" variant="gradient" fullWidth style={{background:"#97B980", color:'#ffffff'}} >
+       <span> تسجيل</span>
+       </Button>
+     </CardFooter>
+     </form>
+   </Card>
+       </div>
+  
+  </div>
+  
       
-          <Button type="submit" variant="gradient" fullWidth style={{background:"#97B980", color:'#ffffff'}} >
-          <span> تسجيل</span>
-          </Button>
-        </CardFooter>
-        </form>
-      </Card>
-       </div>
-  
-       
-  
-       </div>
-       <Footer/>
-       </>
-  
+
+    
+
+    
+
+
+    
+  </> 
         );
   
 
@@ -154,4 +158,4 @@ if (!querySnapshot.empty) {
 
 
 
-}
+} export default Signup;

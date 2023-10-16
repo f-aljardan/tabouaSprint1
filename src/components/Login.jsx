@@ -49,7 +49,7 @@ const Login = () => {
         // Redirect the user to the main web page on successful login
         navigate('/mainpage');
       } catch (error) {
-        setError('البريد الإلكتروني أو كلمة المرور خاطئة. يرجى التحقق من بياناتك المدخلة ');
+        setError('البريد الإلكتروني أو كلمة المرور خاطئة. يرجى التحقق من بياناتك المدخلة');
         console.error('Login error:', error);
       }
     };
@@ -119,7 +119,10 @@ const Login = () => {
 
        
       </CardBody>
-      <CardFooter className="pt-0 font-baloo">
+      {error && <span style={{ color: 'red' }}>{error}</span>}
+
+      <CardFooter className="pt-0 font-baloo"
+      >
       <div className="mt-4 text-center">
     <button 
       type="button"

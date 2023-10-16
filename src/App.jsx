@@ -40,7 +40,7 @@ function App({ children }) {
       <Route path="/signup"  element={<Signup/>} />
       <Route path="/mainpage/*"  element={ <MainPage/>} />
       <Route path="/forgotpassword" element={<ForgotPassword />} />
-      <Route path="/reset-password/:token" component={PasswordReset} />
+      
      </Routes>
        
     </Router>  

@@ -9,6 +9,15 @@ import {
   doc,
   setDoc,
 } from 'firebase/firestore';
+
+import {
+  Card,
+  CardBody,
+  CardFooter,
+  Input,
+  Button,
+} from "@material-tailwind/react";
+import logo from "/tabouaNo.png" ;
 import {createUserWithEmailAndPassword} from 'firebase/auth';
 import { useNavigate } from 'react-router-dom';
 
@@ -79,33 +88,68 @@ if (!querySnapshot.empty) {
     handleSignUp(email, password);
   };
 
-    return(<>
-    <div>
-      <h2>Sign Up</h2>
-      <form onSubmit={handleSubmit}>
-        <div>
-          <label>Email:</label>
-          <input
-            type="email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            required
-          />
-        </div>
-        <div>
-          <label>Password:</label>
-          <input
-            type="password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            required
-          />
-        </div>
-        {errorMessage && <p style={{ color: 'red' }}>{errorMessage}</p>}
-        <div>
-          <button type="submit">Sign Up</button>
-        </div>
-      </form>
-    </div>
-    </>)
+    return(
+    
+    
+      <>
+      <div className="signup"> 
+  
+  
+  
+      <div className="welcome">
+      
+          <div className="font-baloo text-2xl">  أهلا بك !</div>
+          <div className="font-baloo text-4xl font-bold ">أنشئ حسابك</div>
+       </div>
+  
+          <div className="signup">
+          <Card className="w-96">
+      
+         <div className='flex justify-center'>
+              <img src={logo} className="h-40 w-40"/>
+              </div>
+        <form onSubmit={handleLogin}>
+        <CardBody className="flex flex-col gap-8 font-baloo">
+          <Input type="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                required
+                label="البريدالالكتروني" 
+                size="lg" />
+          <Input 
+          type="password"
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
+          autoComplete="current-password"
+          required
+          label="كلمةالمرور"
+           size="lg" />
+          <div className="-ml-2.5">
+          {errorMessage && <p style={{ color: 'red' }}>{errorMessage}</p>}
+          </div>
+        </CardBody>
+        <CardFooter className="pt-0 font-baloo">
+      
+          <Button type="submit" variant="gradient" fullWidth style={{background:"#97B980", color:'#ffffff'}} >
+          <span> تسجيل</span>
+          </Button>
+        </CardFooter>
+        </form>
+      </Card>
+       </div>
+  
+       
+  
+       </div>
+       <Footer/>
+       </>
+  
+        );
+  
+
+    
+
+
+
+
 }

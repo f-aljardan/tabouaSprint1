@@ -1,6 +1,8 @@
 
 import  { useState } from 'react';
 import { db, auth,  }  from "/src/firebase";
+import Footer from "./Footer";
+
 import {
   collection,
   query,

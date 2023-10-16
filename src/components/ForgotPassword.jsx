@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Card, CardBody, CardFooter, Input, Button } from '@material-tailwind/react';
-import { getAuth, sendPasswordResetEmail, fetchSignInMethodsForEmail } from 'firebase/auth'; // Import necessary Firebase Auth functions
+import { getAuth, sendPasswordResetEmail } from 'firebase/auth'; // Import necessary Firebase Auth functions
 import { auth } from '../firebase'; // Adjust the import path as needed
 
 const ForgotPassword = () => {
@@ -14,20 +14,10 @@ const ForgotPassword = () => {
     try {
       const authInstance = getAuth();
 
-      // Use fetchSignInMethodsForEmail to check if the email exists
-      const methods = await fetchSignInMethodsForEmail(authInstance, email);
-      console.log('Methods for email:', methods);
-
-      if (methods && methods.length > 0) {
-        // User exists, send a password reset email
-        await sendPasswordResetEmail(authInstance, email);
-        setMessage('تم إرسال رابط إعادة تعيين كلمة المرور إلى بريدك الإلكتروني.');
-        setError('');
-      } else {
-        // User does not exist, show an error message
-        setError('البريد الإلكتروني غير مسجل. الرجاء التحقق من البريد الإلكتروني.');
-        setMessage('');
-      }
+      // Send a password reset email without checking if the email exists
+      await sendPasswordResetEmail(authInstance, email);
+      setMessage('تم إرسال رابط إعادة تعيين كلمة المرور إلى بريدك الإلكتروني.');
+      setError('');
     } catch (error) {
       setError('حدث خطأ أثناء محاولة إرسال رابط إعادة تعيين كلمة المرور. الرجاء التحقق من بريدك الإلكتروني.');
       setMessage('');

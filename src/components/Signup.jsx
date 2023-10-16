@@ -99,8 +99,8 @@ if (!querySnapshot.empty) {
 <div className="welcome">
       
 
-          <div className="font-baloo text-2xl text-center">  أهلا بك !</div>
-          <div className="font-baloo text-4xl font-bold text-center">أنشئ حسابك</div>
+          <div className="font-baloo text-2xl  font-bold text-center">  تفعيل الحساب</div>
+          <div className="font-baloo text-sm  text-center"> الرجاء التسجيل بالبيانات المرسلة عبر البريد الإلكتروني</div>
  
 
           <Card className="w-96">

@@ -77,8 +77,8 @@ const Login = () => {
 
     <div className="welcome">
     
-        <div className="font-baloo text-2xl">  أهلا بك !</div>
-        <div className="font-baloo text-4xl font-bold ">سجل الدخول إلى حسابك</div>
+        <div className="font-baloo text-2xl font-bold">  أهلا بك !</div>
+        <div className="font-baloo text-4xl  ">سجل الدخول إلى حسابك</div>
      </div>
 
         <div className="login">

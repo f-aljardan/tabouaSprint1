@@ -108,7 +108,7 @@ if (!querySnapshot.empty) {
          <div className='flex justify-center'>
               <img src={logo} className="h-40 w-40"/>
               </div>
-        <form onSubmit={handleLogin}>
+        <form onSubmit={handleSubmit}>
         <CardBody className="flex flex-col gap-8 font-baloo">
           <Input type="email"
                 value={email}

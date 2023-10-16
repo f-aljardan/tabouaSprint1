@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Card, CardBody, CardFooter, Input, Button } from '@material-tailwind/react';
-import emailjs from 'emailjs-com'; // Import the EmailJS library
+import emailjs from 'emailjs-com';
 
 const ForgotPassword = () => {
   const [email, setEmail] = useState('');
@@ -11,12 +11,12 @@ const ForgotPassword = () => {
     e.preventDefault();
 
     const templateParams = {
-      user_email: email,
+      user_email: email, // Get the email from the input field
     };
-    
-    const serviceId = 'service_1voagw3'; // Replace with your EmailJS Service ID
-    const templateId = 'template_ozk73zq'; // Replace with your EmailJS Template ID
-    const publicKey = 'ZI6WSxhnzAoQ5kF9T'; // Replace with your EmailJS Public Key
+
+    const serviceId = 'service_1voagw3';
+    const templateId = 'template_ozk73zq';
+    const publicKey = 'ZI6WSxhnzAoQ5kF9T';
 
     // Use the EmailJS service to send the password reset email
     emailjs.send(serviceId, templateId, templateParams, publicKey)

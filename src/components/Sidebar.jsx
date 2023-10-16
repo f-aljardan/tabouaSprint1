@@ -147,19 +147,4 @@ import {
     );
   }
 
-// function Sidebar() {
-//     return (
-//       <div className="sidebar">
-//         <ul className="sidebar-nav">
-
-//           <li><Link to="/">Home</Link></li>
-//           <li><Link to="/garbage">Garbage Bins</Link></li>
-//           <li><Link to="/RecyclingCenters">RecyclingCenters</Link></li>
-//           <li><Link to="/complaints">Complaints</Link></li>
-   
-//         </ul>
-//       </div>
-//     );
-//   }
-  
   export default Sidebar;

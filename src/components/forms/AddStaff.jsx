@@ -1,5 +1,4 @@
 
-
 import { useState  } from 'react';
 import {
   Button,
@@ -118,22 +117,24 @@ export default function AddStaff({open , handler }){
   };
 
  const HandleAddStaff = async()=> { //add to database
+
   handler();
 
 try{
 
-  const userCredential = await createUserWithEmailAndPassword(auth, formData.email, formData.password);
-  const user = userCredential.user;
+  // const userCredential = await createUserWithEmailAndPassword(auth, formData.email, formData.password);
+  // const user = userCredential.user;
 
 
     const docRef = await addDoc(collection(db, "staff"), {
-      uid: user.uid,
+      // uid: user.uid,
     firstName: formData.firstName,  
     lastName: formData.lastName,   
-    email: user.email, 
+    email: formData.email, 
     password: formData.password,
     isAdmin: false,  
   });
+
 
     
   handlealert();
@@ -149,9 +150,6 @@ try{
 }catch(error) {
   console.error('Authentication or Database Error:', error);
 }
-
-
-
 
  }
 

@@ -3,7 +3,8 @@ import { Card, CardBody, CardFooter, Input, Button } from '@material-tailwind/re
 import { getAuth, confirmPasswordReset } from 'firebase/auth'; // Import necessary Firebase Auth functions
 import { auth } from '../firebase'; // Adjust the import path as needed
 
-const ResetPassword = () => {
+
+const PasswordReset = () => {
   const [newPassword, setNewPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [message, setMessage] = useState('');
@@ -96,4 +97,4 @@ const ResetPassword = () => {
   );
 };
 
-export default ResetPassword;
+export default PasswordReset;

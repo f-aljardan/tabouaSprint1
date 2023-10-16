@@ -1,28 +1,35 @@
 import React, { useState } from 'react';
 import { Card, CardBody, CardFooter, Input, Button } from '@material-tailwind/react';
-//import { getAuth, sendPasswordResetEmail } from 'firebase/auth'; // Import necessary Firebase Auth functions
-//import { auth } from '../firebase'; // Adjust the import path as needed
+import emailjs from 'emailjs-com'; // Import the EmailJS library
 
 const ForgotPassword = () => {
   const [email, setEmail] = useState('');
   const [message, setMessage] = useState('');
   const [error, setError] = useState('');
 
-  const handlePasswordReset = async (e) => {
+  const sendPasswordResetEmail = (e) => {
     e.preventDefault();
 
-    try {
-      const authInstance = getAuth();
+    const templateParams = {
+      user_email: email,
+    };
+    
+    const serviceId = 'service_1voagw3'; // Replace with your EmailJS Service ID
+    const templateId = 'template_ozk73zq'; // Replace with your EmailJS Template ID
+    const publicKey = 'ZI6WSxhnzAoQ5kF9T'; // Replace with your EmailJS Public Key
 
-      // Send a password reset email without checking if the email exists
-      await sendPasswordResetEmail(authInstance, email);
-      setMessage('تم إرسال رابط إعادة تعيين كلمة المرور إلى بريدك الإلكتروني.');
-      setError('');
-    } catch (error) {
-      setError('حدث خطأ أثناء محاولة إرسال رابط إعادة تعيين كلمة المرور. الرجاء التحقق من بريدك الإلكتروني.');
-      setMessage('');
-      console.error('Password reset error:', error);
-    }
+    // Use the EmailJS service to send the password reset email
+    emailjs.send(serviceId, templateId, templateParams, publicKey)
+      .then((response) => {
+        console.log('Email sent:', response);
+        setMessage('تم إرسال رابط إعادة تعيين كلمة المرور إلى بريدك الإلكتروني.');
+        setError('');
+      })
+      .catch((error) => {
+        console.error('Email send error:', error);
+        setError('حدث خطأ أثناء محاولة إرسال رابط إعادة تعيين كلمة المرور. الرجاء التحقق من بريدك الإلكتروني.');
+        setMessage('');
+      });
   };
 
   return (
@@ -33,7 +40,7 @@ const ForgotPassword = () => {
 
       <div className="forgotPassword" style={{ marginTop: '-20%' }}>
         <Card className="w-96">
-          <form onSubmit={handlePasswordReset}>
+          <form onSubmit={sendPasswordResetEmail}>
             <CardBody className="flex flex-col gap-1 font-baloo">
               <label htmlFor="email" className="font-semibold text-center mb-2">البريد الإلكتروني</label>
               <Input

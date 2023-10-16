@@ -7,6 +7,7 @@ import { LocalizationProvider } from '@mui/x-date-pickers';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs'
 import ForgotPassword from './components/ForgotPassword';
 import { app } from '/src/firebase.js'; // Adjust the import path as needed
+import PasswordReset from './components/PasswordReset'; 
 
 
 //import firebaseConfig from '/Users/latifaia/Desktop/gp_web/tabouaSprint1/src/firebase.js'; // Import your Firebase config
@@ -36,7 +37,8 @@ function App({ children }) {
       <Route path="/signup"  element={<Signup/>} />
       <Route path="/mainpage/*"  element={ <MainPage/>} />
       <Route path="/forgotpassword" element={<ForgotPassword />} />
-      
+      <Route path="/passwordreset" element={<PasswordReset />} />
+
       
      </Routes>
        

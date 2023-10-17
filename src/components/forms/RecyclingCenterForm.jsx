@@ -24,6 +24,7 @@ export default function RecyclingCenterForm({ open, handler, method }) {
       { value: 'ورق', label: 'ورق' },
       { value: 'كرتون', label: 'كرتون' },
       { value: 'إلكترونيات', label: 'إلكترونيات' },
+      { value: 'أخرى', label: 'أخرى' },
     ];
 
 

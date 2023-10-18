@@ -145,10 +145,10 @@ console.log("id = " , id);
     <div
     
     style={{
-      // display: "flex",
-      // flexDirection: "column",
-      // justifyContent: "center",
-      // alignItems: "center",
+       display: "flex",
+      flexDirection: "column",
+      justifyContent: "center",
+       alignItems: "center",
       height: "100vh"
     }}
     
@@ -177,7 +177,7 @@ console.log("id = " , id);
 
  <Input
           type="text"
-          label="البحث عن الموظفين"
+          label="البحث عن اسم الموظف"
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)} 
         />

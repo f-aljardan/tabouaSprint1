@@ -10,7 +10,7 @@ import {
   IconButton,
   Typography,
   Tooltip,
-
+  Input,
    
   } from "@material-tailwind/react";
  
@@ -28,6 +28,11 @@ export default function ManageStaff(){
   const [showConfirmAlert, setShowConfirmAlert] = useState(false);
   const [staffToDelete, setStaffToDelete] = useState(null); // State to store staff member to be deleted
   const [showAlert, setShowAlert] = useState(false);
+  const [staffMembers, setStaffMembers] = useState([]);
+  const [searchTerm, setSearchTerm] = useState(""); 
+
+
+
 
 
   const handleAddStaff = () => {
@@ -44,7 +49,6 @@ export default function ManageStaff(){
 console.log("id = " , id);
   };
 
-  const [staffMembers, setStaffMembers] = useState([]);
 
   useEffect(() => {
     const staffCollection = collection(db, 'staff');
@@ -74,7 +78,11 @@ console.log("id = " , id);
     };
   }, []);
   
-
+  const filteredStaff = staffMembers.filter((staffMember) => // Step 2
+  `${staffMember.firstName} ${staffMember.lastName}`
+    .toLowerCase()
+    .includes(searchTerm.toLowerCase())
+);
 
   function TrashIcon() {
 
@@ -137,50 +145,44 @@ console.log("id = " , id);
     <div
     
     style={{
-      display: "flex",
-      flexDirection: "column",
-      justifyContent: "center",
-      alignItems: "center",
+      // display: "flex",
+      // flexDirection: "column",
+      // justifyContent: "center",
+      // alignItems: "center",
       height: "100vh"
     }}
     
     >
 
-      <div  style={{ display: "flex", alignItems: "start" , justifyContent: "flex-start" }}>
+      {/* <div  style={{ display: "flex", alignItems: "start" , justifyContent: "flex-start" }}> */}
+<div className="flex  items-start justify-end gap-10">
       <Button
-        className="flex items-center gap-3 text-white"
-        size="sm"
+        className="flex items-center gap-3 text-white text-sm"
+        size="md"
         onClick={handleAddStaff}
         aria-hidden="false"
-
-        style={{
-          marginTop: "65px", backgroundColor: "#97B980"
-        }}
-  
-      >
+        style={{ marginTop: "65px", backgroundColor: "#97B980"}}>
         <span>إضافة موظف</span>
-        <UserPlusIcon strokeWidth={2} className="h-4 w-4" />
+        <UserPlusIcon strokeWidth={2} className="h-5 w-5" />
       </Button>
+      
       <AddStaff open={showAddStaffDialog} handler={handleAddStaff} />
      
-     
-      <div 
-style={{ 
-
-  overflowX: "auto",
-      maxWidth: "800px",
-      margin: "0 auto",
-      maxHeight: "80vh", // Set a maximum height for the tabl
-}}
-
->
+{/* <div style={{ overflowX: "auto",  maxWidth: "800px",  margin: "0 auto", maxHeight: "90vh",}}> */}
+<div style={{ overflowX: "auto",  maxWidth: "800px",  maxHeight: "100vh",}}>
 
 <Card className="max-w-lg p-4">
-        <h2 className="text-2xl font-semibold mb-4">قائمة الموظفين</h2> {/* Title for the table */}
+        <h2 className="text-2xl font-semibold mb-4">قائمة الموظفين</h2> 
 
 
+ <Input
+          type="text"
+          label="البحث عن الموظفين"
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)} 
+        />
 
-<table className="w-full min-w-max table-auto text-left">
+<table className="w-full min-w-max table-auto text-left mt-4">
         <thead>
           <tr>
             <th className="border-b border-blue-gray-100 bg-blue-gray-50 p-4">
@@ -207,7 +209,7 @@ style={{
           </tr>
           
         </thead>
-        <tbody>
+        {/* <tbody>
           {staffMembers.map((staffMember, index) => (
             <tr key={index}>
               <td className="p-4 border-b border-blue-gray-50 text-right">
@@ -228,8 +230,32 @@ style={{
                     </Tooltip>
               </td>
             </tr>
-          ))}
-        </tbody>
+          ))}    
+        </tbody> */}
+        <tbody>
+  {filteredStaff.map((staffMember, index) => (
+    <tr key={index}>
+      <td className="p-4 border-b border-blue-gray-50 text-right">
+        <Typography variant="small" color="blue-gray" className="font-normal">
+          <span>{`${staffMember.firstName} ${staffMember.lastName}`}</span>
+        </Typography>
+      </td>
+      <td className="p-4 border-b border-blue-gray-50 text-right">
+        <Typography variant="small" color="blue-gray" className="font-normal">
+          <span>{`${staffMember.email}`}</span>
+        </Typography>
+      </td>
+      <td className="p-4 border-b border-blue-gray-50 text-right">
+        <Tooltip content="حذف الموظف"  className="bg-white font-baloo text-md text-gray-600">
+          <IconButton variant="text" onClick={() => handleConfirm(staffMember.id)}>
+            <TrashIcon className="h-4 w-4 text-red-500" />
+          </IconButton>
+        </Tooltip>
+      </td>
+    </tr>
+  ))}
+</tbody>
+
       </table>
   
     </Card>

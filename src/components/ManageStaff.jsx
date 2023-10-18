@@ -62,7 +62,7 @@ console.log("id = " , id);
         if (data.isAdmin === false) {
           staffData.push({
             firstName: data.firstName,
-            fatherName:data.fatherName,
+            fatherName: data.fatherName,
             lastName: data.lastName,
             email: data.email,
             id: doc.id,
@@ -73,17 +73,23 @@ console.log("id = " , id);
       setStaffMembers(staffData);
     });
   
+  
     // Return the cleanup function to unsubscribe from the listener
     return () => {
       unsubscribe();
     };
+
+    
   }, []);
   
-  const filteredStaff = staffMembers.filter((staffMember) => // Step 2
-  `${staffMember.firstName} ${staffMember.lastName}`
-    .toLowerCase()
-    .includes(searchTerm.toLowerCase())
-);
+  // Define filteredStaff here before using it
+  const filteredStaff = staffMembers.filter((staffMember) =>
+    `${staffMember.firstName} ${staffMember.fatherName} ${staffMember.lastName}`
+      .toLowerCase()
+      .includes(searchTerm.toLowerCase())
+  );
+
+ 
 
   function TrashIcon() {
 
@@ -139,6 +145,8 @@ console.log("id = " , id);
     
 
 
+    
+      
 
   return (
 <>
@@ -210,31 +218,10 @@ console.log("id = " , id);
           </tr>
           
         </thead>
-        {/* <tbody>
-          {staffMembers.map((staffMember, index) => (
-            <tr key={index}>
-              <td className="p-4 border-b border-blue-gray-50 text-right">
-                <Typography variant="small" color="blue-gray" className="font-normal">
-                <span> {`${staffMember.firstName} ${staffMember.lastName}`}</span> 
-                </Typography>
-              </td>
-              <td className="p-4 border-b border-blue-gray-50 text-right">
-                <Typography variant="small" color="blue-gray" className="font-normal">
-                 <span> {`${staffMember.email}`}</span>
-                </Typography>
-              </td>
-              <td className="p-4 border-b border-blue-gray-50 text-right">
-              <Tooltip content="Delete User">
-                      <IconButton variant="text" onClick={() => handleConfirm(staffMember.id)}>
-                        <TrashIcon className="h-4 w-4 text-red-500" />
-                      </IconButton>
-                    </Tooltip>
-              </td>
-            </tr>
-          ))}    
-        </tbody> */}
+        
         <tbody>
-  {filteredStaff.map((staffMember, index) => (
+        {filteredStaff.length > 0 ? (
+  filteredStaff.map((staffMember, index) => (
     <tr key={index}>
       <td className="p-4 border-b border-blue-gray-50 text-right">
         <Typography variant="small" color="blue-gray" className="font-normal">
@@ -254,7 +241,21 @@ console.log("id = " , id);
         </Tooltip>
       </td>
     </tr>
-  ))}
+  ))
+        ):(
+<tr>
+                    <td className="p-4 border-b border-blue-gray-50 text-center" colSpan="3">
+                      <Typography
+                        variant="small"
+                        color="red"
+                        className="font-normal"
+                      >
+                        لا يوجد موظفين بهذا الاسم
+                      </Typography>
+                    </td>
+                  </tr>
+
+        )}
 </tbody>
 
       </table>

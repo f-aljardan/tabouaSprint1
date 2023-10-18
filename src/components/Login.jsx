@@ -129,7 +129,7 @@ const Login = () => {
       onClick={() => navigate('/forgotpassword')} 
       className="text-blue-500 hover:underline"
     >
-      نسيت كلمة السر؟
+      نسيت كلمة المرور؟
     </button>
   </div>
         <Button

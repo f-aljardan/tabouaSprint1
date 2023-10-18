@@ -27,7 +27,10 @@ function Signup(){
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [errorMessage, setErrorMessage] = useState('');
-
+    const [emailError, setEmailError] = useState(null);
+    const [passwordError, setPasswordError] = useState(null);
+  
+      
     const navigate = useNavigate();
 
 // Function to check if email and password exist in Firestore
@@ -106,6 +109,19 @@ if (!querySnapshot.empty) {
      }
  
    };
+
+   const handleChangeEmail = async(e) => {
+      
+    setEmail(e.target.value);
+    setEmailError('');
+      
+   }
+
+   const handleChangePassword = async (e) => {
+
+     setPassword(e.target.value);
+     setPasswordError('');
+   }
     return(
     
     
@@ -128,19 +144,26 @@ if (!querySnapshot.empty) {
      <CardBody className="flex flex-col gap-8 font-baloo">
        <Input type="email"
              value={email}
-             onChange={(e) => setEmail(e.target.value)}
+             onChange={handleChangeEmail}
+
              autoComplete="username"
              required
              label="البريدالالكتروني" 
              size="lg" />
+
+{emailError && <span style={{ color: 'red' }}>{emailError}</span>}
+
        <Input 
        type="password"
        value={password}
-       onChange={(e) => setPassword(e.target.value)}
+       onChange={handleChangePassword}
+
        autoComplete="current-password"
        required
        label="كلمةالمرور"
         size="lg" />
+        {passwordError && <span style={{ color: 'red' }}>{passwordError}</span>}
+
        <div className="-ml-2.5">
        {errorMessage && <p style={{ color: 'red' }}>{errorMessage}</p>}
        </div>

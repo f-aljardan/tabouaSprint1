@@ -86,7 +86,7 @@ import {
             <ListItemPrefix>
               <TrashIcon className="h-5 w-5" />
             </ListItemPrefix>  
-           <Typography className='ml-auto font-baloo'>إدارة حاويات النفايات</Typography>
+           <Typography className='ml-auto font-baloo'>إدارة حاويات النفايات  </Typography>
            </AccordionHeader>
           </ListItem>
           <AccordionBody className="py-1">
@@ -95,13 +95,13 @@ import {
                   <ListItemPrefix>
               <ChevronLeftIcon className="h-3 w-3" />
             </ListItemPrefix> 
-                  <Link to="garbage"  onClick={() => handleItemClick('garbage')}> إضافة و حذف الحاويات</Link>
+                  <Link to="garbage"  onClick={() => handleItemClick('garbage')}> إضافة و حذف الحاويات  </Link>
                   </ListItem>
                   <ListItem className={activeItem === 'requestedgarbage' ? 'active' : ''}>
                   <ListItemPrefix>
               <ChevronLeftIcon className="h-3 w-3" />
             </ListItemPrefix> 
-                    <Link to="requestedgarbage" onClick={() => handleItemClick('requestedgarbage')}>إدارة طلبات الحاويات</Link>
+                    <Link to="requestedgarbage" onClick={() => handleItemClick('requestedgarbage')}>إدارة طلبات الحاويات  </Link>
                   </ListItem>
                 </List>
               </AccordionBody>
@@ -110,26 +110,26 @@ import {
             <ListItemPrefix>
               <FaRecycle className="h-5 w-5" />
             </ListItemPrefix>
-            <Link to="recycle" onClick={() => handleItemClick('recycle')}> إدارة مراكز إعادةالتدوير</Link>
+            <Link to="recycle" onClick={() => handleItemClick('recycle')}> إدارة مراكز إعادةالتدوير  </Link>
           </ListItem>
           <ListItem className={activeItem === 'complaints' ? 'active' : ''}>
             <ListItemPrefix>
               <TbMessageReport className="h-6 w-6" />
             </ListItemPrefix>
-            <Link to="complaints" onClick={() => handleItemClick('complaints')}> إدارةالبلاغات</Link>
+            <Link to="complaints" onClick={() => handleItemClick('complaints')}> إدارةالبلاغات  </Link>
           </ListItem>
           <ListItem className={activeItem === 'heatmap' ? 'active' : ''}>
             <ListItemPrefix>
               <AiOutlineHeatMap className="h-5 w-5"  />
             </ListItemPrefix>
-            <Link to="heatmap" onClick={() => handleItemClick('heatmap')}>الخريطة الحرارية</Link> 
+            <Link to="heatmap" onClick={() => handleItemClick('heatmap')}>الخريطة الحرارية  </Link> 
            </ListItem>
          
          {authorized && <ListItem className={activeItem === 'manage' ? 'active' : ''}>
             <ListItemPrefix>
               <MdManageAccounts className="h-6 w-6" />
             </ListItemPrefix>
-            <Link to="manage" onClick={() => handleItemClick('manage')}> إدارة صلاحيات الموظفين</Link> 
+            <Link to="manage" onClick={() => handleItemClick('manage')}> إدارة صلاحيات الموظفين  </Link> 
           </ListItem>} 
             
          

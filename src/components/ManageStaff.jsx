@@ -62,6 +62,7 @@ console.log("id = " , id);
         if (data.isAdmin === false) {
           staffData.push({
             firstName: data.firstName,
+            fatherName:data.fatherName,
             lastName: data.lastName,
             email: data.email,
             id: doc.id,
@@ -237,7 +238,7 @@ console.log("id = " , id);
     <tr key={index}>
       <td className="p-4 border-b border-blue-gray-50 text-right">
         <Typography variant="small" color="blue-gray" className="font-normal">
-          <span>{`${staffMember.firstName} ${staffMember.lastName}`}</span>
+          <span>{`${staffMember.firstName} ${staffMember.fatherName} ${staffMember.lastName}`}</span>
         </Typography>
       </td>
       <td className="p-4 border-b border-blue-gray-50 text-right">

@@ -36,6 +36,7 @@ export default function AddStaff({open , handler }){
     lastName: '',
     email: '',
     password: '',
+   fatherName: '',
   });
 
   const formRef = useRef();
@@ -46,6 +47,7 @@ export default function AddStaff({open , handler }){
     lastName: '',
     email: '',
     password: '',
+    fatherName:'',
   });
 
  
@@ -70,6 +72,9 @@ export default function AddStaff({open , handler }){
     if (!formData.firstName.trim()) {
       newErrors.firstName = 'الاسم الأول مطلوب';
     }
+    if (!formData.fatherName.trim()) {
+      newErrors.fatherName = 'اسم الأب مطلوب';
+    }
 
     if (!formData.lastName.trim()) {
       newErrors.lastName = 'الاسم الأخير مطلوب';
@@ -81,12 +86,17 @@ export default function AddStaff({open , handler }){
       newErrors.email = 'صيغة البريد الإلكتروني غير صحيحة';
     }
 
-    const passwordPattern = /^\d{10}$/; // Check for exactly 10 digits
   if (!formData.password.trim()) {
     newErrors.password = 'الرقم السري مطلوب';
-  } else if (!passwordPattern.test(formData.password)) {
-    newErrors.password = 'الرقم السري يجب أن يحتوي على 10 أرقام فقط';
-  }
+  } 
+    
+  
+
+
+
+
+
+
 
     // Check if there are any errors
     const hasErrors = Object.values(newErrors).some((error) => error);
@@ -113,6 +123,7 @@ export default function AddStaff({open , handler }){
       lastName: '',
       email: '',
       password: '',
+      fatherName:'',
     });
   
     
@@ -158,9 +169,10 @@ try{
     const docRef = await addDoc(collection(db, "staff"), {
       // uid: user.uid,
     firstName: formData.firstName,  
+    fatherName:formData.fatherName,
     lastName: formData.lastName,   
     email: formData.email, 
-    password: formData.password,
+   // password: formData.password,
     isAdmin: false,  
   });
 
@@ -171,6 +183,7 @@ try{
   sendEmail();
     setFormData({
       firstName: '',
+      fatherName:'',
       lastName: '',
       email: '',
      password:'',
@@ -203,6 +216,19 @@ try{
             />
             {errors.firstName && (
               <div className="text-red-500 font-bold" >{errors.firstName}</div>
+            )}
+
+<Input
+              label="اسم الأب"
+              type="text"
+              id="fatherName"
+              name="fatherName"
+              value={formData.fatherName}
+              onChange={handleChange}
+              required
+            />
+            {errors.fatherName && (
+              <div className="text-red-500 font-bold" >{errors.fatherName}</div>
             )}
           
 

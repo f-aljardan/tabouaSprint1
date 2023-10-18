@@ -1,35 +1,44 @@
 import React, { useState } from 'react';
 import { Card, CardBody, CardFooter, Input, Button } from '@material-tailwind/react';
-import emailjs from 'emailjs-com';
+import { getAuth, sendPasswordResetEmail } from 'firebase/auth';
+import { getFirestore, collection, where, query, getDocs } from 'firebase/firestore';
 
 const ForgotPassword = () => {
   const [email, setEmail] = useState('');
   const [message, setMessage] = useState('');
   const [error, setError] = useState('');
 
-  const sendPasswordResetEmail = (e) => {
+  const handlePasswordReset = async (e) => {
     e.preventDefault();
 
-    const templateParams = {
-      user_email: email, // Get the email from the input field
-    };
+    try {
+      const authInstance = getAuth();
+      const db = getFirestore();
 
-    const serviceId = 'service_1voagw3';
-    const templateId = 'template_ozk73zq';
-    const publicKey = 'ZI6WSxhnzAoQ5kF9T';
+      // Create a reference to the "staff" collection
+      const staffRef = collection(db, 'staff');
 
-    // Use the EmailJS service to send the password reset email
-    emailjs.send(serviceId, templateId, templateParams, publicKey)
-      .then((response) => {
-        console.log('Email sent:', response);
+      // Create a query to check if the email exists in the "staff" collection
+      const emailQuery = query(staffRef, where('email', '==', email));
+
+      // Execute the query
+      const querySnapshot = await getDocs(emailQuery);
+
+      if (querySnapshot.size > 0) {
+        // User email exists in the "staff" collection, send a password reset email
+        await sendPasswordResetEmail(authInstance, email);
         setMessage('تم إرسال رابط إعادة تعيين كلمة المرور إلى بريدك الإلكتروني.');
         setError('');
-      })
-      .catch((error) => {
-        console.error('Email send error:', error);
-        setError('حدث خطأ أثناء محاولة إرسال رابط إعادة تعيين كلمة المرور. الرجاء التحقق من بريدك الإلكتروني.');
+      } else {
+        // User email not found in the "staff" collection, show an error message
+        setError('البريد الإلكتروني غير مسجل. الرجاء التحقق من البريد الإلكتروني.');
         setMessage('');
-      });
+      }
+    } catch (error) {
+      setError('حدث خطأ أثناء محاولة إرسال رابط إعادة تعيين كلمة المرور. الرجاء التحقق من بريدك الإلكتروني.');
+      setMessage('');
+      console.error('Password reset error:', error);
+    }
   };
 
   return (
@@ -40,7 +49,7 @@ const ForgotPassword = () => {
 
       <div className="forgotPassword" style={{ marginTop: '-20%' }}>
         <Card className="w-96">
-          <form onSubmit={sendPasswordResetEmail}>
+          <form onSubmit={handlePasswordReset}>
             <CardBody className="flex flex-col gap-1 font-baloo">
               <label htmlFor="email" className="font-semibold text-center mb-2">البريد الإلكتروني</label>
               <Input

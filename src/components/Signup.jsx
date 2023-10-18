@@ -90,6 +90,22 @@ if (!querySnapshot.empty) {
     handleSignUp(email, password);
   };
 
+
+
+  const validate = async(e) => {
+    setEmailError(null);
+    setPasswordError(null);
+ 
+     if (!email.trim()) {
+       setEmailError('البريد الإلكتروني مطلوب');
+     }else if (!/^\S+@\S+\.\S+$/.test(email)) {
+      setEmailError('صيغة البريد الإلكتروني غير صحيحة') ;
+    }
+     if (!password.trim()) {
+       setPasswordError('كلمة المرور مطلوبة');
+     }
+ 
+   };
     return(
     
     
@@ -131,7 +147,12 @@ if (!querySnapshot.empty) {
      </CardBody>
      <CardFooter className="pt-0 font-baloo">
    
-       <Button type="submit" variant="gradient" fullWidth style={{background:"#97B980", color:'#ffffff'}} >
+       <Button type="submit" 
+       variant="gradient" 
+       fullWidth style={{background:"#97B980", color:'#ffffff'}}
+       
+       onClick={validate}
+       >
        <span> تسجيل</span>
        </Button>
      </CardFooter>

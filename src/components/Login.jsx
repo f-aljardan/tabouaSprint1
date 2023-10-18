@@ -61,7 +61,7 @@ const Login = () => {
       }
 
       else{
-        setError('لا توجد لك صلاحيات للنظام');
+        setError('لا توجد لك صلاحيات على النظام');
 
       }
       
@@ -138,7 +138,7 @@ const Login = () => {
 
        
       </CardBody>
-      {error && <span style={{ color: 'red'  , marginRight:"30px"}}>{error}</span>}
+      {error && < div style={{ color: 'red'  ,  textAlign: 'right' ,margin:"20px" }}>{error}</div>}
 
       <CardFooter className="pt-0 font-baloo"
       >

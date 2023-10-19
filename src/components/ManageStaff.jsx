@@ -62,6 +62,7 @@ console.log("id = " , id);
         if (data.isAdmin === false) {
           staffData.push({
             firstName: data.firstName,
+            fatherName: data.fatherName,
             lastName: data.lastName,
             email: data.email,
             id: doc.id,
@@ -72,17 +73,23 @@ console.log("id = " , id);
       setStaffMembers(staffData);
     });
   
+  
     // Return the cleanup function to unsubscribe from the listener
     return () => {
       unsubscribe();
     };
+
+    
   }, []);
   
-  const filteredStaff = staffMembers.filter((staffMember) => // Step 2
-  `${staffMember.firstName} ${staffMember.lastName}`
-    .toLowerCase()
-    .includes(searchTerm.toLowerCase())
-);
+  // Define filteredStaff here before using it
+  const filteredStaff = staffMembers.filter((staffMember) =>
+    `${staffMember.firstName} ${staffMember.fatherName} ${staffMember.lastName}`
+      .toLowerCase()
+      .includes(searchTerm.toLowerCase())
+  );
+
+ 
 
   function TrashIcon() {
 
@@ -138,6 +145,8 @@ console.log("id = " , id);
     
 
 
+    
+      
 
   return (
 <>
@@ -145,10 +154,10 @@ console.log("id = " , id);
     <div
     
     style={{
-      // display: "flex",
-      // flexDirection: "column",
-      // justifyContent: "center",
-      // alignItems: "center",
+       display: "flex",
+      flexDirection: "column",
+      justifyContent: "center",
+       alignItems: "center",
       height: "100vh"
     }}
     
@@ -156,28 +165,28 @@ console.log("id = " , id);
 
       {/* <div  style={{ display: "flex", alignItems: "start" , justifyContent: "flex-start" }}> */}
 <div className="flex  items-start justify-end gap-10">
-      <Button
-        className="flex items-center gap-3 text-white text-sm"
-        size="md"
-        onClick={handleAddStaff}
-        aria-hidden="false"
-        style={{ marginTop: "65px", backgroundColor: "#97B980"}}>
-        <span>إضافة موظف</span>
-        <UserPlusIcon strokeWidth={2} className="h-5 w-5" />
-      </Button>
+     
       
       <AddStaff open={showAddStaffDialog} handler={handleAddStaff} />
      
 {/* <div style={{ overflowX: "auto",  maxWidth: "800px",  margin: "0 auto", maxHeight: "90vh",}}> */}
-<div style={{ overflowX: "auto",  maxWidth: "800px",  maxHeight: "100vh",}}>
+<div style={{ overflowX: "auto",  width: "800px",  maxHeight: "100vh",}}>
 
-<Card className="max-w-lg p-4">
+<Card className="max-w-2xl p-8">
         <h2 className="text-2xl font-semibold mb-4">قائمة الموظفين</h2> 
 
-
+        <Button
+        className="flex items-center gap-3 text-white text-sm"
+        size="md"
+        onClick={handleAddStaff}
+        aria-hidden="false"
+        style={{ marginTop: "50px", backgroundColor: "#97B980" ,  marginBottom: "25px"}}>
+        <span>إضافة موظف</span>
+        <UserPlusIcon strokeWidth={2} className="h-5 w-5" />
+      </Button>
  <Input
           type="text"
-          label="البحث عن الموظفين"
+          label="البحث عن اسم الموظف"
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)} 
         />
@@ -209,35 +218,14 @@ console.log("id = " , id);
           </tr>
           
         </thead>
-        {/* <tbody>
-          {staffMembers.map((staffMember, index) => (
-            <tr key={index}>
-              <td className="p-4 border-b border-blue-gray-50 text-right">
-                <Typography variant="small" color="blue-gray" className="font-normal">
-                <span> {`${staffMember.firstName} ${staffMember.lastName}`}</span> 
-                </Typography>
-              </td>
-              <td className="p-4 border-b border-blue-gray-50 text-right">
-                <Typography variant="small" color="blue-gray" className="font-normal">
-                 <span> {`${staffMember.email}`}</span>
-                </Typography>
-              </td>
-              <td className="p-4 border-b border-blue-gray-50 text-right">
-              <Tooltip content="Delete User">
-                      <IconButton variant="text" onClick={() => handleConfirm(staffMember.id)}>
-                        <TrashIcon className="h-4 w-4 text-red-500" />
-                      </IconButton>
-                    </Tooltip>
-              </td>
-            </tr>
-          ))}    
-        </tbody> */}
+        
         <tbody>
-  {filteredStaff.map((staffMember, index) => (
+        {filteredStaff.length > 0 ? (
+  filteredStaff.map((staffMember, index) => (
     <tr key={index}>
       <td className="p-4 border-b border-blue-gray-50 text-right">
         <Typography variant="small" color="blue-gray" className="font-normal">
-          <span>{`${staffMember.firstName} ${staffMember.lastName}`}</span>
+          <span>{`${staffMember.firstName} ${staffMember.fatherName} ${staffMember.lastName}`}</span>
         </Typography>
       </td>
       <td className="p-4 border-b border-blue-gray-50 text-right">
@@ -253,7 +241,21 @@ console.log("id = " , id);
         </Tooltip>
       </td>
     </tr>
-  ))}
+  ))
+        ):(
+<tr>
+                    <td className="p-4 border-b border-blue-gray-50 text-center" colSpan="3">
+                      <Typography
+                        variant="small"
+                        color="red"
+                        className="font-normal"
+                      >
+                        لا يوجد موظفين بهذا الاسم
+                      </Typography>
+                    </td>
+                  </tr>
+
+        )}
 </tbody>
 
       </table>

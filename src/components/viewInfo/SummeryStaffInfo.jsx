@@ -32,13 +32,13 @@ const handleConfirm = () => {
        handler={handler}
        aria-hidden="true"
       >
-        <DialogHeader><span>معلومات المشرف</span></DialogHeader>
+        <DialogHeader><span>بيانات الموظف</span></DialogHeader>
         <DialogBody divider>
 
          <p aria-hidden="true"> الاسم الأول : {formData.firstName}</p>{'\n'}
+         <p aria-hidden="true"> اسم الأب : {formData.fatherName}</p>{'\n'}
          <p aria-hidden="true">الاسم الأخير : {formData.lastName}</p>{'\n'}
          <p aria-hidden="true"> البريد الإلكتروني : {formData.email}</p>{'\n'}
-         <p aria-hidden="true">الرقم السري : {formData.password}</p>
 
         </DialogBody>
         <DialogFooter>

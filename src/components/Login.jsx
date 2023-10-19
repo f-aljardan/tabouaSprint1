@@ -9,6 +9,9 @@ import {
   import logo from "/tabouaNo.png" ;
 import { useState } from 'react';
 import  { getAuth, signInWithEmailAndPassword } from "firebase/auth";
+import { collection, getDocs , deleteDoc , doc ,  onSnapshot } from 'firebase/firestore';
+import { db} from "../firebase";
+
 import { useNavigate } from 'react-router-dom';
 import Footer from "./Footer";
 
@@ -44,14 +47,24 @@ const Login = () => {
 
     
       e.preventDefault();
-      try {
-        await signInWithEmailAndPassword(auth, email, password);
-        // Redirect the user to the main web page on successful login
-        navigate('/mainpage');
-      } catch (error) {
-        setError('البريد الإلكتروني أو كلمة المرور خاطئة. يرجى التحقق من بياناتك المدخلة');
-        console.error('Login error:', error);
+      const emailExists = await checkEmailExists(email);
+
+      if(emailExists) {
+        try {
+          await signInWithEmailAndPassword(auth, email, password);
+          // Redirect the user to the main web page on successful login
+          navigate('/mainpage');
+        } catch (error) {
+          setError('البريد الإلكتروني أو كلمة المرور خاطئة. يرجى التحقق من بياناتك المدخلة');
+          console.error('Login error:', error);
+        }
       }
+
+      else{
+        setError('لا توجد لك صلاحيات على النظام');
+
+      }
+      
     };
 
     const handleChangeEmail = async(e) => {
@@ -69,6 +82,18 @@ const Login = () => {
 
 
     
+    const checkEmailExists = async (email) => {
+      const emailsCollection = collection(db, 'staff'); // Replace 'emails' with your collection name
+  
+      try {
+        const querySnapshot = await getDocs(emailsCollection);
+  
+        return querySnapshot.docs.some((doc) => doc.data().email === email);
+      } catch (error) {
+        console.error('Error checking email existence:', error);
+        return false; // Default to not allowing login if there's an error
+      }
+    };
 
     return (<>
     <div className="loginPage"> 
@@ -108,18 +133,12 @@ const Login = () => {
         label="كلمةالمرور"
          size="lg" />
          
-         {/*
- <div className="-ml-2.5">
-        {error && <span style={{ color: 'red' }}>{error}</span>} 
-        </div>
-         */
-
-         }
+       
                          {passwordError && <span style={{ color: 'red' }}>{passwordError}</span>}
 
        
       </CardBody>
-      {error && <span style={{ color: 'red' }}>{error}</span>}
+      {error && < div style={{ color: 'red'  ,  textAlign: 'right' ,margin:"20px" }}>{error}</div>}
 
       <CardFooter className="pt-0 font-baloo"
       >
@@ -129,7 +148,7 @@ const Login = () => {
       onClick={() => navigate('/forgotpassword')} 
       className="text-blue-500 hover:underline"
     >
-      نسيت كلمة السر؟
+      نسيت كلمة المرور؟
     </button>
   </div>
         <Button

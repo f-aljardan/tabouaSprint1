@@ -219,7 +219,7 @@ export default function RecyclingCenterForm({ open, handler, method }) {
         }
 
       
-  if (formData.websiteURL.trim() && !isValidURL(formData.websiteURL)) {
+  if (!formData.websiteURL.trim() || !isValidURL(formData.websiteURL)) {
     newErrors.websiteURL = 'رابط الموقع غير صحيح';
   }
     

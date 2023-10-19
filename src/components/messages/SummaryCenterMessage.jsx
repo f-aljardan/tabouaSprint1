@@ -56,8 +56,8 @@ const handleConfirm = () => {
     <img
      className="h-full w-full rounded-xl object-cover object-center"
       src={formData.logoURL} alt="center image"
-    /><figcaption className="absolute bottom-2 left-2/4 flex w-[calc(100%-15rem)] -translate-x-2/4 justify-between rounded-xl border border-white bg-white/75 py-4 px-6 shadow-lg shadow-black/5 saturate-200 backdrop-blur-sm">
-        <Typography variant="h6" color="blue-gray">
+    /><figcaption className="absolute top-2 right-2 bg-white bg-opacity-75 py-1 px-2 shadow-md rounded-xl border border-white">
+        <Typography variant="small" color="blue-gray">
           <span>شعار المركز</span>
           </Typography>
        </figcaption>
@@ -69,8 +69,8 @@ const handleConfirm = () => {
     <img
      className="h-full w-full rounded-xl object-cover object-center"
      src={formData.imageURL} alt="center image"
-    /><figcaption className="absolute bottom-2 left-2/4 flex w-[calc(100%-15rem)] -translate-x-2/4 justify-between rounded-xl border border-white bg-white/75 py-4 px-6 shadow-lg shadow-black/5 saturate-200 backdrop-blur-sm">
-        <Typography variant="h6" color="blue-gray">
+    /><figcaption className="absolute top-2 right-2 bg-white bg-opacity-75 py-1 px-2 shadow-md rounded-xl border border-white">
+        <Typography variant="small" color="blue-gray">
           <span>صورة المركز</span>
           </Typography>
        </figcaption>

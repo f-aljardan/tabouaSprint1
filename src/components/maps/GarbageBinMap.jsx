@@ -2,12 +2,17 @@ import React , {useState, useEffect, useRef} from 'react'
 import { GoogleMap, useJsApiLoader, Marker , OverlayView } from '@react-google-maps/api';
 import { db } from "/src/firebase";
 import { getDocs, collection, addDoc, GeoPoint, deleteDoc, doc ,getDoc, Timestamp } from "firebase/firestore"; // Import the necessary Firestore functions
-import { Button , Tooltip,  Select, Option} from "@material-tailwind/react";
+import { Button , Tooltip, Option} from "@material-tailwind/react";
 import Confirm from '../messages/Confirm';
 import Success from "../messages/Success"
 import GarbageBinForm from "../forms/GarbageBinForm"
 import ViewGarbageInfo from "../viewInfo/ViewGarbageInfo"
 import AlertMessage from "../messages/AlertMessage"
+import { v4 as uuidv4 } from 'uuid';
+import Select from 'react-select';
+import makeAnimated from 'react-select/animated';
+
+const animatedComponents = makeAnimated();
 
 const containerStyle = {
   width: '100%', // Set a width as needed
@@ -19,6 +24,12 @@ const center = {
   lng: 46.6753
 };
 
+
+const binSizeOptions = [
+  { value: '', label: 'جميع الاحجام' },
+  { value: 'حاوية كبيرة', label: 'حاوية كبيرة' },
+  { value: 'حاوية صغيرة', label: 'حاوية صغيرة' },
+];
 
 
 
@@ -37,7 +48,7 @@ function Map() {
   const [showAlertDeletion, setShowAlertDeletion] = useState(false);
   const [viewInfo, setViewInfo] = React.useState(false);
   const [selectedLocation, setSelectedLocation] = React.useState(false);
-  const [selectedBinSize, setSelectedBinSize] = useState('');
+  const [selectedBinSize, setSelectedBinSize] = useState(null);
   const [binsData, setBinsData] = useState([]);
 
   const openInfoDrawer = () => setViewInfo(true);
@@ -53,6 +64,11 @@ function Map() {
  const minZoomLevel = 18;
  const currentZoomLevelRef = useRef(null);
  const mapRef = useRef(null);
+
+
+
+
+
 
 
 
@@ -95,10 +111,15 @@ function Map() {
     }, []);
  
  // Function to handle the selection of a bin type for filtering
- const handleBinSizeSelect = (size) => {
-  setSelectedBinSize(size);
-  filterGarbageBins(size);
+//  const handleBinSizeSelect = (size) => {
+//   setSelectedBinSize(size);
+//   filterGarbageBins(size);
+// };
+const handleBinSizeSelect = (selectedOption) => {
+  setSelectedBinSize(selectedOption.value);
+  filterGarbageBins(selectedOption.value);
 };
+
 
   const { isLoaded } = useJsApiLoader({
     id: 'google-map-script',
@@ -138,13 +159,18 @@ function Map() {
       navigator.geolocation.getCurrentPosition((position) => {
         const { latitude, longitude } = position.coords;
         setUserPosition({ lat: latitude, lng: longitude });
-        setZoom(15); 
+        setZoom(18); 
       });
     } else {
       alert('Geolocation is not available in your browser.');
     }
   };
   
+
+// Function to generate a unique serial number
+function generateSerialNumber() {
+  return uuidv4();// Generates a random UUID
+}
 
   const handleMarkerClick = async (bin) => {
     
@@ -241,10 +267,7 @@ const checkTerrainType = (lat, lng) => {
 
   };
 
-  const generateRandomSerial = () => {
-    const serialNumber = Math.floor(Math.random() * 1000000); 
-    return serialNumber;
-  };
+
   
 const AddGarbageBin = async (data) => {
   try {
@@ -253,14 +276,14 @@ const AddGarbageBin = async (data) => {
       newGarbageBinLocation.lng
     );
   
-    const randomSerialNumber = generateRandomSerial();
+  
 
     const docRef = await addDoc(collection(db, "garbageBins"), {
       location: geoPoint,
       size: data.size,
       date: Timestamp.fromDate(new Date()),
       maintenanceDate: Timestamp.fromDate(new Date()),
-      serialNumber: randomSerialNumber, 
+      serialNumber: generateSerialNumber(), 
     });
 
     setGarbageBins([...garbageBins, { id: docRef.id, location: geoPoint }]);
@@ -304,18 +327,18 @@ return isLoaded ? (
     
     <Tooltip
       className="bg-white font-baloo text-md text-gray-600"
-      content="*  لإضافة موقع حاوية جديدة قم بالضغط على الموقع المحدد والالتزام بحدود الطرق"
+      content="  لإضافة موقع حاوية جديدة قم بالضغط على الموقع المحدد والالتزام بحدود الطرق"
       placement="bottom"  
     >
-      <Button style={{ background: "#97B980", color: '#ffffff' }} size='sm'><span>إضافة</span></Button>
+      <Button style={{ background: "#97B980", color: '#ffffff' }} size='sm'><span>تعليمات إضافة حاوية</span></Button>
     </Tooltip>
       
     <Tooltip
       className="bg-white font-baloo text-md text-gray-600"
-      content="* لإزالة موقع حاوية قم بالضغط على موقع الحاوية"
+      content=" لإزالة موقع حاوية قم بالضغط على موقع الحاوية"
       placement="bottom"
     >
-      <Button style={{ background: "#FE5500", color: '#ffffff' }} size='sm'><span>إزالة</span></Button>
+      <Button style={{ background: "#FE5500", color: '#ffffff' }} size='sm'><span>تعليمات إزالة الحاوية</span></Button>
     </Tooltip>
 
     <Button
@@ -326,15 +349,28 @@ return isLoaded ? (
      </Button>
 
 {/* Select option for bin type filtering */}
-      <div className='bg-white text-gray-900 rounded-md' >
+      {/* <div className='bg-white text-gray-900 rounded-md' >
         <Select className='text-gray-900 '   onChange={(value) => handleBinSizeSelect(value)} value={selectedBinSize}>
 
-          <Option value="">كل المقاسات</Option>
+         <Option> تصفية حسب حجم الحاوية</Option>
+          <Option value="">جميع الاحجام</Option>
           <Option value="حاوية كبيرة">حاوية كبيرة</Option>
           <Option value="حاوية صغيرة">حاوية صغيرة</Option>
         </Select>
-      </div>
+      </div> */}
+  
 
+  <Select
+  placeholder="تصفية حسب حجم الحاوية..."
+  closeMenuOnSelect={false}
+  components={animatedComponents}
+  options={binSizeOptions}
+  value={selectedBinSize !== null ? binSizeOptions.find((option) => option.value === selectedBinSize) : null}
+  onChange={(value) => handleBinSizeSelect(value)}
+  required
+/>
+
+      
   </div>
     
      <div style={{position: 'absolute', zIndex: 2000, }}>

@@ -94,9 +94,7 @@ export default function AddStaff({open , handler }){
     if (hasErrors) {
       setErrors(newErrors);
     } else {
-      // No errors, you can handle the submission here
-      console.log("Form data is valid:", formData);
-      //handler(); // Close the dialog or perform any other desired action
+     
       handleSummeryStaff();
 
     }
@@ -114,9 +112,8 @@ export default function AddStaff({open , handler }){
       email: '',
       password: '',
     });
-  
-    
   };
+
   const sendEmail =  () => {
 
     const templateParams = {
@@ -130,7 +127,7 @@ password: formData.password,
     };
 
     try {
-      // Replace these with your Email.js Service ID, Template ID, and User ID
+     
       const serviceId = 'service_1voagw3';
       const templateId = 'template_zuh1son';
       const publicKey = 'ZI6WSxhnzAoQ5kF9T';
@@ -267,7 +264,7 @@ try{
       </form>
     </Dialog>
     
-   {/* SummeryStaffInfo dialog */}
+ 
    <SummeryStaffInfo
         open={summeryStaffOpen}
         handler={handleSummeryStaff} // Function to close SummeryStaffInfo

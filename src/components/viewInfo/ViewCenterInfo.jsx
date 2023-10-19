@@ -9,12 +9,13 @@ import {
   Chip,
   List,
   ListItem,
-  Textarea,
 } from "@material-tailwind/react";
 import {
   HiOutlineInformationCircle,
   HiOutlinePhone,
   HiClock,
+  HiPhotograph,
+  HiOutlineGlobeAlt,
 } from "react-icons/hi";
 import{FaRecycle,} from 'react-icons/fa'
 import { format, parseISO } from 'date-fns';
@@ -155,6 +156,32 @@ export default function ViewCenterInfo({open, onClose , DeleteMethod, center}){
 </ul>
      </ListItem>
 
+
+<ListItem ripple={false}>
+              <ul>
+                <ListItemPrefix className="flex pb-2">
+                  <HiOutlineGlobeAlt className="h-5 w-5 ml-2" />
+                  <span className="font-medium">رابط الموقع الإلكتروني:</span>
+                </ListItemPrefix>
+                <Typography  as="a"  href={center.websiteURL} color="blue-gray" className="font-normal transition-colors hover:text-blue-500 focus:text-blue-500">
+               <span>إضغط هُنا </span> 
+              </Typography>
+              </ul>
+            </ListItem>
+
+            <ListItem ripple={false}>
+              <ul className="flex gap-2">
+                <ListItemPrefix className="flex pb-2">
+                  <HiPhotograph className="h-5 w-5 ml-2" />
+                  <span className="font-medium">شعار المركز:</span>
+                </ListItemPrefix>
+                <img
+                  className="h-12 w-12 rounded-lg object-cover object-center"
+                  src={center.logoURL || '/default-logo.png'} // Provide a default logo image path
+                  alt="center logo"
+                />
+              </ul>
+            </ListItem>
 
      <ListItem ripple={false}>
          <ul className="flex gap-2">

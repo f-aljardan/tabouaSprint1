@@ -125,6 +125,8 @@ function Map() {
             type: data.types,
             location: new GeoPoint(newRecyclingCenterLocation.lat, newRecyclingCenterLocation.lng),
             imageURL: data.imageURL,
+            logoURL: data.logoURL, 
+            websiteURL: data.websiteURL,
             openingHours: openingHours,
             phoneNo: data.phoneNo,
           });
@@ -210,7 +212,7 @@ const getUserPosition = () => {
       navigator.geolocation.getCurrentPosition((position) => {
         const { latitude, longitude } = position.coords;
         setUserPosition({ lat: latitude, lng: longitude });
-        setZoom(15); 
+        setZoom(18); 
       });
     } else {
       alert('Geolocation is not available in your browser.');
@@ -286,19 +288,19 @@ const onDeleteGarbageBin = async (centerId) => {
     <div className="flex gap-5 p-4 mr-12" style={{ position: 'absolute', zIndex: 1000 }}>
     <Tooltip
       className="bg-white font-baloo text-md text-gray-600"
-      content="* لإضافة موقع مركز تدوير جديد قم بالضغط على الموقع المحدد والالتزام بحدود المباني"
+      content=" لإضافة موقع مركز تدوير جديد قم بالضغط على الموقع المحدد والالتزام بحدود المباني"
       placement="bottom"
       
     >
-      <Button style={{ background: "#97B980", color: '#ffffff' }} size='sm'><span>إضافة</span></Button>
+      <Button style={{ background: "#97B980", color: '#ffffff' }} size='sm'><span>تعليمات إضافة مركز</span></Button>
     </Tooltip>
       
     <Tooltip
       className="bg-white font-baloo text-md text-gray-600"
-      content="* لإزالة موقع مركز تدوير قم بالضغط على موقع المركز  "
+      content=" لإزالة موقع مركز تدوير قم بالضغط على موقع المركز  "
       placement="bottom"
     >
-      <Button style={{ background: "#FE5500", color: '#ffffff' }} size='sm'><span>إزالة</span></Button>
+      <Button style={{ background: "#FE5500", color: '#ffffff' }} size='sm'><span>تعليمات إزالة مركز</span></Button>
     </Tooltip>
     
     <Button

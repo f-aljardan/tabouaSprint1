@@ -72,10 +72,9 @@ export default function GarbageBinForm({ open, handler, AddMethod }) {
   
           <DialogBody divider className="font-baloo text-right">
             <div className="grid gap-6">
-              <Typography className="font-baloo text-right text-gray-900">
-                أختر نوع الحاوية :
-              </Typography>
+              
               <Select
+               placeholder=" أختر نوع الحاوية ..."
                 closeMenuOnSelect={false}
                 components={animatedComponents}
                 options={options}

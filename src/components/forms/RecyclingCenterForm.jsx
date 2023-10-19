@@ -204,7 +204,7 @@ export default function RecyclingCenterForm({ open, handler, method }) {
           newErrors.imageURL = 'يجب إدخال صورة المركز';
         }
     
-        if (!formData.logoURL.trim() && !selectedLogo) {
+        if (!formData.logoURL.trim() || !selectedLogo) {
           newErrors.logoURL = 'يجب إدخال شعار المركز';
         }
 

@@ -1,5 +1,6 @@
 import {useState} from "react";
 import Confirm from "../messages/Confirm"
+//import defaultLogo from "/default-logo.png";
 import {
   Drawer,
   Button,
@@ -177,7 +178,7 @@ export default function ViewCenterInfo({open, onClose , DeleteMethod, center}){
                 </ListItemPrefix>
                 <img
                   className="h-12 w-12 rounded-lg object-cover object-center"
-                  src={center.logoURL || '/default-logo.png'} // Provide a default logo image path
+                  src={center.logoURL} // Provide a default logo image path
                   alt="center logo"
                 />
               </ul>

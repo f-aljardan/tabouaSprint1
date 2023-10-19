@@ -33,8 +33,8 @@ export default function Home({ authorized, userData, setShowSidebar, setActiveIt
               .custom-button {
                 background: #07512D;
                 color: #ffffff;
-                font-size: 12px;
-                padding: 15px 30px;
+                font-size: 14px;
+                padding: 17px 30px;
                 border-radius: 50px;
                 text-align: right;
               }

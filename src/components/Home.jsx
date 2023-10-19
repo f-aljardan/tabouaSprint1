@@ -45,59 +45,59 @@ export default function Home({ authorized, userData, setShowSidebar, setActiveIt
           </style>
 
           <Button
-            className="flex items-center justify-center gap-2 rounded-full custom-button"
+            className="flex items-center justify-start gap-2 rounded-full custom-button"
             size="sm"
             fullWidth={true}
             variant="gradient"
             onClick={() => handleClick('garbage')}
           >
             <TrashIcon className="w-5 h-5" />
-            إدارة حاويات النفايات
+            <span>   إدارة حاويات النفايات</span>
           </Button>
 
           <Button
-            className="flex items-center justify-center gap-2 rounded-full custom-button"
+            className="flex items-center justify-start gap-2 rounded-full custom-button"
             size="sm"
             fullWidth={true}
             variant="gradient"
             onClick={() => handleClick('recycle')}
           >
             <FaRecycle className="w-5 h-5" />
-            إدارة مراكز إعادة التدوير
+            <span>  إدارة مراكز إعادة التدوير</span>
           </Button>
 
           <Button
-            className="flex items-center justify-center gap-2 rounded-full custom-button"
+            className="flex items-center justify-start gap-2 rounded-full custom-button"
             size="sm"
             fullWidth={true}
             variant="gradient"
             onClick={() => handleClick('complaints')}
           >
             <TbMessageReport className="w-5 h-5" />
-            إدارة البلاغات
+            <span>إدارة البلاغات</span>
           </Button>
 
           <Button
-            className="flex items-center justify-center gap-2 rounded-full custom-button"
+            className="flex items-center justify-start gap-2 rounded-full custom-button"
             size="sm"
             fullWidth={true}
             variant="gradient"
             onClick={() => handleClick('heatmap')}
           >
             <AiOutlineHeatMap className="w-5 h-5" />
-            الخريطة الحرارية
+            <span> الخريطة الحرارية</span>
           </Button>
 
           {authorized && (
             <Button
-              className="flex items-center justify-center gap-2 rounded-full custom-button"
+              className="flex items-center justify-start gap-2 rounded-full custom-button"
               size="sm"
               fullWidth={true}
               variant="gradient"
               onClick={() => handleClick('manage')}
             >
               <MdManageAccounts className="w-5 h-5" />
-              إدارة صلاحيات الموظفين
+             <span> إدارة صلاحيات الموظفين</span>
             </Button>
           )}
         </div>

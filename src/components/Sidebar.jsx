@@ -64,11 +64,11 @@ import {
             
         <List>
 
-          <ListItem className={activeItem === 'home' ? 'active' : ''}>
+          <ListItem className={`flex justify-start gap-2 items-center ${activeItem === 'home' ? 'active' : ''}`}>
             <ListItemPrefix>
               <HomeIcon className="h-5 w-5" />
             </ListItemPrefix>
-            <Link  to="" onClick={() => handleItemClick('home')}>الرئيسية </Link>
+            <Link  to="" onClick={() => handleItemClick('home')}>الصفحة الرئيسية </Link>
           </ListItem>
 
           <Accordion
@@ -76,13 +76,13 @@ import {
               icon={
                 <ChevronDownIcon
                   strokeWidth={2.5}
-                  className={`mx-auto h-5 w-5 transition-transform ${openAccordion === 1 ? "rotate-180" : ""}`}
+                  className={`  mx-auto h-5 w-5 transition-transform ${openAccordion === 1 ? "rotate-180" : ""} `}
                 />
               }
             >
-          <ListItem  className="p-0"
+          <ListItem  className="p-0 "
           selected={openAccordion === 1}>
-            <AccordionHeader onClick={() => handleAccordionToggle(1)}>
+            <AccordionHeader className="flex justify-start gap-2 items-center mr-3" onClick={() => handleAccordionToggle(1)}>
             <ListItemPrefix>
               <TrashIcon className="h-5 w-5" />
             </ListItemPrefix>  
@@ -106,26 +106,26 @@ import {
                 </List>
               </AccordionBody>
             </Accordion>
-          <ListItem className={activeItem === 'recycle' ? 'active' : ''}>
+          <ListItem className={`flex justify-start gap-2  ${activeItem === 'recycle' ? 'active' : ''}`}>
             <ListItemPrefix>
               <FaRecycle className="h-5 w-5" />
             </ListItemPrefix>
             <Link to="recycle" onClick={() => handleItemClick('recycle')}> إدارة مراكز إعادةالتدوير  </Link>
           </ListItem>
-          <ListItem className={activeItem === 'complaints' ? 'active' : ''}>
+          <ListItem className={`flex justify-start gap-2 ${activeItem === 'complaints' ? 'active' : ''}`}>
             <ListItemPrefix>
               <TbMessageReport className="h-6 w-6" />
             </ListItemPrefix>
             <Link to="complaints" onClick={() => handleItemClick('complaints')}> إدارةالبلاغات  </Link>
           </ListItem>
-          <ListItem className={activeItem === 'heatmap' ? 'active' : ''}>
+          <ListItem className={`flex justify-start gap-2 ${activeItem === 'heatmap' ? 'active' : ''}`}>
             <ListItemPrefix>
               <AiOutlineHeatMap className="h-5 w-5"  />
             </ListItemPrefix>
             <Link to="heatmap" onClick={() => handleItemClick('heatmap')}>الخريطة الحرارية  </Link> 
            </ListItem>
          
-         {authorized && <ListItem className={activeItem === 'manage' ? 'active' : ''}>
+         {authorized && <ListItem className={`flex justify-start gap-2 ${activeItem === 'manage' ? 'active' : ''}`}>
             <ListItemPrefix>
               <MdManageAccounts className="h-6 w-6" />
             </ListItemPrefix>

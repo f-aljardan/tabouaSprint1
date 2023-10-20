@@ -30,7 +30,6 @@ import {
     setShowSidebar(true);
   }, []);
 
-    // const [activeItem, setActiveItem] = React.useState(null);
     const [openAccordion, setOpenAccordion] = React.useState(0);
    
     const handleItemClick = (item) => {

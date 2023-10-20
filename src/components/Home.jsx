@@ -11,8 +11,9 @@ import { MdManageAccounts } from 'react-icons/md';
 import { Button } from '@material-tailwind/react';
 
 export default function Home({ authorized, userData, setShowSidebar, setActiveItem }) {
-  const navigate = useNavigate();
+  const navigate = useNavigate(); // to handle user navigation through diffrent pages
 
+  // to route user to diffrent page
   useEffect(() => setShowSidebar(false), []);
 
   const handleClick = (item) => {
@@ -21,6 +22,7 @@ export default function Home({ authorized, userData, setShowSidebar, setActiveIt
     setActiveItem(item);
   };
 
+  // to show home page icon
   return (
     <>
       <ProfileMenu userData={userData} />

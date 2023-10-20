@@ -45,6 +45,16 @@ import {
         setActiveItem(item) ;
       }
     };
+
+    const handleLogout = async () => {
+      const auth = getAuth();
+      try {
+        await signOut(auth);
+        navigate('/');
+      } catch (error) {
+        console.error('Logout error:', error);
+      }
+    };
     
     
  
@@ -59,17 +69,18 @@ import {
       <Card className="h-[calc(105vh-2rem)] w-full max-w-[20rem] p-4 shadow-xl shadow-blue-gray-900/5 "  >
         <div>
             <div className='flex justify-center'>
-            <img src={logo} width={135}/>
+            <img src={logo} width={135} style={{ marginBottom: '35px' , marginTop: '25px'}}/>
             </div>
             
         <List>
 
-          <ListItem className={`flex justify-start gap-2 items-center ${activeItem === 'home' ? 'active' : ''}`}>
+          <ListItem className={`flex justify-start gap-2 items-center ${activeItem === 'home' ? 'active' : ''}`} >
             <ListItemPrefix>
               <HomeIcon className="h-5 w-5" />
             </ListItemPrefix>
             <Link  to="" onClick={() => handleItemClick('home')}>الصفحة الرئيسية </Link>
           </ListItem>
+          <hr />
 
           <Accordion
               open={openAccordion === 1}
@@ -82,13 +93,15 @@ import {
             >
           <ListItem  className="p-0 "
           selected={openAccordion === 1}>
-            <AccordionHeader className="flex justify-start gap-2 items-center mr-3" onClick={() => handleAccordionToggle(1)}>
+            <AccordionHeader className="flex justify-start gap-2 items-center mr-3" onClick={() => handleAccordionToggle(1)} style={{ borderBottom: '1px solid transparent' }}>
             <ListItemPrefix>
               <TrashIcon className="h-5 w-5" />
             </ListItemPrefix>  
            <Typography className='ml-auto font-baloo'>إدارة حاويات النفايات  </Typography>
            </AccordionHeader>
           </ListItem>
+          <hr />
+
           <AccordionBody className="py-1">
                 <List className="p-0">
                   <ListItem className={activeItem === 'garbage' ? 'active' : ''}>
@@ -97,12 +110,16 @@ import {
             </ListItemPrefix> 
                   <Link to="garbage"  onClick={() => handleItemClick('garbage')}> إضافة و حذف الحاويات  </Link>
                   </ListItem>
+                  <hr />
+
                   <ListItem className={activeItem === 'requestedgarbage' ? 'active' : ''}>
                   <ListItemPrefix>
               <ChevronLeftIcon className="h-3 w-3" />
             </ListItemPrefix> 
                     <Link to="requestedgarbage" onClick={() => handleItemClick('requestedgarbage')}>إدارة طلبات الحاويات  </Link>
                   </ListItem>
+                  <hr />
+
                 </List>
               </AccordionBody>
             </Accordion>
@@ -112,18 +129,24 @@ import {
             </ListItemPrefix>
             <Link to="recycle" onClick={() => handleItemClick('recycle')}> إدارة مراكز إعادةالتدوير  </Link>
           </ListItem>
+          <hr />
+
           <ListItem className={`flex justify-start gap-2 ${activeItem === 'complaints' ? 'active' : ''}`}>
             <ListItemPrefix>
               <TbMessageReport className="h-6 w-6" />
             </ListItemPrefix>
             <Link to="complaints" onClick={() => handleItemClick('complaints')}> إدارةالبلاغات  </Link>
           </ListItem>
+          <hr />
+
+
           <ListItem className={`flex justify-start gap-2 ${activeItem === 'heatmap' ? 'active' : ''}`}>
             <ListItemPrefix>
               <AiOutlineHeatMap className="h-5 w-5"  />
             </ListItemPrefix>
             <Link to="heatmap" onClick={() => handleItemClick('heatmap')}>الخريطة الحرارية  </Link> 
            </ListItem>
+           <hr />
          
          {authorized && <ListItem className={`flex justify-start gap-2 ${activeItem === 'manage' ? 'active' : ''}`}>
             <ListItemPrefix>
@@ -132,17 +155,11 @@ import {
             <Link to="manage" onClick={() => handleItemClick('manage')}> إدارة صلاحيات الموظفين  </Link> 
           </ListItem>} 
             
-         
         </List>
         </div>
       </Card>
       </div>
       </div>
-  
-    
-  
-      
-   
       
     );
   }

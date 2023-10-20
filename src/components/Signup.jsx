@@ -8,7 +8,6 @@ import {
   query,
   where,
   getDocs,
-  doc,
   setDoc,
 } from 'firebase/firestore';
 
@@ -24,16 +23,16 @@ import {createUserWithEmailAndPassword} from 'firebase/auth';
 import { useNavigate } from 'react-router-dom';
 
 function Signup(){
-    const [email, setEmail] = useState('');
-    const [password, setPassword] = useState('');
-    const [errorMessage, setErrorMessage] = useState('');
-    const [emailError, setEmailError] = useState(null);
-    const [passwordError, setPasswordError] = useState(null);
+    const [email, setEmail] = useState('');// state to store email
+    const [password, setPassword] = useState(''); // state to store password
+    const [errorMessage, setErrorMessage] = useState('');  // state to show error message
+    const [emailError, setEmailError] = useState(null);// state to store email error
+    const [passwordError, setPasswordError] = useState(null); // state to store password error
   
       
     const navigate = useNavigate();
 
-// Function to check if email and password exist in Firestore
+// Function to check if email and password exist in Firestore 
 async function checkCredentials(email, password) {
     const credentialsCollection = collection(db, 'staff');
     const q = query(
@@ -49,8 +48,7 @@ async function checkCredentials(email, password) {
 
 
   
-// Function to handle staff sign-up
-
+// Function to handle staff sign-up and authicate user
 async function handleSignUp(email, password) {
     const emailExists = await checkCredentials(email, password);
     if (emailExists) {
@@ -88,13 +86,14 @@ if (!querySnapshot.empty) {
     }
   }
   
+  // handle sumbit form
   const handleSubmit = async (e) => {
     e.preventDefault();
     handleSignUp(email, password);
   };
 
 
-
+// validate user input
   const validate = async(e) => {
     setEmailError(null);
     setPasswordError(null);
@@ -107,9 +106,10 @@ if (!querySnapshot.empty) {
      if (!password.trim()) {
        setPasswordError('كلمة المرور مطلوبة');
      }
- 
+
    };
 
+   // handle user change email
    const handleChangeEmail = async(e) => {
       
     setEmail(e.target.value);
@@ -117,23 +117,22 @@ if (!querySnapshot.empty) {
       
    }
 
+   // hamdle user change password
    const handleChangePassword = async (e) => {
 
      setPassword(e.target.value);
      setPasswordError('');
    }
-    return(
-    
-    
+
+   // show sign up form
+    return( 
       <>
   
   <div className="flex flex-col items-center justify-center h-screen">
 <div className="welcome">
       
-
           <div className="font-baloo text-2xl  font-bold text-center">  تفعيل الحساب</div>
           <div className="font-baloo text-sm  text-center"> الرجاء التسجيل بالبيانات المرسلة عبر البريد الإلكتروني</div>
- 
 
           <Card className="w-96">
       
@@ -176,8 +175,13 @@ if (!querySnapshot.empty) {
        
        onClick={validate}
        >
+
        <span> تسجيل</span>
        </Button>
+       <div 
+       style= {{marginTop: "50px"}}
+       className="font-baloo text-sm  text-center"> قد يستغرق ٦٠ ثانية لتوثيق الحساب</div>
+
      </CardFooter>
      </form>
    </Card>

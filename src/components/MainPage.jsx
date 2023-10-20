@@ -15,48 +15,17 @@ import Footer from "./Footer"
 function MainPage() {
 
     const navigate = useNavigate();
-    const [showSidebar, setShowSidebar] = useState(false);
-    const [activeItem, setActiveItem] = useState(false);
-    const [userData, setUserData] = useState([]);
+    const [showSidebar, setShowSidebar] = useState(false); //state to show sidebars
+    const [activeItem, setActiveItem] = useState(false); // state to handle active bar
+    const [userData, setUserData] = useState([]); // to store user data
     
-    // useEffect(() => {
-    //     const unsubscribe = auth.onAuthStateChanged(async (user) => {
-    //       if (user) {
-    //         // User is signed in, fetch user profile data from Firestore
-    //          const userRef = doc(db, 'staff', user.uid);
-            
-    //          try {
-    //             const docSnapshot = await getDoc(userRef);
-    //             if (docSnapshot.exists()) {
-    //                 setUserData(docSnapshot.data());
-                  
-    //             } else {
-    //             // Handle the case where user data is not found
-    //           }
-    //         }catch (error) {
-    //             console.error('Error fetching user data:', error);
-    //           }
-    //       } else {
-    //         // User is not signed in, redirect to the login page
-    //         navigate('/');
-    //       }
-    //     });
     
-    //     return unsubscribe;
-    //   }, [navigate]);
 
     useEffect(() => {
    
     const unsubscribe = auth.onAuthStateChanged(async (user) => {
       if (user) {
         
-
-
-        //    // Check if the user is already signed in and if their data has been loaded
-        // if (userData && user.uid === userData.uid) {
-        //   return;
-        // }
-
           // User is signed in, fetch user profile data from Firestore
           const userRef = collection(db, 'staff');
           const q = query(userRef, where('uid', '==', user.uid));
@@ -83,15 +52,10 @@ function MainPage() {
       return unsubscribe;
     }, [navigate]);
     
-
-    
-
-    
+    // to route to other page
       return (
         <>
        
-
-
 
           <div className="app-container">
             <Sidebar authorized={userData.isAdmin} showSidebar={showSidebar} setShowSidebar={setShowSidebar} activeItem={activeItem} setActiveItem={setActiveItem}/>

@@ -1,5 +1,3 @@
-
-
 import {
     Button,
     Dialog,
@@ -8,9 +6,8 @@ import {
     DialogFooter,
   } from "@material-tailwind/react";
 
-  
 export default function Confirm({open, handler , method, message}){
-    
+  // show confirm message
     return(
         <Dialog size = "xs" open={open} handler={handler} >
                     
@@ -18,7 +15,7 @@ export default function Confirm({open, handler , method, message}){
        
         <DialogBody divider className="font-baloo text-right">
 
-        {message}
+        {message} {/* pass message form other pages */}
         </DialogBody>
 
         <DialogFooter className="flex gap-3 justify-center ">

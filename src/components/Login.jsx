@@ -18,16 +18,18 @@ import Footer from "./Footer";
 const Login = () => {
 
     const [email, setEmail] = useState('');
-    const [password, setPassword] = useState('');
+    const [password, setPassword] = useState(''); 
     const [error, setError] = useState(null); // Add state for error
 
-    const [emailError, setEmailError] = useState(null);
-  const [passwordError, setPasswordError] = useState(null);
+    const [emailError, setEmailError] = useState(null); // state to email error
+  const [passwordError, setPasswordError] = useState(null); // state to  password error
 
     
-    const navigate = useNavigate();
-    const auth = getAuth();
+    const navigate = useNavigate(); // define user navigation
+    const auth = getAuth(); // define authentication function from firebase  
 
+
+    // validate user inputs
     const validate = async(e) => {
       setEmailError(null);
       setPasswordError(null);
@@ -43,12 +45,13 @@ const Login = () => {
    
      };
  
+     
     const handleLogin = async (e) => {
 
-    
       e.preventDefault();
-      const emailExists = await checkEmailExists(email);
+      const emailExists = await checkEmailExists(email); // check if email exists in firebase
 
+      // if email exist in firebase , call signIn function from firebase to check uf correct email and password
       if(emailExists) {
         try {
           await signInWithEmailAndPassword(auth, email, password);
@@ -67,6 +70,7 @@ const Login = () => {
       
     };
 
+    // handle email changes
     const handleChangeEmail = async(e) => {
       
      setEmail(e.target.value);
@@ -74,6 +78,7 @@ const Login = () => {
        
     }
 
+    // handle password chnages
     const handleChangePassword = async (e) => {
 
       setPassword(e.target.value);
@@ -81,9 +86,9 @@ const Login = () => {
     }
 
 
-    
+    // function will check if email exist in database or not
     const checkEmailExists = async (email) => {
-      const emailsCollection = collection(db, 'staff'); // Replace 'emails' with your collection name
+      const emailsCollection = collection(db, 'staff'); 
   
       try {
         const querySnapshot = await getDocs(emailsCollection);
@@ -95,17 +100,14 @@ const Login = () => {
       }
     };
 
+    // show login form
     return (<>
     <div className="loginPage"> 
 
-
-
     <div className="welcome">
-    
         <div className="font-baloo text-2xl font-bold">  أهلا بك !</div>
         <div className="font-baloo text-4xl  ">سجل الدخول إلى حسابك</div>
      </div>
-
         <div className="login">
         <Card className="w-96">
     
@@ -134,7 +136,7 @@ const Login = () => {
          size="lg" />
          
        
-                         {passwordError && <span style={{ color: 'red' }}>{passwordError}</span>}
+        {passwordError && <span style={{ color: 'red' }}>{passwordError}</span>}
 
        
       </CardBody>

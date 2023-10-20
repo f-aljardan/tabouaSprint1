@@ -21,6 +21,9 @@ const center = {
   lng: 46.6753
 };
 
+
+let customIcon;
+
 function Map() {
 
     const [zoom, setZoom] = useState(10); // set the initial zoom level
@@ -178,6 +181,14 @@ function Map() {
     id: 'google-map-script',
     googleMapsApiKey: "AIzaSyA_uotKtYzbjy44Y2IvoQFds2cCO6VmfMk"
   })
+
+  
+  if (isLoaded) {
+    customIcon = {
+    url: '/recyclingcenter.png', // Replace with the actual path to your icon
+    scaledSize: new window.google.maps.Size(45, 45), // Set the desired width and height
+  };
+  }
 
   const [map, setMap] = React.useState(null)
 
@@ -362,6 +373,7 @@ const onDeleteGarbageBin = async (centerId) => {
             key={recycleCenter.id}
             position={{ lat: recycleCenter.location._lat, lng: recycleCenter.location._long }} // Update here
             onClick={() => handleMarkerClick(recycleCenter)}
+            icon={customIcon}
           >    
 
           </Marker>

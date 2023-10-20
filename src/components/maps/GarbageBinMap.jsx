@@ -134,8 +134,8 @@ const handleBinSizeSelect = (selectedOption) => {
 
   if (isLoaded) {
       customIcon = {
-      url: '/recycle-bin.png', // Replace with the actual path to your icon
-      scaledSize: new window.google.maps.Size(25, 25), // Set the desired width and height
+      url: '/trash.png', // Replace with the actual path to your icon
+      scaledSize: new window.google.maps.Size(45, 45), // Set the desired width and height
     };
     }
 

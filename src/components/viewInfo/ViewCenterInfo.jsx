@@ -1,6 +1,5 @@
 import {useState} from "react";
 import Confirm from "../messages/Confirm"
-//import defaultLogo from "/default-logo.png";
 import {
   Drawer,
   Button,
@@ -21,6 +20,7 @@ import {
 import{FaRecycle,} from 'react-icons/fa'
 import { format, parseISO } from 'date-fns';
 import { enUS } from 'date-fns/locale';
+
 
 const arabicDays = ['- الجمعة', '- السبت','- ايام الاسبوع'  ];
 
@@ -108,13 +108,30 @@ export default function ViewCenterInfo({open, onClose , DeleteMethod, center}){
         </IconButton>
       </div>
   
-          <div className="flex justify-center">
-    <img
-      className="h-36 w-full rounded-lg object-cover object-center"
-      src={center.imageURL} alt="center image"
+
+
+          <div className="flex justify-center h-56">
+           
+  <div> <img
+                    
+                  src={center.logoURL} 
+                  alt="image 1"
+               
+      />
+      </div>
+      <div>
+      <img
+    
+      src={center.imageURL} alt="image 2"
+    
     />
+</div> 
+     
+
+
           </div>
         
+
 
 <li className="centerInfo"> 
 <List>
@@ -170,7 +187,7 @@ export default function ViewCenterInfo({open, onClose , DeleteMethod, center}){
               </ul>
             </ListItem>
 
-            <ListItem ripple={false}>
+            {/* <ListItem ripple={false}>
               <ul className="flex gap-2">
                 <ListItemPrefix className="flex pb-2">
                   <HiPhotograph className="h-5 w-5 ml-2" />
@@ -182,7 +199,7 @@ export default function ViewCenterInfo({open, onClose , DeleteMethod, center}){
                   alt="center logo"
                 />
               </ul>
-            </ListItem>
+            </ListItem> */}
 
      <ListItem ripple={false}>
          <ul className="flex gap-2">

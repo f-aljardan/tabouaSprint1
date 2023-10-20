@@ -24,12 +24,12 @@ export default function AddStaff({open , handler }){
   const [showAlert, setShowAlert] = useState(false);
 
 
-// handle
+// handle show staff summery 
   const handleSummeryStaff = () =>setSummeryStaffOpen(!summeryStaffOpen); 
   const handlealert = () => setShowAlert(!showAlert);
 
 
-
+// staff information
   const [formData, setFormData] = useState({
     firstName: '',
     lastName: '',
@@ -38,9 +38,11 @@ export default function AddStaff({open , handler }){
    fatherName: '',
   });
 
+  // Save form data , to send email to staff when added
   const formRef = useRef();
   const emailRef = useRef();
 
+  //handle form add staff error
   const [errors, setErrors] = useState({
     firstName: '',
     lastName: '',
@@ -49,7 +51,7 @@ export default function AddStaff({open , handler }){
     fatherName:'',
   });
 
- 
+ //handle form data changes
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData({
@@ -64,6 +66,7 @@ export default function AddStaff({open , handler }){
     });
   };
 
+  // validate form user input 
   const validate = async(e) => {
     e.preventDefault();
     const newErrors = {};
@@ -88,32 +91,21 @@ export default function AddStaff({open , handler }){
   if (!formData.password.trim()) {
     newErrors.password = 'الرقم السري مطلوب';
   } 
-    
-  
-
-
-
-
-
-
-
     // Check if there are any errors
     const hasErrors = Object.values(newErrors).some((error) => error);
-
     if (hasErrors) {
       setErrors(newErrors);
     } else {
-     
       handleSummeryStaff();
-
     }
 
   };
 
+  // Hnadle form action
+
   const handlerForm = () => {
-    // Code to close the dialog or perform other actions
   
-    handler();
+    handler();// close form
     // Clear the form fields
     setFormData({
       firstName: '',
@@ -124,29 +116,22 @@ export default function AddStaff({open , handler }){
     });
   };
 
+  // Send email to user when added
   const sendEmail =  () => {
-
     const templateParams = {
 email: formData.email,
 firstName: formData.firstName,
 password: formData.password,
-
-
-
-
     };
 
     try {
-     
       const serviceId = 'service_1voagw3';
       const templateId = 'template_zuh1son';
       const publicKey = 'ZI6WSxhnzAoQ5kF9T';
      const form = formRef.current;
-     
-
+    
       const response =  emailjs.send(serviceId, templateId,templateParams , publicKey);
   
-      console.log('Email sent successfully:', response);
     } catch (error) {
       console.error('Email sending error:', error);
     }
@@ -154,29 +139,20 @@ password: formData.password,
 
  const HandleAddStaff = async()=> { //add to database
 
-  handler();
+  handler();// to close summery staff info
 
+  // try and catch to handle any error when add staff to database
 try{
-
-  // const userCredential = await createUserWithEmailAndPassword(auth, formData.email, formData.password);
-  // const user = userCredential.user;
-
-
     const docRef = await addDoc(collection(db, "staff"), {
-      // uid: user.uid,
     firstName: formData.firstName,  
     fatherName:formData.fatherName,
     lastName: formData.lastName,   
     email: formData.email, 
-   // password: formData.password,
     isAdmin: false,  
   });
-
-
-
-    
-  handlealert();
-  sendEmail();
+  handlealert();// show success alerat when add user to database
+  sendEmail();// call send email function , to send email to user after added
+  // clear form fields
     setFormData({
       firstName: '',
       fatherName:'',
@@ -184,16 +160,14 @@ try{
       email: '',
      password:'',
       
-      });
-
-      
+      }); 
 }catch(error) {
   console.error('Authentication or Database Error:', error);
 }
 
  }
 
-
+// show dialog add form 
   return (
     <>
     <Dialog open={open} onClose={handler} aria-hidden="true" >
@@ -214,7 +188,7 @@ try{
               <div className="text-red-500 font-bold" >{errors.firstName}</div>
             )}
 
-<Input
+            <Input
               label="اسم الأب"
               type="text"
               id="fatherName"
@@ -257,7 +231,7 @@ try{
 
 
 
-<Input
+            <Input
               label="الرقم السري"
               type="password"
               id="password"
@@ -294,9 +268,11 @@ try{
         open={summeryStaffOpen}
         handler={handleSummeryStaff} // Function to close SummeryStaffInfo
         formData={formData} // Pass form data to SummeryStaffInfo
-        addMethod={HandleAddStaff}
+        addMethod={HandleAddStaff} // To add staff to database
       />
-              <Success open={showAlert} handler={handlealert} message="تم إضافة الموظف بنجاح" />
+      
+     <Success open={showAlert} handler={handlealert} message="تم إضافة الموظف بنجاح" // to show success message
+      /> 
 
     </>
   );

@@ -8,7 +8,7 @@ import { db } from "/src/firebase";
 import { doc , Timestamp, updateDoc } from "firebase/firestore";
 
 
-export default function ViewGarbageInfo({open, onClose , DeleteMethod, bin , binId}){
+export default function ViewGarbageInfo({open, onClose , DeleteMethod, bin , binId, }){
 
 const [maintenanceDate, setMaintenanceDate] = useState(null);
 const [editingMaintenanceDate, setEditingMaintenanceDate] = useState(false);
@@ -19,6 +19,7 @@ const handleEditMaintenanceDate = () => {
     // When the button is clicked, toggle the editing state
     setEditingMaintenanceDate(!editingMaintenanceDate);
   };
+
 
 
  // Use a useEffect to set the initial value of maintenanceDate
@@ -63,6 +64,7 @@ const handleEditMaintenanceDate = () => {
 
 return(
     <>
+
     <Drawer
         placement="right"
         open={open}
@@ -170,12 +172,17 @@ return(
 
 
  </List>
+
+
           
         <Button size="md" fullWidth={true} variant="gradient"  style={{background:"#FE5500", color:'#ffffff'}}   onClick={handleDeleteConfirmation}> <span>حذف الحاوية </span> </Button>
-     
+        
+        
+    
       </Drawer>
-
-      <Confirm  open={deleteConfirmation} handler={handleDeleteConfirmation} method={DeleteMethod}  message="   هل انت متأكد من حذف حاوية النفاية بالموقع المحدد؟"/>
- </>
+     
+     <Confirm  open={deleteConfirmation} handler={handleDeleteConfirmation} method={DeleteMethod}  message="   هل انت متأكد من حذف حاوية النفاية بالموقع المحدد؟"/>
+     </>
+    
 );
 }

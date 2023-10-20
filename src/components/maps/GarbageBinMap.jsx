@@ -1,8 +1,8 @@
 import React , {useState, useEffect, useRef} from 'react'
-import { GoogleMap, useJsApiLoader, Marker , OverlayView } from '@react-google-maps/api';
+import { GoogleMap, useJsApiLoader, Marker , Circle,} from '@react-google-maps/api';
 import { db } from "/src/firebase";
 import { getDocs, collection, addDoc, GeoPoint, deleteDoc, doc ,getDoc, Timestamp } from "firebase/firestore"; // Import the necessary Firestore functions
-import { Button , Tooltip, Option} from "@material-tailwind/react";
+import { Button , Tooltip, } from "@material-tailwind/react";
 import Confirm from '../messages/Confirm';
 import Success from "../messages/Success"
 import GarbageBinForm from "../forms/GarbageBinForm"
@@ -11,6 +11,7 @@ import AlertMessage from "../messages/AlertMessage"
 import { v4 as uuidv4 } from 'uuid';
 import Select from 'react-select';
 import makeAnimated from 'react-select/animated';
+
 
 const animatedComponents = makeAnimated();
 
@@ -31,12 +32,12 @@ const binSizeOptions = [
   { value: 'حاوية صغيرة', label: 'حاوية صغيرة' },
 ];
 
+let customIcon;
 
+function GarbageBinMap() {
 
-function Map() {
-
+  const [map, setMap] = React.useState(null)
   const [zoom, setZoom] = useState(10); // set the initial zoom level
-  const [userPosition, setUserPosition] = useState(null);
   const [garbageBins, setGarbageBins] = useState([]);
   const [binData ,SetBinData] = React.useState([]);
   const [binId , setBinId] = useState();
@@ -50,6 +51,10 @@ function Map() {
   const [selectedLocation, setSelectedLocation] = React.useState(false);
   const [selectedBinSize, setSelectedBinSize] = useState(null);
   const [binsData, setBinsData] = useState([]);
+  const [userPosition, setUserPosition] = useState(null);
+  const [showUserLocation, setShowUserLocation] = useState(false);
+  const [userLocationRange, setUserLocationRange] = useState(null);
+
 
   const openInfoDrawer = () => setViewInfo(true);
   const closeInfoDrawer = () => setViewInfo(false);
@@ -127,7 +132,12 @@ const handleBinSizeSelect = (selectedOption) => {
   })
 
 
-  const [map, setMap] = React.useState(null)
+  if (isLoaded) {
+      customIcon = {
+      url: '/recycle-bin.png', // Replace with the actual path to your icon
+      scaledSize: new window.google.maps.Size(25, 25), // Set the desired width and height
+    };
+    }
 
 
   const onLoad = React.useCallback(function callback(map) {
@@ -154,19 +164,42 @@ const handleBinSizeSelect = (selectedOption) => {
 
 
 // function to handle fetching the user's current position
-  const getUserPosition = () => {
+  // const getUserPosition = () => {
+  //   if ('geolocation' in navigator) {
+  //     navigator.geolocation.getCurrentPosition((position) => {
+  //       const { latitude, longitude } = position.coords;
+  //       setUserPosition({ lat: latitude, lng: longitude });
+  //       setZoom(20); 
+  //           });
+  //   } else {
+  //     alert('Geolocation is not available in your browser.');
+  //   }
+  // };
+ 
+  const handleUserLocation = () => {
     if ('geolocation' in navigator) {
       navigator.geolocation.getCurrentPosition((position) => {
         const { latitude, longitude } = position.coords;
+        // setUserLocation({ lat: latitude, lng: longitude });
         setUserPosition({ lat: latitude, lng: longitude });
-        setZoom(18); 
+        setShowUserLocation(true);
+        setUserLocationRange({ lat: latitude, lng: longitude, radius: 50 });
+
+        if (mapRef.current) {
+          const map = mapRef.current;
+
+          // Set the center of the map to the user's location
+          map.setCenter(userPosition);
+
+          // Set the zoom level to focus on the user's location
+          map.setZoom(18); 
+        }
       });
     } else {
       alert('Geolocation is not available in your browser.');
     }
   };
   
-
 // Function to generate a unique serial number
 function generateSerialNumber() {
   return uuidv4();// Generates a random UUID
@@ -210,7 +243,10 @@ useEffect(() => {
   }
 }, []);
 
+
+
 const onMapClick = async (event) => {
+  
   // Capture the coordinates and display a confirmation message
   const lat = event.latLng.lat();
   const lng = event.latLng.lng();
@@ -229,7 +265,7 @@ const onMapClick = async (event) => {
   } else {
     // Show an alert message indicating that a garbage bin can only be added on a specific scale.
     handleAlertZoom();
-  }
+  } 
 };
 
 const checkTerrainType = (lat, lng) => {
@@ -344,7 +380,7 @@ return isLoaded ? (
     <Button
   style={{ background: '#FE9B00', color: '#ffffff' }}
   size="sm"
-  onClick={getUserPosition}>
+  onClick={handleUserLocation}>
   <span>عرض الموقع الحالي</span>
      </Button>
 
@@ -388,6 +424,7 @@ return isLoaded ? (
         onLoad={onLoad} //Callback function that gets executed when the map is loaded.
         onUnmount={onUnmount}//Callback function that gets executed when the component unmounts.
         onClick={onMapClick}
+        ref={mapRef}
       >
 
         {garbageBins.map((bin) => (
@@ -395,11 +432,17 @@ return isLoaded ? (
             key={bin.id}
             position={{ lat: bin.location._lat, lng: bin.location._long }} // Update here
             onClick={() => handleMarkerClick(bin)}
+            icon={customIcon}
+           
           >
           </Marker>
         ))}
     
-
+    {showUserLocation && userPosition && (
+      <Marker position={userPosition} icon={{ path: window.google.maps.SymbolPath.CIRCLE, scale: 10, fillColor: '#4285F4', fillOpacity: 0.8, strokeColor: '#4285F4' }}>
+        <Circle center={userLocationRange} options={{ radius: userLocationRange.radius, strokeColor: '#4285F4', fillColor: '#4285F4', fillOpacity: 0.2 }} />
+      </Marker>
+    )}
 
  <ViewGarbageInfo open={viewInfo} onClose={closeInfoDrawer}  DeleteMethod={handleDeletion} bin={binData} binId={binId}/>
  <GarbageBinForm open={formVisible} handler={handleForm} AddMethod={AddGarbageBin}  />
@@ -413,4 +456,4 @@ return isLoaded ? (
   ) : <></>
 }
 
-export default React.memo(Map)
+export default React.memo(GarbageBinMap)

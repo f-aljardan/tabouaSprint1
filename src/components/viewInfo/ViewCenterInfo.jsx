@@ -27,8 +27,15 @@ const arabicDays = ['- الجمعة', '- السبت','- ايام الاسبوع'
 const formatTimeRange = (from, to) => {
   const fromDate = parseISO(from);
   const toDate = parseISO(to);
-  const formattedFrom = format(fromDate, 'hh:mm a', { locale: enUS });
-  const formattedTo = format(toDate, 'hh:mm a', { locale: enUS });
+
+  // Define the Arabic strings for AM and PM
+  const amString = "ص";
+  const pmString = "م";
+
+  // Format the time using Arabic AM and PM
+  const formattedFrom = format(fromDate, 'hh:mm', { locale: enUS })+ ` ${fromDate.getHours() >= 12 ? pmString : amString}`;
+  const formattedTo = format(toDate, 'hh:mm', { locale: enUS }) + ` ${toDate.getHours() >= 12 ? pmString : amString}`;
+
   return `${formattedFrom} إلى ${formattedTo}`;
 };
 

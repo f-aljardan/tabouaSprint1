@@ -84,7 +84,7 @@ function Map() {
         // setUserLocation({ lat: latitude, lng: longitude });
         setUserPosition({ lat: latitude, lng: longitude });
         setShowUserLocation(true);
-        setUserLocationRange({ lat: latitude, lng: longitude, radius: 50 });
+        setUserLocationRange({ lat: latitude, lng: longitude, radius: 5 });
 
         if (mapRef.current) {
           const map = mapRef.current;

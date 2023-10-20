@@ -11,21 +11,20 @@ import {
 import emailjs from 'emailjs-com';
 
 
-import { db , app , auth  } from "../../firebase";
-import {createUserWithEmailAndPassword} from 'firebase/auth';
-import { collection, addDoc , setDoc, doc} from 'firebase/firestore';
+import { db} from "../../firebase";
+import { collection, addDoc } from 'firebase/firestore';
 import SummeryStaffInfo from "../viewInfo/SummeryStaffInfo";
 import "@material-tailwind/react"; 
 import Success from "../messages/Success"
 
 
- // State to control SummeryStaffInfo dialog
 
 export default function AddStaff({open , handler }){
   const [summeryStaffOpen, setSummeryStaffOpen] = useState(false);
   const [showAlert, setShowAlert] = useState(false);
 
 
+// handle
   const handleSummeryStaff = () =>setSummeryStaffOpen(!summeryStaffOpen); 
   const handlealert = () => setShowAlert(!showAlert);
 

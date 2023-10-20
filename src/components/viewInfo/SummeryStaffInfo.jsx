@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React from "react";
 import {
   Button,
   Dialog,
@@ -9,23 +9,17 @@ import {
 
  
 export default function SummeryStaffInfo({open, handler ,formData , addMethod }) {
-
-  
+ 
 const handleConfirm = () => {
-  // Perform any necessary actions before confirming
-  addMethod();
-  handler();
+// Perform necessary actions before confirming
+  addMethod();// to add staff to database from Addstaff page
+  handler(); // handle close dialog
 };
 
 
-
-
-
-
-
+// to show summery staff dialog
   return (
     <>
-      
       <Dialog
         open={open}
         size="md"
@@ -43,9 +37,6 @@ const handleConfirm = () => {
         </DialogBody>
         <DialogFooter>
 
-
-        
-
           <Button
             variant="gradient"
             style={{ background: "#97B980", color: '#ffffff' }}
@@ -54,7 +45,6 @@ const handleConfirm = () => {
             <span aria-hidden="true">تأكيد</span>
           </Button>
 
-          
           <Button 
             variant="text"
             style={{ background: "#FE5500", color: '#ffffff' }}
@@ -67,8 +57,6 @@ const handleConfirm = () => {
 
         </DialogFooter>
       </Dialog>
-
-
 
       
     </>

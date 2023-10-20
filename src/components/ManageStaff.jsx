@@ -5,7 +5,7 @@ import Confirm from "../components/messages/Confirm"
 import Success from "./messages/Success";
 
 import {
-    Button,
+  Button,
   Card,
   IconButton,
   Typography,
@@ -17,39 +17,33 @@ import {
   import { UserPlusIcon } from "@heroicons/react/24/solid"
 
   import { db} from "../firebase";
-  import { collection, getDocs , deleteDoc , doc ,  onSnapshot } from 'firebase/firestore';
-  import { getAuth, deleteUser } from 'firebase/auth';
-
-
-
+  import { collection,  deleteDoc , doc ,  onSnapshot } from 'firebase/firestore';
 
 export default function ManageStaff(){
-  const [showAddStaffDialog, setShowAddStaffDialog] = useState(false);
-  const [showConfirmAlert, setShowConfirmAlert] = useState(false);
+  const [showAddStaffDialog, setShowAddStaffDialog] = useState(false); // state to show add staff form
+  const [showConfirmAlert, setShowConfirmAlert] = useState(false); // state to show confirm alert 
   const [staffToDelete, setStaffToDelete] = useState(null); // State to store staff member to be deleted
-  const [showAlert, setShowAlert] = useState(false);
-  const [staffMembers, setStaffMembers] = useState([]);
-  const [searchTerm, setSearchTerm] = useState(""); 
+  const [showAlert, setShowAlert] = useState(false); // state to show success message
+  const [staffMembers, setStaffMembers] = useState([]); // to store staff infromation
+  const [searchTerm, setSearchTerm] = useState(""); // state to search staff name
 
 
-
-
-
+  //change state of add staff form
   const handleAddStaff = () => {
     setShowAddStaffDialog(!showAddStaffDialog);
   
   };
-
+  // change state of sucess message
   const handlealert = () => setShowAlert(!showAlert);
 
-
+//change comfiram message state and store staff id to delete
   const handleConfirm  = async (id) => {
     setShowConfirmAlert(!showConfirmAlert);
     setStaffToDelete(id);
-console.log("id = " , id);
   };
 
 
+  // get all staff infromation from database except admins
   useEffect(() => {
     const staffCollection = collection(db, 'staff');
     const unsubscribe = onSnapshot(staffCollection, (snapshot) => {
@@ -70,51 +64,39 @@ console.log("id = " , id);
         }
       });
   
-      setStaffMembers(staffData);
+      setStaffMembers(staffData);// store staff information
     });
-  
   
     // Return the cleanup function to unsubscribe from the listener
     return () => {
       unsubscribe();
     };
 
-    
   }, []);
   
-  // Define filteredStaff here before using it
+  // Define filteredStaff here before using , search by first name , father name , last name 
   const filteredStaff = staffMembers.filter((staffMember) =>
     `${staffMember.firstName} ${staffMember.fatherName} ${staffMember.lastName}`
       .toLowerCase()
       .includes(searchTerm.toLowerCase())
   );
 
- 
-
+// define trash icon for delete staff
   function TrashIcon() {
 
     return (
-    
     <svg
-    
     xmlns="http://www.w3.org/2000/svg"
-    
     viewBox="0 0 24 24"
-    
     fill="red"
-    
     className="h-5 w-5"
-    
     style={{ width: "1.5rem", height: "1.5rem" }}
-    
+
     >
-    
+
     <path
-    
     fillRule="evenodd"
-    
     d="M16.5 4.478v.227a48.816 48.816 0 013.878.512.75.75 0 11-.256 1.478l-.209-.035-1.005 13.07a3 3 0 01-2.991 2.77H8.084a3 3 0 01-2.991-2.77L4.087 6.66l-.209.035a.75.75 0 01-.256-1.478A48.567 48.567 0 017.5 4.705v-.227c0-1.564 1.213-2.9 2.816-2.951a52.662 52.662 0 013.369 0c1.603.051 2.815 1.387 2.815 2.951zm-6.136-1.452a51.196 51.196 0 013.273 0C14.39 3.05 15 3.684 15 4.478v.113a49.488 49.488 0 00-6 0v-.113c0-.794.609-1.428 1.364-1.452zm-.355 5.945a.75.75 0 10-1.5.058l.347 9a.75.75 0 101.499-.058l-.346-9zm5.48.058a.75.75 0 10-1.498-.058l-.347 9a.75.75 0 001.5.058l.345-9z"
-    
     clipRule="evenodd"
     
     />
@@ -125,6 +107,7 @@ console.log("id = " , id);
     
     }
 
+    // handle delete staff from database
     const handleDelete = async (staffMember) =>{
 
       try {
@@ -144,13 +127,9 @@ console.log("id = " , id);
     };
     
 
-
-    
-      
-
+    // to show staff information table
   return (
 <>
-
     <div
     
     style={{
@@ -163,18 +142,16 @@ console.log("id = " , id);
     
     >
 
-      {/* <div  style={{ display: "flex", alignItems: "start" , justifyContent: "flex-start" }}> */}
 <div className="flex  items-start justify-end gap-10">
      
-      
-      <AddStaff open={showAddStaffDialog} handler={handleAddStaff} />
+ <AddStaff open={showAddStaffDialog} handler={handleAddStaff} />
      
-{/* <div style={{ overflowX: "auto",  maxWidth: "800px",  margin: "0 auto", maxHeight: "90vh",}}> */}
 <div style={{ overflowX: "auto",  width: "800px",  maxHeight: "100vh",}}>
 
 <Card className="max-w-2xl p-8">
         <h2 className="text-2xl font-semibold mb-4">قائمة الموظفين</h2> 
 
+        {/* button to show add staff form */}
         <Button
         className="flex items-center gap-3 text-white text-sm"
         size="md"
@@ -184,7 +161,8 @@ console.log("id = " , id);
         <span>إضافة موظف</span>
         <UserPlusIcon strokeWidth={2} className="h-5 w-5" />
       </Button>
- <Input
+      {/* input to add staff name for search */}
+       <Input
           type="text"
           label="البحث عن اسم الموظف"
           value={searchTerm}
@@ -220,19 +198,25 @@ console.log("id = " , id);
         </thead>
         
         <tbody>
+          {/*filter staff by their first name , father name , last name */}
         {filteredStaff.length > 0 ? (
   filteredStaff.map((staffMember, index) => (
     <tr key={index}>
       <td className="p-4 border-b border-blue-gray-50 text-right">
         <Typography variant="small" color="blue-gray" className="font-normal">
           <span>{`${staffMember.firstName} ${staffMember.fatherName} ${staffMember.lastName}`}</span>
+          {/* get staff name from database */}
         </Typography>
       </td>
       <td className="p-4 border-b border-blue-gray-50 text-right">
         <Typography variant="small" color="blue-gray" className="font-normal">
           <span>{`${staffMember.email}`}</span>
+                    {/* get staff email from database */}
+
         </Typography>
       </td>
+                {/* click on icon to delete staff  */}
+
       <td className="p-4 border-b border-blue-gray-50 text-right">
         <Tooltip content="حذف الموظف"  className="bg-white font-baloo text-md text-gray-600">
           <IconButton variant="text" onClick={() => handleConfirm(staffMember.id)}>
@@ -242,7 +226,7 @@ console.log("id = " , id);
       </td>
     </tr>
   ))
-        ):(
+        ):(     
 <tr>
                     <td className="p-4 border-b border-blue-gray-50 text-center" colSpan="3">
                       <Typography
@@ -250,6 +234,8 @@ console.log("id = " , id);
                         color="red"
                         className="font-normal"
                       >
+                     {/* if there no staff with that name , it sill show this message*/}
+
                         لا يوجد موظفين بهذا الاسم
                       </Typography>
                     </td>
@@ -266,8 +252,12 @@ console.log("id = " , id);
 
     </div>
     </div>
-    <Confirm open={showConfirmAlert} handler={handleConfirm} method= {handleDelete} message="هل أنت متأكد من حذف الموظف؟" />
-              <Success open={showAlert} handler={handlealert} message="تم حذف الموظف بنجاح"/>
+    <Confirm open={showConfirmAlert} handler={handleConfirm} method= {handleDelete} message="هل أنت متأكد من حذف الموظف؟"  // to show confirm message  staff delete 
+    
+    />
+    <Success open={showAlert} handler={handlealert} message="تم حذف الموظف بنجاح" // to show success message when add staff
+    
+    />
 
 </>
     

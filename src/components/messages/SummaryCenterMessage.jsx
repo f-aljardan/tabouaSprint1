@@ -5,26 +5,20 @@ import {
   DialogHeader,
   DialogBody,
   DialogFooter,
-  Chip,
-  img,
-  figure,
-  figcaption,
   Typography,
 
 } from "@material-tailwind/react";
 import dayjs from 'dayjs';
 import 'dayjs/locale/ar'; // Import the Arabic locale
 
+export default function SummaryCenterMessage({open, handler ,formData , addMethod,handleEdit }) {
 
-export default function SummeryStaffInfo({open, handler ,formData , addMethod,handleEdit }) {
-
-  
+  // Perform  necessary actions before confirming
 const handleConfirm = () => {
-  // Perform any necessary actions before confirming
   addMethod();
   handler();
 };
-
+// handle center opening hours 
  const openingHoursData = formData.openingHours;
 
  const formattedWeekdaysFrom = dayjs(formData.openingHours.weekdays.from).locale('ar').format(' HH:mm A');
@@ -35,23 +29,19 @@ const handleConfirm = () => {
  const formattedSatTo = dayjs(formData.openingHours.sat.to).locale('ar').format('HH:mm A');
 
 
-
-
-
-
+// show summary center message
   return (
     <>
       
       <Dialog
-        open={open}
+        open={open} 
         size="md"
-       handler={handler}
+       handler={handler}// to handle show dialog 
       >
         <DialogHeader><span> معلومات المركز</span></DialogHeader>
         <DialogBody divider className="">
 <div className="flex justify-center">
 
-       
         <figure className="relative h-28 w-full">
     <img
      className="h-full w-full rounded-xl object-cover object-center"
@@ -63,8 +53,6 @@ const handleConfirm = () => {
        </figcaption>
     </figure>
        
-
-      
         <figure className="relative h-28 w-full">
     <img
      className="h-full w-full rounded-xl object-cover object-center"
@@ -75,10 +63,7 @@ const handleConfirm = () => {
           </Typography>
        </figcaption>
     </figure>
-       
-
-
-          
+             
  </div>
 
         <p  className="pt-2"><span className="font-semibold">إسم المركز:</span> {formData.name}</p>
@@ -87,7 +72,6 @@ const handleConfirm = () => {
         <p  className="pt-1"><span className="font-semibold">ساعات العمل:</span></p>
         <ul>
         <span>-أيام الاسبوع: من {formattedWeekdaysFrom} إلى {formattedWeekdaysTo}</span>
-        {/* <li>أيام الأسبوع: من { formData.openingHours.weekdays.from.toString()} إلى { formData.openingHours.weekdays.to.toString() }</li>  */}
         <li>
           -الجمعة: {openingHoursData.fri.isClosed ? 'مغلق' : `من ${formattedFriFrom} إلى ${formattedFriTo}`}
         </li>
@@ -99,8 +83,6 @@ const handleConfirm = () => {
         <p  className="pt-1"><span className="font-semibold">رابط الموقع الإلكتروني:</span> <a style={{color:"blue"}} href={formData.websiteURL}>{formData.websiteURL}</a></p>
         </DialogBody>
         <DialogFooter>
-
-
         
 
           <Button
@@ -111,7 +93,6 @@ const handleConfirm = () => {
             <span aria-hidden="true">تأكيد</span>
           </Button>
 
-          
           <Button 
             variant="text"
             style={{ background: "#FE5500", color: '#ffffff' }}

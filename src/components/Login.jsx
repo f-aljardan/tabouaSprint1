@@ -1,17 +1,10 @@
 
-import {
-    Card,
-    CardBody,
-    CardFooter,
-    Input,
-    Button,
-  } from "@material-tailwind/react";
-  import logo from "/tabouaNo.png" ;
+import {Card,CardBody, CardFooter, Input, Button,} from "@material-tailwind/react";
+import logo from "/tabouaNo.png" ;
 import { useState } from 'react';
 import  { getAuth, signInWithEmailAndPassword } from "firebase/auth";
-import { collection, getDocs , deleteDoc , doc ,  onSnapshot } from 'firebase/firestore';
+import { collection, getDocs , } from 'firebase/firestore';
 import { db} from "../firebase";
-
 import { useNavigate } from 'react-router-dom';
 import Footer from "./Footer";
 
@@ -22,7 +15,7 @@ const Login = () => {
     const [error, setError] = useState(null); // Add state for error
 
     const [emailError, setEmailError] = useState(null); // state to email error
-  const [passwordError, setPasswordError] = useState(null); // state to  password error
+    const [passwordError, setPasswordError] = useState(null); // state to  password error
 
     
     const navigate = useNavigate(); // define user navigation
@@ -42,8 +35,7 @@ const Login = () => {
        if (!password.trim()) {
          setPasswordError('كلمة المرور مطلوبة');
        }
-   
-     };
+    };
  
      
     const handleLogin = async (e) => {
@@ -62,21 +54,21 @@ const Login = () => {
           console.error('Login error:', error);
         }
       }
-
       else{
         setError('لا توجد لك صلاحيات على النظام');
 
-      }
-      
+      } 
     };
+
+
 
     // handle email changes
     const handleChangeEmail = async(e) => {
       
-     setEmail(e.target.value);
-     setEmailError('');
-       
-    }
+       setEmail(e.target.value);
+       setEmailError('');
+       }
+
 
     // handle password chnages
     const handleChangePassword = async (e) => {
@@ -99,6 +91,8 @@ const Login = () => {
         return false; // Default to not allowing login if there's an error
       }
     };
+
+
 
     // show login form
     return (<>

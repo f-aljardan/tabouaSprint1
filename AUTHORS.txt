@@ -1,0 +1,6 @@
+# Authors of the Taboua Waste Management System
+
+- [Danah Alotaibi - 442200854]  - Project Lead
+- [Fay Aljardan - 442200465] - Project Member
+- [Afnan Alotay - 442201419] - Project Member
+- [Latifah Allaboun - 442200484] - Project Member

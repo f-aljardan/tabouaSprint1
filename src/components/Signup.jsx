@@ -1,23 +1,8 @@
 
 import  { useState } from 'react';
 import { db, auth,  }  from "/src/firebase";
-import Footer from "./Footer";
-
-import {
-  collection,
-  query,
-  where,
-  getDocs,
-  setDoc,
-} from 'firebase/firestore';
-
-import {
-  Card,
-  CardBody,
-  CardFooter,
-  Input,
-  Button,
-} from "@material-tailwind/react";
+import { collection, query, where, getDocs, setDoc,} from 'firebase/firestore';
+import {Card, CardBody, CardFooter, Input, Button,} from "@material-tailwind/react";
 import logo from "../../public/tabouaNo.png";
 import {createUserWithEmailAndPassword} from 'firebase/auth';
 import { useNavigate } from 'react-router-dom';
@@ -35,6 +20,7 @@ function Signup(){
 // Function to check if email and password exist in Firestore 
 async function checkCredentials(email, password) {
     const credentialsCollection = collection(db, 'staff');
+    
     const q = query(
       credentialsCollection,
       where('email', '==', email),
@@ -61,7 +47,6 @@ async function handleSignUp(email, password) {
         const uid = user.uid;
   
 // Update the Firestore document with the UID
-// Assuming you have a collection called 'staff' and a document with the user's email
 const staffCollection = collection(db, 'staff');
 const q = query(staffCollection, where('email', '==', email));
 const querySnapshot = await getDocs(q);
@@ -86,7 +71,7 @@ if (!querySnapshot.empty) {
     }
   }
   
-  // handle sumbit form
+  // handle submit form
   const handleSubmit = async (e) => {
     e.preventDefault();
     handleSignUp(email, password);
@@ -109,6 +94,8 @@ if (!querySnapshot.empty) {
 
    };
 
+
+
    // handle user change email
    const handleChangeEmail = async(e) => {
       
@@ -117,6 +104,8 @@ if (!querySnapshot.empty) {
       
    }
 
+
+   
    // hamdle user change password
    const handleChangePassword = async (e) => {
 

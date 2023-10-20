@@ -4,18 +4,19 @@ import { useEffect, useState, useRef } from "react";
 import { db } from "/src/firebase";
 import { getDocs, collection, addDoc, GeoPoint, deleteDoc, doc} from "firebase/firestore";
 import {  getDoc } from "firebase/firestore";
-import Confirm from '../messages/Confirm';
 import ViewCenterInfo from "../viewInfo/ViewCenterInfo"
 import RecyclingCenterForm from "../forms/RecyclingCenterForm"
 import Success from "../messages/Success"
 import AlertMessage from "../messages/AlertMessage"
 import { Button , Tooltip} from "@material-tailwind/react";
 
+// Define constants for the Google Map
 const containerStyle = {
     width: '100%', // Set a width as needed
     height: '100%'
   };
 
+// Set the initial center
 const center = {
   lat: 24.7136,
   lng: 46.6753
@@ -24,7 +25,7 @@ const center = {
 
 let customIcon;
 
-function Map() {
+function RecyclingCentersMap() {
 
     const [zoom, setZoom] = useState(10); // set the initial zoom level
     const [recyclingCenters, setRecyclingCenters] = useState([]);
@@ -40,6 +41,8 @@ function Map() {
     const [userPosition, setUserPosition] = useState(null);
     const [showUserLocation, setShowUserLocation] = useState(false);
     const [userLocationRange, setUserLocationRange] = useState(null);
+    const [map, setMap] = React.useState(null)
+
 
     const openInfoDrawer = () => setViewInfo(true);
     const closeInfoDrawer = () => setViewInfo(false);
@@ -76,7 +79,48 @@ function Map() {
          fetchRecyclingCenters();
        }, []);
 
-       
+      
+  
+//load the Google Maps JavaScript API 
+const { isLoaded } = useJsApiLoader({
+  id: 'google-map-script',
+  googleMapsApiKey: "AIzaSyA_uotKtYzbjy44Y2IvoQFds2cCO6VmfMk"
+})
+
+//set the marker icon 
+if (isLoaded) {
+  customIcon = {
+  url: '/recyclingcenter.png', // Replace with the actual path to your icon
+  scaledSize: new window.google.maps.Size(45, 45), // Set the desired width and height
+};
+}
+
+
+// Callback function when the map loads
+const onLoad = React.useCallback(function callback(map) {
+  console.log("onload");
+  mapRef.current = map; // Store the map object in the ref
+  
+  // Get the initial zoom level and store it in currentZoomLevelRef
+  if (map.getZoom) {
+    const initialZoomLevel = map.getZoom();
+    currentZoomLevelRef.current = initialZoomLevel;
+  }
+
+  // Attach the onZoomChanged event listener
+  if (map.addListener) {
+    map.addListener('zoom_changed', onZoomChanged);
+  }
+}, []);
+
+  // Callback function when the component unmounts
+const onUnmount = React.useCallback(function callback(map) {
+  console.log("unmount")
+  mapRef.current = null;
+  setMap(null)
+}, [])
+
+  // Function to get the user's location
   const handleUserLocation = () => {
     if ('geolocation' in navigator) {
       navigator.geolocation.getCurrentPosition((position) => {
@@ -101,16 +145,58 @@ function Map() {
     }
   };
 
+
+   // Function to handle zoom level change
+  const onZoomChanged = () => {
+    if (mapRef.current && mapRef.current.getZoom) {
+      const zoomLevel = mapRef.current.getZoom();
+      currentZoomLevelRef.current = zoomLevel;
+    }
+  };
+  
+// Attach the onZoomChanged event listener
+useEffect(() => {
+  if (mapRef.current) {
+    mapRef.current.addListener('zoom_changed', onZoomChanged);
+  }
+}, []);
+
+
+
+
+const handleMarkerClick = async (recycleCenter) => {
+    
+  try {
+    // Fetch data for the selected recycling center using its ID
+    const centerDocRef = doc(db, "recyclingCenters", recycleCenter.id);
+    const centerDocSnapshot = await getDoc(centerDocRef);
+
+    if (centerDocSnapshot.exists()) {
+      SetCenterData(centerDocSnapshot.data());
+    
+      // You can use this data as needed in your component
+    } else {
+      console.error("Recycling center not found.");
+    }
+  } catch (error) {
+    console.error("Error fetching recycling center data:", error);
+  }
+  openInfoDrawer();
+  setSelectedLocation(recycleCenter);
+};
+
+
+
     const onMapClick = async (event) => {
-        // Capture the coordinates and display a confirmation message
+        // Capture the coordinates 
         const lat = event.latLng.lat();
         const lng = event.latLng.lng();
-        console.log("Clicked Coordinates:", lat, lng)
+    
         // Check if the conditions are met
   if (currentZoomLevelRef.current >= minZoomLevel) {
     const terrainType = await checkTerrainType(lat, lng);
     if (terrainType === 'building') {
-       // Store the new garbage bin location temporarily
+       // Store the new center location temporarily
        setNewRecyclingCenterLocation({ lat, lng });
        setFormVisible(true);
      } else {
@@ -123,6 +209,35 @@ function Map() {
       }
         
     };
+
+
+    
+  const checkTerrainType = (lat, lng) => {
+    return new Promise((resolve, reject) => {
+      if (window.google) {
+        const geocoder = new window.google.maps.Geocoder();
+        const latLng = new window.google.maps.LatLng(lat, lng);
+  
+        geocoder.geocode({ location: latLng }, (results, status) => {
+          if (status === 'OK') {
+            const types = results[0]?.address_components.map((component) => component.types[0]);
+  
+            // Check if 'types' array contains 'premise' (building)
+            if (types.includes('premise')) {
+              resolve('building');
+            } else {
+              resolve('other'); 
+            }
+          } else {
+            reject('Error checking terrain type');
+          }
+        });
+      } else {
+        reject('Google Maps API not loaded');
+      }
+    });
+  };
+  
 
     //  code for adding a new recycling center
     const handleAddRecyclingCenter = async (data) => {
@@ -176,130 +291,16 @@ function Map() {
       };
       
 
-//load the Google Maps JavaScript API 
-  const { isLoaded } = useJsApiLoader({
-    id: 'google-map-script',
-    googleMapsApiKey: "AIzaSyA_uotKtYzbjy44Y2IvoQFds2cCO6VmfMk"
-  })
 
-  
-  if (isLoaded) {
-    customIcon = {
-    url: '/recyclingcenter.png', // Replace with the actual path to your icon
-    scaledSize: new window.google.maps.Size(45, 45), // Set the desired width and height
-  };
-  }
-
-  const [map, setMap] = React.useState(null)
 
  
-  const onLoad = React.useCallback(function callback(map) {
-    console.log("onload");
-    mapRef.current = map; // Store the map object in the ref
-    
-    // Get the initial zoom level and store it in currentZoomLevelRef
-    if (map.getZoom) {
-      const initialZoomLevel = map.getZoom();
-      currentZoomLevelRef.current = initialZoomLevel;
-    }
-  
-    // Attach the onZoomChanged event listener
-    if (map.addListener) {
-      map.addListener('zoom_changed', onZoomChanged);
-    }
-  }, []);
-
-  const onUnmount = React.useCallback(function callback(map) {
-    console.log("unmount")
-    mapRef.current = null;
-    setMap(null)
-  }, [])
-
-
-  const checkTerrainType = (lat, lng) => {
-    return new Promise((resolve, reject) => {
-      if (window.google) {
-        const geocoder = new window.google.maps.Geocoder();
-        const latLng = new window.google.maps.LatLng(lat, lng);
-  
-        geocoder.geocode({ location: latLng }, (results, status) => {
-          if (status === 'OK') {
-            const types = results[0]?.address_components.map((component) => component.types[0]);
-  
-            // Check if 'types' array contains 'premise' (building)
-            if (types.includes('premise')) {
-              resolve('building');
-            } else {
-              resolve('other'); 
-            }
-          } else {
-            reject('Error checking terrain type');
-          }
-        });
-      } else {
-        reject('Google Maps API not loaded');
-      }
-    });
-  };
-  
- 
-// function to handle fetching the user's current position
-const getUserPosition = () => {
-    if ('geolocation' in navigator) {
-      navigator.geolocation.getCurrentPosition((position) => {
-        const { latitude, longitude } = position.coords;
-        setUserPosition({ lat: latitude, lng: longitude });
-        setZoom(18); 
-      });
-    } else {
-      alert('Geolocation is not available in your browser.');
-    }
-  };
-
-  const handleMarkerClick = async (recycleCenter) => {
-    
-    try {
-      // Fetch data for the selected recycling center using its ID
-      const centerDocRef = doc(db, "recyclingCenters", recycleCenter.id);
-      const centerDocSnapshot = await getDoc(centerDocRef);
-  
-      if (centerDocSnapshot.exists()) {
-        SetCenterData(centerDocSnapshot.data());
-      
-        // You can use this data as needed in your component
-      } else {
-        console.error("Recycling center not found.");
-      }
-    } catch (error) {
-      console.error("Error fetching recycling center data:", error);
-    }
-    openInfoDrawer();
-    setSelectedLocation(recycleCenter);
-  };
-
-
-  const onZoomChanged = () => {
-    if (mapRef.current && mapRef.current.getZoom) {
-      const zoomLevel = mapRef.current.getZoom();
-      currentZoomLevelRef.current = zoomLevel;
-    }
-  };
-  
-// Attach the onZoomChanged event listener
-useEffect(() => {
-  if (mapRef.current) {
-    mapRef.current.addListener('zoom_changed', onZoomChanged);
-  }
-}, []);
-
-
   const handleDeletion = () => {
     
-      onDeleteGarbageBin(selectedLocation.id);
+      onDeleteRecyclingCenter(selectedLocation.id);
       setSelectedLocation(false); // Close the drawer window after deletion.
   };
 
-const onDeleteGarbageBin = async (centerId) => {
+const onDeleteRecyclingCenter = async (centerId) => {
     try {
       // Construct a reference to the center document to be deleted
       const centerDocRef = doc(db, "recyclingCenters", centerId);
@@ -320,53 +321,57 @@ const onDeleteGarbageBin = async (centerId) => {
     }
   };
 
+
+  
   return isLoaded ? (
-    <div style={{ position: 'relative' , width:'100%', height: "%100"}}>
+    <div style={{ position: 'relative', width: '100%', height: '100%' }}>
     <div className="flex gap-5 p-4 mr-12" style={{ position: 'absolute', zIndex: 1000 }}>
-    <Tooltip
-      className="bg-white font-baloo text-md text-gray-600"
-      content=" لإضافة موقع مركز تدوير جديد قم بالضغط على الموقع المحدد والالتزام بحدود المباني"
-      placement="bottom"
-      
-    >
-      <Button style={{ background: "#97B980", color: '#ffffff' }} size='sm'><span>تعليمات إضافة مركز</span></Button>
-    </Tooltip>
-      
-    <Tooltip
-      className="bg-white font-baloo text-md text-gray-600"
-      content=" لإزالة موقع مركز تدوير قم بالضغط على موقع المركز  "
-      placement="bottom"
-    >
-      <Button style={{ background: "#FE5500", color: '#ffffff' }} size='sm'><span>تعليمات إزالة مركز</span></Button>
-    </Tooltip>
-    
-    <Button
-  style={{ background: '#FE9B00', color: '#ffffff' }}
-  size="sm"
-  onClick={handleUserLocation}>
-
-  <span>عرض الموقع الحالي</span>
-   </Button>
-
-    </div>
-
-
-    <div style={{position: 'absolute', zIndex: 2000, }}>
-  <AlertMessage open={showAlertZoom} handler={handleAlertZoom} message="كبر الخريطة لتتمكن من إضافة مركز تدوير " />
-  </div>
-  <div style={{position: 'absolute', zIndex: 2000, }}>
-  <AlertMessage open={showAlertBuilding} handler={handleAlertBuilding} message="  التزم بحدود المباني عند إضافة مركز التدوير" />
-  </div>
-
-      <GoogleMap
-        mapContainerStyle={containerStyle}
-        center={userPosition || center}
-        zoom={zoom}
-        onLoad={onLoad} //Callback function that gets executed when the map is loaded.
-        onUnmount={onUnmount}//Callback function that gets executed when the component unmounts.
-        onClick={onMapClick}
-        ref={mapRef}
+      <Tooltip
+        className="bg-white font-baloo text-md text-gray-600"
+        content=" لإضافة موقع مركز تدوير جديد قم بالضغط على الموقع المحدد والالتزام بحدود المباني"
+        placement="bottom"
       >
+        <Button style={{ background: "#97B980", color: '#ffffff' }} size='sm'>
+          <span>تعليمات إضافة مركز</span>
+        </Button>
+      </Tooltip>
+  
+      <Tooltip
+        className="bg-white font-baloo text-md text-gray-600"
+        content=" لإزالة موقع مركز تدوير قم بالضغط على موقع المركز"
+        placement="bottom"
+      >
+        <Button style={{ background: "#FE5500", color: '#ffffff' }} size='sm'>
+          <span>تعليمات إزالة مركز</span>
+        </Button>
+      </Tooltip>
+  
+      <Button
+        style={{ background: '#FE9B00', color: '#ffffff' }}
+        size="sm"
+        onClick={handleUserLocation}
+      >
+        <span>عرض الموقع الحالي</span>
+      </Button>
+    </div>
+  
+    <div style={{ position: 'absolute', zIndex: 2000 }}>
+      <AlertMessage open={showAlertZoom} handler={handleAlertZoom} message="كبر الخريطة لتتمكن من إضافة مركز تدوير " />
+    </div>
+  
+    <div style={{ position: 'absolute', zIndex: 2000 }}>
+      <AlertMessage open={showAlertBuilding} handler={handleAlertBuilding} message="  التزم بحدود المباني عند إضافة مركز التدوير" />
+    </div>
+  
+    <GoogleMap
+      mapContainerStyle={containerStyle}
+      center={userPosition || center}
+      zoom={zoom}
+      onLoad={onLoad}
+      onUnmount={onUnmount}
+      onClick={onMapClick}
+      ref={mapRef}
+    >
 
         {recyclingCenters.map((recycleCenter) => (
           <Marker
@@ -384,14 +389,13 @@ const onDeleteGarbageBin = async (centerId) => {
         <Circle center={userLocationRange} options={{ radius: userLocationRange.radius, strokeColor: '#4285F4', fillColor: '#4285F4', fillOpacity: 0.2 }} />
       </Marker>
     )}
-        <ViewCenterInfo  open={viewInfo} onClose={closeInfoDrawer} DeleteMethod={handleDeletion} center={centerData}/>
-        <RecyclingCenterForm open={formVisible} handler={handleForm} method={handleAddRecyclingCenter} />
-        <Success open={showSuccessAlert} handler={handleSuccessAlert} message=" تم إضافة مركز التدوير بنجاح" />
-        <Success open={showAlertSuccessDeletion} handler={handleAlertSuccessDeletion} message=" تم حذف مركز التدوير بنجاح" />
-        
-      </GoogleMap>
-      </div>
+    <ViewCenterInfo open={viewInfo} onClose={closeInfoDrawer} DeleteMethod={handleDeletion} center={centerData} />
+    <RecyclingCenterForm open={formVisible} handler={handleForm} method={handleAddRecyclingCenter} />
+    <Success open={showSuccessAlert} handler={handleSuccessAlert} message=" تم إضافة مركز التدوير بنجاح" />
+    <Success open={showAlertSuccessDeletion} handler={handleAlertSuccessDeletion} message=" تم حذف مركز التدوير بنجاح" />
+  </GoogleMap>
+</div>
   ) : <></>
 }
 
-export default React.memo(Map)
+export default React.memo(RecyclingCentersMap)

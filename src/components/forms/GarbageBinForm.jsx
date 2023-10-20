@@ -1,14 +1,8 @@
 import { useState } from 'react';
-import {
-  Button,
-  Dialog,
-  DialogHeader,
-  DialogBody,
-  DialogFooter,
-  Typography,
-} from "@material-tailwind/react";
+import { Button, Dialog, DialogHeader, DialogBody, DialogFooter,} from "@material-tailwind/react";
 import Select from 'react-select';
 import makeAnimated from 'react-select/animated';
+
 export default function GarbageBinForm({ open, handler, AddMethod }) {
     const animatedComponents = makeAnimated();
   
@@ -17,12 +11,15 @@ export default function GarbageBinForm({ open, handler, AddMethod }) {
       { value: 'حاوية صغيرة', label: 'حاوية صغيرة' },
     ];
   
+    // Form state
     const [formData, setFormData] = useState({
       size: '',
     });
   
+     // Validation state
     const [showValidationMessage, setShowValidationMessage] = useState(false);
   
+    // Handle selecting an option in the dropdown
     const handleChange = (selectedOption) => {
       if (selectedOption) {
         const selectedValue = selectedOption.value;
@@ -32,28 +29,34 @@ export default function GarbageBinForm({ open, handler, AddMethod }) {
         });
         setShowValidationMessage(false); // Hide the validation message when a selection is made
       } else {
+        // Reset the size field
         setFormData({
           ...formData,
-          size: '', // Reset the size field
+          size: '', 
         });
         setShowValidationMessage(true); // Show the validation message when no selection is made
       }
     };
   
+
+    // Handle form submission
     const handleSubmit = (e) => {
       e.preventDefault();
   
       // Check if a size is selected
       if (formData.size) {
         AddMethod(formData);
+
+        // Reset the size field
         setFormData({
-          size: '', // Reset the size field
+          size: '', 
         });
         setShowValidationMessage(false); // Hide the validation message after successful submission
       } else {
         setShowValidationMessage(true); // Show the validation message if no size is selected
       }
     };
+
 
     function validate(){
         if(!formData.size){

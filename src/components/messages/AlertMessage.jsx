@@ -1,7 +1,7 @@
 
 import { Alert, Button } from "@material-tailwind/react";
  
-// success icon 
+// alert icon 
 function Icon() {
   return (
     <svg
@@ -21,7 +21,7 @@ function Icon() {
  
 export default function AlertMessage({open, handler, message}) {
   
- // show success message
+ // show alert message
   return (
     <>
       <Alert

@@ -93,13 +93,13 @@ export default function ViewCenterInfo({ open, onClose, DeleteMethod, center }) 
               <img
                 src={center.logoURL}
                 alt="Center Logo"
-                style={{ width: '100%', height: 'auto' }}
+                style={{ width: '100%', height: '100%' }}
               />
             ) : (
               <img
                 src={center.imageURL}
                 alt="Center Photo"
-                style={{ width: '100%', height: 'auto' }}
+                style={{ width: 'auto', height: '100%' }}
               />
             )}
           </div>

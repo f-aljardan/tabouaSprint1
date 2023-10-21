@@ -1,27 +1,13 @@
 
 import React, { useEffect } from 'react';
 import { Link } from 'react-router-dom'; 
-import {
-    Card,
-    List,
-    ListItem,
-    ListItemPrefix,
-    Accordion,
-  AccordionHeader,
-  AccordionBody,
-  Typography,
-  } from "@material-tailwind/react";
-  import {
-   HomeIcon,
-    TrashIcon,
-    ChevronDownIcon,
-    ChevronLeftIcon
-  } from "@heroicons/react/24/solid";
-  import { FaRecycle } from 'react-icons/fa';
-  import { TbMessageReport } from 'react-icons/tb';
-  import { AiOutlineHeatMap } from 'react-icons/ai';
-  import { MdManageAccounts } from 'react-icons/md';
-  import logo from "/tabouaNo.png";
+import { Card,  List, ListItem, ListItemPrefix,   Accordion, AccordionHeader, AccordionBody,Typography,} from "@material-tailwind/react";
+import { HomeIcon, TrashIcon, ChevronDownIcon, ChevronLeftIcon} from "@heroicons/react/24/solid";
+import { FaRecycle } from 'react-icons/fa';
+import { TbMessageReport } from 'react-icons/tb';
+import { AiOutlineHeatMap } from 'react-icons/ai';
+import { MdManageAccounts } from 'react-icons/md';
+import logo from "/tabouaNo.png";
 
 
   function Sidebar({ authorized, showSidebar, setShowSidebar , activeItem, setActiveItem}) {

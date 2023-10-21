@@ -1,19 +1,10 @@
 
 import { useState , useRef } from 'react';
-import {
-  Button,
-  Dialog,
-  DialogHeader,
-  DialogBody,
-  DialogFooter,
-  Input,
-} from "@material-tailwind/react";
+import { Button, Dialog, DialogHeader, DialogBody, DialogFooter, Input,} from "@material-tailwind/react";
 import emailjs from 'emailjs-com';
-
-
 import { db} from "../../firebase";
 import { collection, addDoc } from 'firebase/firestore';
-import SummeryStaffInfo from "../viewInfo/SummeryStaffInfo";
+import SummeryStaffInfo from "../messages/SummeryStaffInfo";
 import "@material-tailwind/react"; 
 import Success from "../messages/Success"
 
@@ -148,6 +139,7 @@ try{
     fatherName:formData.fatherName,
     lastName: formData.lastName,   
     email: formData.email, 
+    password:formData.password,
     isAdmin: false,  
   });
   handlealert();// show success alerat when add user to database

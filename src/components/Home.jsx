@@ -11,11 +11,13 @@ import { MdManageAccounts } from 'react-icons/md';
 import { Button } from '@material-tailwind/react';
 
 export default function Home({ authorized, userData, setShowSidebar, setActiveItem }) {
+
   const navigate = useNavigate(); // to handle user navigation through diffrent pages
 
-  // to route user to diffrent page
+  
   useEffect(() => setShowSidebar(false), []);
 
+  // to route user to diffrent page
   const handleClick = (item) => {
     setShowSidebar(true);
     navigate(item);

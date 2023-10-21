@@ -3,21 +3,10 @@ import React, {useState , useEffect} from "react";
 import AddStaff from "./forms/AddStaff.jsx";
 import Confirm from "../components/messages/Confirm"
 import Success from "./messages/Success";
-
-import {
-  Button,
-  Card,
-  IconButton,
-  Typography,
-  Tooltip,
-  Input,
-   
-  } from "@material-tailwind/react";
- 
-  import { UserPlusIcon } from "@heroicons/react/24/solid"
-
-  import { db} from "../firebase";
-  import { collection,  deleteDoc , doc ,  onSnapshot } from 'firebase/firestore';
+import {Button,Card,IconButton,Typography,Tooltip,Input,} from "@material-tailwind/react";
+import { UserPlusIcon } from "@heroicons/react/24/solid"
+import { db} from "../firebase";
+import { collection,  deleteDoc , doc ,  onSnapshot } from 'firebase/firestore';
 
 export default function ManageStaff(){
   const [showAddStaffDialog, setShowAddStaffDialog] = useState(false); // state to show add staff form
@@ -107,6 +96,8 @@ export default function ManageStaff(){
     
     }
 
+
+
     // handle delete staff from database
     const handleDelete = async (staffMember) =>{
 
@@ -127,6 +118,8 @@ export default function ManageStaff(){
     };
     
 
+
+    
     // to show staff information table
   return (
 <>

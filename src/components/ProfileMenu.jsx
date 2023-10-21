@@ -120,7 +120,7 @@ export default function ProfileMenu({ userData }) {
 
           <Button
               className="flex items-center gap-1 h-9"
-              size="xs"
+              size="sm"
               variant="gradient"
               style={{ background: "#FE5500", color: "#ffffff"  , marginRight:'80%' , marginTop:'10px' }}
               onClick={handleLogout}

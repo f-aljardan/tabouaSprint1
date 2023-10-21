@@ -1,13 +1,26 @@
-
 import React, { useEffect } from 'react';
 import { Link } from 'react-router-dom'; 
-import { Card,  List, ListItem, ListItemPrefix,   Accordion, AccordionHeader, AccordionBody,Typography,} from "@material-tailwind/react";
-import { HomeIcon, TrashIcon, ChevronDownIcon, ChevronLeftIcon} from "@heroicons/react/24/solid";
-import { FaRecycle } from 'react-icons/fa';
-import { TbMessageReport } from 'react-icons/tb';
-import { AiOutlineHeatMap } from 'react-icons/ai';
-import { MdManageAccounts } from 'react-icons/md';
-import logo from "/tabouaNo.png";
+import {
+    Card,
+    List,
+    ListItem,
+    ListItemPrefix,
+    Accordion,
+  AccordionHeader,
+  AccordionBody,
+  Typography,
+  } from "@material-tailwind/react";
+  import {
+   HomeIcon,
+    TrashIcon,
+    ChevronDownIcon,
+    ChevronLeftIcon
+  } from "@heroicons/react/24/solid";
+  import { FaRecycle } from 'react-icons/fa';
+  import { TbMessageReport } from 'react-icons/tb';
+  import { AiOutlineHeatMap } from 'react-icons/ai';
+  import { MdManageAccounts } from 'react-icons/md';
+  import logo from "/tabouaNo.png";
 
 
   function Sidebar({ authorized, showSidebar, setShowSidebar , activeItem, setActiveItem}) {
@@ -51,7 +64,7 @@ import logo from "/tabouaNo.png";
     return (
       <div className={`sidebar ${showSidebar ? '' : 'hidden'}`}>
           <div className='sidebar'>
-      <Card className="h-[calc(105vh-2rem)] w-full max-w-[20rem] p-4 shadow-xl shadow-blue-gray-900/5 "  >
+      <Card className="h-[calc(122vh-2rem)] w-full max-w-[20rem] p-4 shadow-xl shadow-blue-gray-900/5 "  >
         <div>
             <div className='flex justify-center'>
             <img src={logo} width={135} style={{ marginBottom: '35px' , marginTop: '25px'}}/>

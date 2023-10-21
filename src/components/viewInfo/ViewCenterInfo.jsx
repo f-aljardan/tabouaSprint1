@@ -1,12 +1,24 @@
-import {useState} from "react";
-import Confirm from "../messages/Confirm"
-import { Drawer, Button, Typography, IconButton, ListItemPrefix, Chip, List,ListItem,} from "@material-tailwind/react";
-import {HiOutlineInformationCircle,HiOutlinePhone,HiClock,HiPhotograph,HiOutlineGlobeAlt,} from "react-icons/hi";
-import{FaRecycle,} from 'react-icons/fa'
+import { useState } from "react";
+import Confirm from "../messages/Confirm";
+import {
+  Drawer,
+  Button,
+  Typography,
+  IconButton,
+  ListItemPrefix,
+  Chip,
+  List,
+  ListItem,
+} from "@material-tailwind/react";
+import {
+  HiOutlineInformationCircle,
+  HiOutlinePhone,
+  HiClock,
+  HiOutlineGlobeAlt,
+} from "react-icons/hi";
+import { FaRecycle } from 'react-icons/fa';
 import { format, parseISO } from 'date-fns';
 import { enUS } from 'date-fns/locale';
-
-
 
 const arabicDays = ['- الجمعة', '- السبت', '- ايام الاسبوع'];
 
@@ -21,7 +33,6 @@ const formatTimeRange = (from, to) => {
   // Format the time using Arabic AM and PM
   const formattedFrom = format(fromDate, 'hh:mm', { locale: enUS }) + ` ${fromDate.getHours() >= 12 ? pmString : amString}`;
   const formattedTo = format(toDate, 'hh:mm', { locale: enUS }) + ` ${toDate.getHours() >= 12 ? pmString : amString}`;
-
 
   return `${formattedFrom} إلى ${formattedTo}`;
 };
@@ -43,7 +54,6 @@ const formatOpeningHours = (center) => {
             </span>
             <span style={{ marginLeft: '8px' }}>
               {dayData.isClosed ? 'مغلق' : formatTimeRange(dayData.from, dayData.to)}
-
             </span>
           </li>
         );
@@ -55,6 +65,7 @@ const formatOpeningHours = (center) => {
 export default function ViewCenterInfo({ open, onClose, DeleteMethod, center }) {
   const [deleteConfirmation, setDeleteConfirmation] = useState(false);
   const [showCenterLogo, setShowCenterLogo] = useState(true);
+
   const handleDeleteConfirmation = () => setDeleteConfirmation(!deleteConfirmation);
 
   const types = center.type || [];
@@ -77,25 +88,50 @@ export default function ViewCenterInfo({ open, onClose, DeleteMethod, center }) 
         </div>
 
         <div className="flex justify-center h-56">
-          <div>
+          <div style={{ width: '100%', maxHeight: '100%', overflow: 'hidden', textAlign: 'center' }}>
             {showCenterLogo ? (
-              <img src={center.logoURL} alt="Center Logo" />
+              <img
+                src={center.logoURL}
+                alt="Center Logo"
+                style={{ width: '100%', height: 'auto' }}
+              />
             ) : (
-              <img src={center.imageURL} alt="Center Photo" />
+              <img
+                src={center.imageURL}
+                alt="Center Photo"
+                style={{ width: '100%', height: 'auto' }}
+              />
             )}
           </div>
         </div>
 
-        <Button
-          size="sm"
-          className="mt-3"
-          fullWidth={true}
-          variant="gradient"
-          style={{ background: "#07512D", color: "#ffffff" }}
-          onClick={() => setShowCenterLogo(!showCenterLogo)}
-        >
-          <span>{showCenterLogo ? "عرض الصورة" : "عرض الشعار"}</span>
-        </Button>
+        
+
+        <div className="flex justify-between mt-3">
+          {showCenterLogo && (
+            <Button
+              size="sm"
+              variant="text"
+              color="blue-gray"
+              onClick={() => setShowCenterLogo(false)}
+              style={{ backgroundColor: '#07512D', color: '#ffffff', marginLeft: "85%"}}
+            >
+              →{/* Right arrow */}
+            </Button>
+          )}
+
+          {!showCenterLogo && (
+            <Button
+              size="sm"
+              variant="text"
+              color="blue-gray"
+              onClick={() => setShowCenterLogo(true)}
+              style={{ backgroundColor: '#07512D', color: '#ffffff', marginRight: "85%"}}
+            >
+              ←{/* Left arrow */}
+            </Button>
+          )}
+        </div>
 
         <li className="centerInfo">
           <List>

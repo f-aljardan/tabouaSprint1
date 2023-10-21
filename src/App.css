@@ -17,24 +17,13 @@ body{
 }
 
 
-
-.sidebar {
-  /* Your sidebar styles */
-  /* position: fixed; */
-
-}
-
 .active {
-  background-color: #97B980; /* Change to your desired background color */
-  color: #fff; /* Change to your desired text color */
-  /* Add any other styles you want for the active item */
+  background-color: #97B980; 
+  color: #fff;
 }
 
 
 .content-container {
- /* Adjust margin to the width of the sidebar */
- /* margin-right: 20rem; */
-  /* padding: 1rem; */
   flex: 1;
   overflow-y: auto;
 }
@@ -42,10 +31,6 @@ body{
 .map{
   display: flex;
   justify-content: center;
-  /* border:  #97B980 solid 5px;
-  border-radius: 20px; */
-  /* width: '950px';*/
-  /* height: '500px';   */
 }
 
 .loginPage{
@@ -76,13 +61,6 @@ body{
   align-items: flex-start;
   gap: 20px;
 }
-
-/* 
-.description{
-  width: 370px;
-  max-height: 100px;
-  overflow: auto;
-} */
 
 
 .ProfileMenu{

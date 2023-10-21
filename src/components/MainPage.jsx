@@ -52,31 +52,38 @@ function MainPage() {
       return unsubscribe;
     }, [navigate]);
     
+
+
     // to route to other page
       return (
         <>
        
+ <div className="app-container">
+  <Sidebar
+    authorized={userData.isAdmin}
+    showSidebar={showSidebar}
+    setShowSidebar={setShowSidebar}
+    activeItem={activeItem}
+    setActiveItem={setActiveItem}
+  />
+  <div className="content-container">
+    <Routes>
+      <Route path="/" element={<Home authorized={userData.isAdmin} userData={userData} showSidebar={showSidebar} setShowSidebar={setShowSidebar} setActiveItem={setActiveItem} />} />
+      {showSidebar && (
+        <>
+          <Route path="/garbage" element={<div className='map h-[calc(122vh-2rem)]'><GarbageBinMap /></div>} />
+          <Route path="/recycle" element={<div className='map h-[calc(122vh-2rem)]'><RecyclingCenterMap /></div>} />
+          <Route path="/complaints" element={<Complaints />} />
+          <Route path="/heatmap" element={<Heatmap />} />
+          {userData.isAdmin && <Route path="/manage" element={<ManageStaff />} />}
+        </>
+      )}
+    </Routes>
+  </div>
+</div>
 
-          <div className="app-container">
-            <Sidebar authorized={userData.isAdmin} showSidebar={showSidebar} setShowSidebar={setShowSidebar} activeItem={activeItem} setActiveItem={setActiveItem}/>
-            <div className="content-container">
-              <Routes>
-              <Route path="/" element={<Home  authorized={userData.isAdmin} userData={userData} showSidebar={showSidebar} setShowSidebar={setShowSidebar} setActiveItem={setActiveItem}/>} />
-               {showSidebar && (
-                  <> 
-                    <Route path="/garbage"  element={<div className='map h-[calc(105vh-2rem)]'> <GarbageBinMap/> </div>} />
-                    <Route path="/recycle" element={<div className='map h-[calc(105vh-2rem)]'><RecyclingCenterMap /></div>} />
-                    <Route path="/complaints" element={<Complaints />} />
-                    <Route path="/heatmap" element={<Heatmap />} />
-                    {userData.isAdmin && <Route path="/manage" element={<ManageStaff />} />}
-                  </>
-                )}
-              </Routes>
-            </div>
-          </div>
+<Footer />
 
-          <Footer />
-          
 
         </>
 

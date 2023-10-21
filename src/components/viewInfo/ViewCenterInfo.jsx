@@ -1,27 +1,14 @@
-import { useState } from "react";
-import Confirm from "../messages/Confirm";
-import {
-  Drawer,
-  Button,
-  Typography,
-  IconButton,
-  ListItemPrefix,
-  Chip,
-  List,
-  ListItem,
-} from "@material-tailwind/react";
-import {
-  HiOutlineInformationCircle,
-  HiOutlinePhone,
-  HiClock,
-  HiPhotograph,
-  HiOutlineGlobeAlt,
-} from "react-icons/hi";
-import { FaRecycle } from "react-icons/fa";
-import { format, parseISO } from "date-fns";
-import { enUS } from "date-fns/locale";
+import {useState} from "react";
+import Confirm from "../messages/Confirm"
+import { Drawer, Button, Typography, IconButton, ListItemPrefix, Chip, List,ListItem,} from "@material-tailwind/react";
+import {HiOutlineInformationCircle,HiOutlinePhone,HiClock,HiPhotograph,HiOutlineGlobeAlt,} from "react-icons/hi";
+import{FaRecycle,} from 'react-icons/fa'
+import { format, parseISO } from 'date-fns';
+import { enUS } from 'date-fns/locale';
 
-const arabicDays = ["- الجمعة", "- السبت", "- ايام الاسبوع"];
+
+
+const arabicDays = ['- الجمعة', '- السبت', '- ايام الاسبوع'];
 
 const formatTimeRange = (from, to) => {
   const fromDate = parseISO(from);
@@ -32,12 +19,9 @@ const formatTimeRange = (from, to) => {
   const pmString = "م";
 
   // Format the time using Arabic AM and PM
-  const formattedFrom =
-    format(fromDate, "hh:mm", { locale: enUS }) +
-    ` ${fromDate.getHours() >= 12 ? pmString : amString}`;
-  const formattedTo =
-    format(toDate, "hh:mm", { locale: enUS }) +
-    ` ${toDate.getHours() >= 12 ? pmString : amString}`;
+  const formattedFrom = format(fromDate, 'hh:mm', { locale: enUS }) + ` ${fromDate.getHours() >= 12 ? pmString : amString}`;
+  const formattedTo = format(toDate, 'hh:mm', { locale: enUS }) + ` ${toDate.getHours() >= 12 ? pmString : amString}`;
+
 
   return `${formattedFrom} إلى ${formattedTo}`;
 };
@@ -54,11 +38,12 @@ const formatOpeningHours = (center) => {
         const dayData = center.openingHours[day];
         return (
           <li key={day}>
-            <span style={{ fontWeight: "bold", marginLeft: "8px" }}>
+            <span style={{ fontWeight: 'bold', marginLeft: '8px' }}>
               {arabicDays[orderedDays.indexOf(day)]} :
             </span>
-            <span style={{ marginLeft: "8px" }}>
-              {dayData.isClosed ? "مغلق" : formatTimeRange(dayData.from, dayData.to)}
+            <span style={{ marginLeft: '8px' }}>
+              {dayData.isClosed ? 'مغلق' : formatTimeRange(dayData.from, dayData.to)}
+
             </span>
           </li>
         );

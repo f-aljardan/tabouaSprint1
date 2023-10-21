@@ -3,7 +3,6 @@ import { GoogleMap, useJsApiLoader, Marker , Circle,} from '@react-google-maps/a
 import { db } from "/src/firebase";
 import { getDocs, collection, addDoc, GeoPoint, deleteDoc, doc ,getDoc, Timestamp } from "firebase/firestore"; // Import the necessary Firestore functions
 import { Button , Tooltip, } from "@material-tailwind/react";
-import Confirm from '../messages/Confirm';
 import Success from "../messages/Success"
 import GarbageBinForm from "../forms/GarbageBinForm"
 import ViewGarbageInfo from "../viewInfo/ViewGarbageInfo"
@@ -15,17 +14,19 @@ import makeAnimated from 'react-select/animated';
 
 const animatedComponents = makeAnimated();
 
+
+// Define constants for the Google Map
 const containerStyle = {
   width: '100%', // Set a width as needed
     height: '100%'
 };
-
+// Set the initial center
 const center = {
   lat: 24.7136,
   lng: 46.6753
 };
 
-
+// Define options for garbage bin size selection
 const binSizeOptions = [
   { value: '', label: 'جميع الاحجام' },
   { value: 'حاوية كبيرة', label: 'حاوية كبيرة' },
@@ -72,74 +73,49 @@ function GarbageBinMap() {
 
 
 
-
-
-
-
-
-
-  // Function to filter garbage bins based on type
-  const filterGarbageBins = (size) => {
-    if (size === '') {
-      // If no type is selected, show all bins
-      setGarbageBins(binsData);
-    } else {
-      // Filter bins based on the selected type
-      const filteredBins = binsData.filter((bin) => bin.size === size);
-      setGarbageBins(filteredBins);
-    }
-  };
-
   // Load the garbage bin data from Firestore
-  useEffect( ()=>{
-      const fetchGarbageBins = async () => {
+  useEffect(() => {
+    const fetchGarbageBins = async () => {
       try {
-      const querySnapshot = await getDocs(collection(db, "garbageBins"));
-      const binsData = [];
-      querySnapshot.forEach((doc) => {
+        const querySnapshot = await getDocs(collection(db, "garbageBins"));
+        const binsData = [];
+        querySnapshot.forEach((doc) => {
           const data = doc.data();
           const location = data.location || {}; // Ensure location is an object
-          binsData.push({ id: doc.id, location, size: data.size }); 
-           });
+          binsData.push({ id: doc.id, location, size: data.size });
+        });
 
-       // Initially, set all garbage bins
-       setGarbageBins(binsData);
+        // Initially, set all garbage bins
+        setGarbageBins(binsData);
 
-      // Store the bin data for filtering
-       setBinsData(binsData);
-        } catch (error) {
-          console.error('Error fetching garbage bins:', error);
-        }
-      };
-  
-      fetchGarbageBins();
-    }, []);
- 
- // Function to handle the selection of a bin type for filtering
-//  const handleBinSizeSelect = (size) => {
-//   setSelectedBinSize(size);
-//   filterGarbageBins(size);
-// };
-const handleBinSizeSelect = (selectedOption) => {
-  setSelectedBinSize(selectedOption.value);
-  filterGarbageBins(selectedOption.value);
-};
+        // Store the bin data for filtering
+        setBinsData(binsData);
+      } catch (error) {
+        console.error('Error fetching garbage bins:', error);
+      }
+    };
+
+    fetchGarbageBins();
+  }, []);
 
 
+  // Load Google Maps JavaScript API
   const { isLoaded } = useJsApiLoader({
     id: 'google-map-script',
     googleMapsApiKey: "AIzaSyA_uotKtYzbjy44Y2IvoQFds2cCO6VmfMk"
   })
 
 
+//set the marker icon 
   if (isLoaded) {
       customIcon = {
-      url: '/trash.png', // Replace with the actual path to your icon
+      url: '/trash.png', 
       scaledSize: new window.google.maps.Size(45, 45), // Set the desired width and height
     };
     }
 
 
+// Callback function when the map loads
   const onLoad = React.useCallback(function callback(map) {
     mapRef.current = map; // Store the map object in the ref
     
@@ -156,6 +132,7 @@ const handleBinSizeSelect = (selectedOption) => {
   }, []);
 
 
+  // Callback function when the component unmounts
   const onUnmount = React.useCallback(function callback(map) {
     console.log("unmount")
     mapRef.current = null;
@@ -163,24 +140,34 @@ const handleBinSizeSelect = (selectedOption) => {
   }, [])
 
 
-// function to handle fetching the user's current position
-  // const getUserPosition = () => {
-  //   if ('geolocation' in navigator) {
-  //     navigator.geolocation.getCurrentPosition((position) => {
-  //       const { latitude, longitude } = position.coords;
-  //       setUserPosition({ lat: latitude, lng: longitude });
-  //       setZoom(20); 
-  //           });
-  //   } else {
-  //     alert('Geolocation is not available in your browser.');
-  //   }
-  // };
+  // Function to filter garbage bins based on type
+  const filterGarbageBins = (size) => {
+    if (size === '') {
+      // If no type is selected, show all bins
+      setGarbageBins(binsData);
+    } else {
+      // Filter bins based on the selected type
+      const filteredBins = binsData.filter((bin) => bin.size === size);
+      setGarbageBins(filteredBins);
+    }
+  };
+
  
+// Function to handle the selection of a bin size
+const handleBinSizeSelect = (selectedOption) => {
+  setSelectedBinSize(selectedOption.value);
+  filterGarbageBins(selectedOption.value);
+};
+
+
+
+
+ 
+  // Function to get the user's location
   const handleUserLocation = () => {
     if ('geolocation' in navigator) {
       navigator.geolocation.getCurrentPosition((position) => {
         const { latitude, longitude } = position.coords;
-        // setUserLocation({ lat: latitude, lng: longitude });
         setUserPosition({ lat: latitude, lng: longitude });
         setShowUserLocation(true);
         setUserLocationRange({ lat: latitude, lng: longitude, radius: 5 });
@@ -200,15 +187,30 @@ const handleBinSizeSelect = (selectedOption) => {
     }
   };
   
-// Function to generate a unique serial number
-function generateSerialNumber() {
-  return uuidv4();// Generates a random UUID
-}
 
+  // Function to handle zoom level change
+  const onZoomChanged = () => {
+    if (mapRef.current && mapRef.current.getZoom) {
+      const zoomLevel = mapRef.current.getZoom();
+      currentZoomLevelRef.current = zoomLevel;
+    }
+  };
+
+  
+// Attach the onZoomChanged event listener
+useEffect(() => {
+  if (mapRef.current) {
+    mapRef.current.addListener('zoom_changed', onZoomChanged);
+  }
+}, []);
+
+
+
+ 
   const handleMarkerClick = async (bin) => {
     
     try {
-      // Fetch data for the selected recycling center using its ID
+      // Fetch data for the selected garbage Bin  using its ID
       const BinDocRef = doc(db, "garbageBins", bin.id);
       const BinDocSnapshot = await getDoc(BinDocRef);
   
@@ -226,22 +228,6 @@ function generateSerialNumber() {
     setSelectedLocation(bin);
   
   };
-
-
-  const onZoomChanged = () => {
-    if (mapRef.current && mapRef.current.getZoom) {
-      const zoomLevel = mapRef.current.getZoom();
-      currentZoomLevelRef.current = zoomLevel;
-    }
-  };
-
-  
-// Attach the onZoomChanged event listener
-useEffect(() => {
-  if (mapRef.current) {
-    mapRef.current.addListener('zoom_changed', onZoomChanged);
-  }
-}, []);
 
 
 
@@ -267,6 +253,7 @@ const onMapClick = async (event) => {
     handleAlertZoom();
   } 
 };
+
 
 const checkTerrainType = (lat, lng) => {
   return new Promise((resolve, reject) => {
@@ -295,16 +282,7 @@ const checkTerrainType = (lat, lng) => {
 };
 
 
-  const handleDeletion = () => {
-   
-      // Call the onDeleteGarbageBin function passed as a prop to handle deletion.
-      onDeleteGarbageBin(selectedLocation.id);
-      setSelectedLocation(false);
-
-  };
-
-
-  
+ //  code for adding a new Garbage Bin 
 const AddGarbageBin = async (data) => {
   try {
     const geoPoint = new GeoPoint(
@@ -332,6 +310,19 @@ const AddGarbageBin = async (data) => {
   }
 };
 
+ 
+// Function to generate a unique serial number
+function generateSerialNumber() {
+  return uuidv4();// Generates a random UUID
+}
+
+
+const handleDeletion = () => {
+  // Call the onDeleteGarbageBin function passed as a prop to handle deletion.
+  onDeleteGarbageBin(selectedLocation.id);
+  setSelectedLocation(false);
+
+};
 
 const onDeleteGarbageBin = async (garbageBinId) => {
   try {
@@ -358,101 +349,84 @@ const onDeleteGarbageBin = async (garbageBinId) => {
 
 
 return isLoaded ? (
-  <div style={{ position: 'relative' , width:'100%',  height: "%100"}}>
-    <div className="flex gap-5 p-4 mr-12 z-10" style={{ position: 'absolute' }}>
-    
-    <Tooltip
-      className="bg-white font-baloo text-md text-gray-600"
-      content="  لإضافة موقع حاوية جديدة قم بالضغط على الموقع المحدد والالتزام بحدود الطرق"
-      placement="bottom"  
-    >
+  <div style={{ position: 'relative', width: '100%', height: '100%' }}>
+      <div className="flex gap-5 p-4 mr-12 z-10" style={{ position: 'absolute' }}>
+        <Tooltip
+          className="bg-white font-baloo text-md text-gray-600"
+          content="  لإضافة موقع حاوية جديدة قم بالضغط على الموقع المحدد والالتزام بحدود الطرق"
+          placement="bottom"
+        >
       <Button style={{ background: "#97B980", color: '#ffffff' }} size='sm'><span>تعليمات إضافة حاوية</span></Button>
-    </Tooltip>
-      
-    <Tooltip
-      className="bg-white font-baloo text-md text-gray-600"
-      content=" لإزالة موقع حاوية قم بالضغط على موقع الحاوية"
-      placement="bottom"
-    >
-      <Button style={{ background: "#FE5500", color: '#ffffff' }} size='sm'><span>تعليمات إزالة الحاوية</span></Button>
-    </Tooltip>
+        </Tooltip>
 
-    <Button
-  style={{ background: '#FE9B00', color: '#ffffff' }}
-  size="sm"
-  onClick={handleUserLocation}>
-  <span>عرض الموقع الحالي</span>
-     </Button>
+        <Tooltip
+          className="bg-white font-baloo text-md text-gray-600"
+          content=" لإزالة موقع حاوية قم بالضغط على موقع الحاوية"
+          placement="bottom"
+        >
+          <Button style={{ background: "#FE5500", color: '#ffffff' }} size='sm'><span>تعليمات إزالة الحاوية</span></Button>
+        </Tooltip>
 
-{/* Select option for bin type filtering */}
-      {/* <div className='bg-white text-gray-900 rounded-md' >
-        <Select className='text-gray-900 '   onChange={(value) => handleBinSizeSelect(value)} value={selectedBinSize}>
+        <Button
+          style={{ background: '#FE9B00', color: '#ffffff' }}
+          size="sm"
+          onClick={handleUserLocation}>
+          <span>عرض الموقع الحالي</span>
+        </Button>
 
-         <Option> تصفية حسب حجم الحاوية</Option>
-          <Option value="">جميع الاحجام</Option>
-          <Option value="حاوية كبيرة">حاوية كبيرة</Option>
-          <Option value="حاوية صغيرة">حاوية صغيرة</Option>
-        </Select>
-      </div> */}
   
-
-  <Select
-  placeholder="تصفية حسب حجم الحاوية..."
-  closeMenuOnSelect={false}
-  components={animatedComponents}
-  options={binSizeOptions}
-  value={selectedBinSize !== null ? binSizeOptions.find((option) => option.value === selectedBinSize) : null}
-  onChange={(value) => handleBinSizeSelect(value)}
-  required
-/>
-
-      
-  </div>
+        <Select
+          placeholder="تصفية حسب حجم الحاوية..."
+          closeMenuOnSelect={false}
+          components={animatedComponents}
+          options={binSizeOptions}
+          value={selectedBinSize !== null ? binSizeOptions.find((option) => option.value === selectedBinSize) : null}
+          onChange={(value) => handleBinSizeSelect(value)}
+          required
+        />
+      </div>
     
-     <div style={{position: 'absolute', zIndex: 2000, }}>
-  <AlertMessage open={showAlertZoom} handler={handleAlertZoom} message="كبر الخريطة لتتمكن من إضافة حاوية القمامة " />
-     </div>
+      <div style={{ position: 'absolute', zIndex: 2000 }}>
+        <AlertMessage open={showAlertZoom} handler={handleAlertZoom} message="كبر الخريطة لتتمكن من إضافة حاوية القمامة " />
+      </div>
 
-     <div style={{position: 'absolute', zIndex: 2000, }}>
-  <AlertMessage open={showAlertStreet} handler={handleAlertStreet} message=" إلتزم بحدود الطرق عند إضافة حاوية قمامة" />
-     </div>
+      <div style={{ position: 'absolute', zIndex: 2000 }}>
+        <AlertMessage open={showAlertStreet} handler={handleAlertStreet} message=" إلتزم بحدود الطرق عند إضافة حاوية قمامة" />
+      </div>
+
 
       <GoogleMap
         mapContainerStyle={containerStyle}
         center={userPosition || center}
         zoom={zoom}
-        onLoad={onLoad} //Callback function that gets executed when the map is loaded.
-        onUnmount={onUnmount}//Callback function that gets executed when the component unmounts.
+        onLoad={onLoad} // Callback function that gets executed when the map is loaded.
+        onUnmount={onUnmount} // Callback function that gets executed when the component unmounts.
         onClick={onMapClick}
         ref={mapRef}
       >
 
         {garbageBins.map((bin) => (
           <Marker
-            key={bin.id}
-            position={{ lat: bin.location._lat, lng: bin.location._long }} // Update here
-            onClick={() => handleMarkerClick(bin)}
-            icon={customIcon}
-           
-          >
-          </Marker>
+          key={bin.id}
+          position={{ lat: bin.location._lat, lng: bin.location._long }}
+          onClick={() => handleMarkerClick(bin)}
+          icon={customIcon}
+        >
+        </Marker>
         ))}
     
     {showUserLocation && userPosition && (
-      <Marker position={userPosition} icon={{ path: window.google.maps.SymbolPath.CIRCLE, scale: 10, fillColor: '#4285F4', fillOpacity: 0.8, strokeColor: '#4285F4' }}>
-        <Circle center={userLocationRange} options={{ radius: userLocationRange.radius, strokeColor: '#4285F4', fillColor: '#4285F4', fillOpacity: 0.2 }} />
-      </Marker>
-    )}
+          <Marker position={userPosition} icon={{ path: window.google.maps.SymbolPath.CIRCLE, scale: 10, fillColor: '#4285F4', fillOpacity: 0.8, strokeColor: '#4285F4' }}>
+            <Circle center={userLocationRange} options={{ radius: userLocationRange.radius, strokeColor: '#4285F4', fillColor: '#4285F4', fillOpacity: 0.2 }} />
+          </Marker>
+        )}
 
- <ViewGarbageInfo open={viewInfo} onClose={closeInfoDrawer}  DeleteMethod={handleDeletion} bin={binData} binId={binId}/>
- <GarbageBinForm open={formVisible} handler={handleForm} AddMethod={AddGarbageBin}  />
- <Success open={showSuccessAlert} handler={handleSuccessAlert} message=" تم إضافة حاوية القمامة بنجاح" />
- <Success open={showAlertDeletion} handler={handlealertDeletion} message=" تم حذف حاوية القمامة بنجاح" />
-  
-    
-       
+        <ViewGarbageInfo open={viewInfo} onClose={closeInfoDrawer} DeleteMethod={handleDeletion} bin={binData} binId={binId} />
+        <GarbageBinForm open={formVisible} handler={handleForm} AddMethod={AddGarbageBin} />
+        <Success open={showSuccessAlert} handler={handleSuccessAlert} message=" تم إضافة حاوية القمامة بنجاح" />
+        <Success open={showAlertDeletion} handler={handlealertDeletion} message=" تم حذف حاوية القمامة بنجاح" />
       </GoogleMap>
-</div>
+    </div>
   ) : <></>
 }
 

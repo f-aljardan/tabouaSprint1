@@ -122,7 +122,7 @@ export default function ProfileMenu({ userData }) {
               className="flex items-center gap-1 h-9"
               size="sm"
               variant="gradient"
-              style={{ background: "#FE5500", color: "#ffffff"  , marginRight:'80%' , marginTop:'10px' }}
+              style={{ background: "#FE5500", color: "#ffffff" , marginRight:'78%'  , marginTop:'10px' }}
               onClick={handleLogout}
             >
               <svg
@@ -137,7 +137,7 @@ export default function ProfileMenu({ userData }) {
               </svg>
               <span>تسجيل الخروج</span>
             </Button>
-
+          
           
           <MenuList>
             <MenuItem className="flex items-center gap-2">

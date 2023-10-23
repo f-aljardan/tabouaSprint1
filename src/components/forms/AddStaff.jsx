@@ -104,7 +104,7 @@ export default function AddStaff({open , handler }){
   //.toString(36) Convert to base-36 
   //.slice(-8);Cut off last 8 characters 
 
-  }
+  };
   const handlerForm = () => {
   
     handler();// close form

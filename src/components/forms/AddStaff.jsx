@@ -60,6 +60,7 @@ export default function AddStaff({open , handler }){
   // validate form user input 
   const validate = async(e) => {
     e.preventDefault();
+    generatePassword();
     const newErrors = {};
 
     if (!formData.firstName.trim()) {
@@ -94,6 +95,16 @@ export default function AddStaff({open , handler }){
 
   // Hnadle form action
 
+
+  // generate random password password 
+  const generatePassword = () => {
+  formData.password = Math.random().toString(36).slice(-8);
+
+  //Math.random()Generate random number 
+  //.toString(36) Convert to base-36 
+  //.slice(-8);Cut off last 8 characters 
+
+  }
   const handlerForm = () => {
   
     handler();// close form
@@ -221,25 +232,6 @@ try{
               <div className="text-red-500 font-bold">{errors.email}</div>
             )}
 
-
-
-            <Input
-              label="الرقم السري"
-              type="password"
-              id="password"
-              name="password"
-              value={formData.password}
-              onChange={handleChange}
-              autoComplete="current-password"
-              required
-            />
-            {errors.password && (
-              <div className="text-red-500 font-bold">{errors.password}</div>
-            )}
-
-
-
-            
           </div>
         </DialogBody>
 

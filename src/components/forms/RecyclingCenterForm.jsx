@@ -339,7 +339,6 @@ const isValidURL = (url) => {
                         name="name"
                         value={formData.name}
                         onChange={handleChange}
-                        required
                       />
                       {errors.name && <Typography color="red">{errors.name}</Typography>}
                     </div>
@@ -350,7 +349,6 @@ const isValidURL = (url) => {
                         name="description"
                         value={formData.description}
                         onChange={handleChange}
-                        required
                         className='mt-2'
                       />
                       {errors.description && <Typography color="red">{errors.description}</Typography>}
@@ -364,7 +362,7 @@ const isValidURL = (url) => {
                         options={options}
                         value={options.filter((option) => formData.types.includes(option.value))}
                         onChange={handleTypeChange}
-                        required
+                        
                       />
                       {errors.types && <Typography color="red">{errors.types}</Typography>}
                     </div>
@@ -377,7 +375,6 @@ const isValidURL = (url) => {
                           name="phoneNo"
                           value={formData.phoneNo}
                           onChange={handleChange}
-                          required
                         />
                         {errors.phoneNo && <Typography color="red"  className=' '>{errors.phoneNo}</Typography>}
                       </div>
@@ -389,20 +386,21 @@ const isValidURL = (url) => {
                           name="websiteURL"
                           value={formData.websiteURL}
                           onChange={handleChange}
-                          required
                         />
                         {errors.websiteURL && <Typography color="red" className=' '>{errors.websiteURL}</Typography>}
                       </div>
                     </div>
                     <div className='flex items-center'></div>
                   </div>
+
                   <div>
                     <div className="flex flex-col gap-5 items-start w-100">
                       <Typography className="font-baloo text-right text-md font-bold">
                         ساعات عمل المركز:
                       </Typography>
                       <div className="flex flex-col gap-2">
-                        <div className="flex gap-1 items-center">
+
+                        <div className="flex gap-2 items-center">
                           <span>أيام الأسبوع:</span>
                           <LocalizationProvider dateAdapter={AdapterDayjs}>
                             <TimePicker
@@ -421,7 +419,8 @@ const isValidURL = (url) => {
                             />
                           </LocalizationProvider>
                         </div>
-                        <div className="flex gap-5 items-center">
+
+                        <div className="flex gap-8 items-center">
                           <span>الجمعة:</span>
                           <LocalizationProvider dateAdapter={AdapterDayjs}>
                             <div className="flex gap-2">
@@ -439,7 +438,7 @@ const isValidURL = (url) => {
                                 value={formData.openingHours.fri.to || time}
                                 onChange={(time) => handleOpeningHoursChange(time, 'fri', 'to')}
                               />
-                              <div className='flex gap-1 items-center'>
+                              <div className='flex gap-2 items-center'>
                                 <input
                                   type="checkbox"
                                   checked={formData.openingHours.fri.isClosed}
@@ -450,7 +449,7 @@ const isValidURL = (url) => {
                             </div>
                           </LocalizationProvider>
                         </div>
-                        <div className="flex gap-5 items-center">
+                        <div className="flex gap-9 items-center">
                           <span>السبت:</span>
                           <LocalizationProvider dateAdapter={AdapterDayjs}>
                             <div className="flex  gap-2">
@@ -481,6 +480,8 @@ const isValidURL = (url) => {
                         </div>
                         {errors.openingHour && <Typography color="red">{errors.openingHour}</Typography>}
                       </div>
+
+                      
                       <div className='flex flex-col gap-2 '>
                         <Typography className="font-baloo text-right text-md font-bold">
                           المرفقات:

@@ -114,7 +114,7 @@ export default function ViewCenterInfo({ open, onClose, DeleteMethod, center }) 
               variant="text"
               color="blue-gray"
               onClick={() => setShowCenterLogo(false)}
-              style={{ backgroundColor: '#07512D', color: '#ffffff', marginLeft: "85%"}}
+              style={{ backgroundColor: '#07512D', color: '#ffffff', marginLeft: "75%"}}
             >
               →{/* Right arrow */}
             </Button>
@@ -141,7 +141,7 @@ export default function ViewCenterInfo({ open, onClose, DeleteMethod, center }) 
                   <HiOutlineInformationCircle className="h-5 w-5 ml-2" />
                   <span className="font-medium">عن المركز :</span>
                 </ListItemPrefix>
-                <Typography className="description font-baloo">
+                <Typography className="description font-baloo mr-8">
                   <span>{center.description}</span>
                 </Typography>
               </ul>
@@ -153,7 +153,7 @@ export default function ViewCenterInfo({ open, onClose, DeleteMethod, center }) 
                   <FaRecycle className="h-5 w-5 ml-2" />
                   <span className="font-medium ">النفايات المستقبلة :</span>
                 </ListItemPrefix>
-                <div className="flex wrap gap-2 justify-end">{typeList}</div>
+                <div className="flex wrap gap-2 justify-end mr-8">{typeList}</div>
               </ul>
             </ListItem>
 
@@ -164,7 +164,7 @@ export default function ViewCenterInfo({ open, onClose, DeleteMethod, center }) 
                   <span className="font-medium">ساعات العمل:</span>
                 </ListItemPrefix>
 
-                <div className="opening-hours">
+                <div className="opening-hours mr-8">
                   {center.openingHours ? formatOpeningHours(center) : "معلومات ساعات العمل غير متوفرة"}
                 </div>
               </ul>
@@ -176,7 +176,7 @@ export default function ViewCenterInfo({ open, onClose, DeleteMethod, center }) 
                   <HiOutlineGlobeAlt className="h-5 w-5 ml-2" />
                   <span className="font-medium">رابط الموقع الإلكتروني:</span>
                 </ListItemPrefix>
-                <Typography as="a" href={center.websiteURL} color="blue-gray" className="font-normal transition-colors hover:text-blue-500 focus:text-blue-500">
+                <Typography as="a" href={center.websiteURL} color="blue-gray" className="font-normal transition-colors hover:text-blue-500 focus:text-blue-500 mr-11">
                   <span>إضغط هُنا</span>
                 </Typography>
               </ul>
@@ -186,9 +186,9 @@ export default function ViewCenterInfo({ open, onClose, DeleteMethod, center }) 
               <ul className="flex gap-2">
                 <ListItemPrefix className="flex pb-2">
                   <HiOutlinePhone className="h-5 w-5 ml-2" />
-                  <span className="font-medium">رقم الهاتف:</span>
+                  <span className="font-medium ">رقم الهاتف:</span>
                 </ListItemPrefix>
-                <span className="block"> {center.phoneNo}</span>
+                <span className="block "> {center.phoneNo}</span>
               </ul>
             </ListItem>
           </List>

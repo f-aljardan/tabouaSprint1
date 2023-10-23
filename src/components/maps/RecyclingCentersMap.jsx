@@ -10,6 +10,9 @@ import Success from "../messages/Success"
 import AlertMessage from "../messages/AlertMessage"
 import { Button , Tooltip} from "@material-tailwind/react";
 
+
+
+
 // Define constants for the Google Map
 const containerStyle = {
     width: '100%', // Set a width as needed
@@ -58,6 +61,7 @@ function RecyclingCentersMap() {
  const currentZoomLevelRef = useRef(null);
  const mapRef = useRef(null);
 
+
     useEffect(() => {
     
         // Function to fetch recycling centers from Firestore
@@ -78,6 +82,7 @@ function RecyclingCentersMap() {
        };
          fetchRecyclingCenters();
        }, []);
+      
 
       
   
@@ -321,10 +326,13 @@ const onDeleteRecyclingCenter = async (centerId) => {
     }
   };
 
+  
+  
 
   
   return isLoaded ? (
     <div style={{ position: 'relative', width: '100%', height: '100%' }}>
+
     <div className="flex gap-5 p-4 mr-12" style={{ position: 'absolute', zIndex: 1000 }}>
       <Tooltip
         className="bg-white font-baloo text-md text-gray-600"
@@ -383,6 +391,7 @@ const onDeleteRecyclingCenter = async (centerId) => {
 
           </Marker>
         ))}
+
 
 {showUserLocation && userPosition && (
       <Marker position={userPosition} icon={{ path: window.google.maps.SymbolPath.CIRCLE, scale: 10, fillColor: '#4285F4', fillOpacity: 0.8, strokeColor: '#4285F4' }}>

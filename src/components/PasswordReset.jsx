@@ -1,98 +1,172 @@
 import React, { useState } from 'react';
 import { Card, CardBody, CardFooter, Input, Button } from '@material-tailwind/react';
-import { getAuth, confirmPasswordReset } from 'firebase/auth'; // Import necessary Firebase Auth functions
-import { auth } from '../firebase'; // Adjust the import path as needed
+import { getAuth , updatePassword } from 'firebase/auth'; // Import necessary Firebase Auth functions
+import { doc , updateDoc} from 'firebase/firestore';
+import { useNavigate } from 'react-router-dom';
 
 const PasswordReset = () => {
   const [newPassword, setNewPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
-  const [message, setMessage] = useState('');
+  const [SuccessMessage, setSuccessMessage] = useState('');
   const [error, setError] = useState('');
+  const [passwordChangeError, setPasswordChangeError] = useState(null);
+  const [confirmPasswordError , setConfirmPasswordError] = useState('');
+  const [newPasswordError, setNewPasswordError] = useState('');
+  
+ 
+  const navigate = useNavigate();
 
-  const handleResetPassword = async (e) => {
-    e.preventDefault();
 
-    if (newPassword !== confirmPassword) {
-      setError('كلمة المرور وتأكيدها غير متطابقين.');
-      setMessage('');
-      return;
+  const handleChangeNewPassword = async(e) => {
+      
+    setNewPassword(e.target.value);
+    setNewPasswordError('');
+    setError('');
+    setPasswordChangeError(''); 
+   };
+
+   const handleChangeConfirmedPassword = async(e) => {
+      
+    setConfirmPassword(e.target.value);
+    setConfirmPasswordError('');
+    setError('');
+    setPasswordChangeError('');
+
+
+   };
+
+
+
+  const validate = async(e) => {
+
+    if(!newPassword.trim()) {
+      setNewPasswordError('الرجاء تعبئة كلمة المرور');
+    }
+    if(!confirmPassword.trim()) {
+      setConfirmPasswordError("الرجاء تعبئة تأكيد كلمة المرور");
     }
 
-    if (!isPasswordValid(newPassword)) {
-      setError('كلمة المرور يجب أن تحتوي على ما لا يقل عن 8 أحرف وتتضمن أحرف كبيرة وصغيرة وأرقام.');
-      setMessage('');
-      return;
+    if(newPassword != confirmPassword &&  confirmPassword.trim() && newPassword.trim() ){
+      setError("كلمة المرور غير متطابقة");
     }
+
+    const passwordRegex = /^(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?=.*\W).{8,}$/;
+    if( newPassword.trim() && confirmPassword.trim() && newPassword === confirmPassword && !passwordRegex.test(newPassword)) {
+
+      setPasswordChangeError(
+        'كلمة المرور يجب أن تحتوي على حرف صغير وحرف كبير وحرف خاص ورقم ويجب أن تكون مكونة من 8 أحرف على الأقل.'
+      );
+    }
+  }
+
+  
+
+  const handlePassword = async(e) => {
+  e.preventDefault();
+  validate();
+  
+  if(!passwordChangeError && !newPasswordError && !confirmPasswordError && !error ) {
+    const auth = getAuth();
 
     try {
-      const authInstance = getAuth();
-      const oobCode = window.location.search.split('oobCode=')[1];
+      await updatePassword(auth.currentUser, newPassword);
+      setPasswordChangeError('');
+      setNewPassword('');
+      setConfirmPassword('');
+      //setNewPasswordRepeat('');
+      setSuccessMessage("تم إعادة تعيين كلمة المرور بنجاح");
+      //handleUpdate();
+      navigate('/');
 
-      // Reset the password using the Firebase confirmPasswordReset function
-      await confirmPasswordReset(authInstance, oobCode, newPassword);
-      setMessage('تم إعادة تعيين كلمة المرور بنجاح.');
-      setError('');
+        
     } catch (error) {
-      setError('حدث خطأ أثناء محاولة إعادة تعيين كلمة المرور. الرجاء المحاولة مرة أخرى.');
-      setMessage('');
-      console.error('Password reset error:', error);
+      console.error('Password change error:', error);
     }
+  }
+
+
+
   };
 
-  const isPasswordValid = (password) => {
-    const passwordRegex = /^(?=.*\d)(?=.*[a-z])(?=.*[A-Z]).{8,}$/;
-    return passwordRegex.test(password);
-  };
+
+
+
 
   return (
-    <div className="resetPasswordPage flex flex-col justify-center items-center h-screen" style={{ marginBottom: '0%', marginTop: '-20%' }}>
-      <div className="welcome text-center mb-2">
-        <div className="font-baloo text-4xl font-bold">إعادة تعيين كلمة المرور</div>
-      </div>
+ 
+    <>
+  
+    <div className="flex flex-col items-center justify-center h-screen">
+  <div className="welcome">
+        
+            <div className="font-baloo text-2xl  font-bold text-center">  إعادة تعيين كلمة المرور</div>
+  
+            <Card className="w-96">
+        
+        <div className='flex justify-center'>
+             </div>
+       <form onSubmit={handlePassword}>
+       <CardBody className="flex flex-col gap-8 font-baloo">
+        
+       <Input 
+         type="password"
+         value={newPassword}
+         onChange={handleChangeNewPassword}
+  
+         autoComplete="current-password"
+         required
+         label="كلمةالمرور"
+          size="lg" />
+  
+  { newPasswordError&& <span style={{ color: 'red' }}>{newPasswordError}</span>}
 
-      <div className="resetPassword" style={{ marginTop: '-20%' }}>
-        <Card className="w-96">
-          <form onSubmit={handleResetPassword}>
-            <CardBody className="flex flex-col gap-1 font-baloo">
-              <label htmlFor="newPassword" className="font-semibold text-center mb-2">كلمة المرور الجديدة</label>
-              <Input
-                type="password"
-                id="newPassword"
-                value={newPassword}
-                onChange={(e) => setNewPassword(e.target.value)}
-                autoComplete="new-password"
-                required
-                size="lg"
-              />
+         <Input 
+         type="password"
+         value={confirmPassword}
+         onChange={handleChangeConfirmedPassword}
+  
+         autoComplete="current-password"
+         required
+         label="تأكيد كلمة المرور"
+          size="lg" />
+          { confirmPasswordError&& <span style={{ color: 'red' }}>{confirmPasswordError}</span>}
+       
+         <div className="-ml-2.5">
+         </div>
+         { error&& <span style={{ color: 'red' }}>{error}</span>}
+         { passwordChangeError&& <span style={{ color: 'red' }}>{passwordChangeError}</span>}
+         { SuccessMessage && <span style={{ color: 'green' }}>{SuccessMessage}</span>}
 
-              <label htmlFor="confirmPassword" className="font-semibold text-center mb-2">تأكيد كلمة المرور</label>
-              <Input
-                type="password"
-                id="confirmPassword"
-                value={confirmPassword}
-                onChange={(e) => setConfirmPassword(e.target.value)}
-                autoComplete="new-password"
-                required
-                size="lg"
-              />
+       </CardBody>
+       <CardFooter className="pt-0 font-baloo">
+     
+         <Button type="submit" 
+         variant="gradient" 
+         fullWidth style={{background:"#97B980", color:'#ffffff'}}
+         
+         onClick={validate}
+         >
+  
+         <span> إعادة تعيين كلمة المرور</span>
+         </Button>
 
-              {message && <span style={{ color: 'green' }}>{message}</span>}
-              {error && <span style={{ color: 'red' }}>{error}</span>}
-            </CardBody>
-            <CardFooter className="pt-0 font-baloo">
-              <Button
-                type="submit"
-                variant="gradient"
-                fullWidth
-                style={{ background: '#97B980', color: '#ffffff' }}
-              >
-                <span>إعادة تعيين كلمة المرور</span>
-              </Button>
-            </CardFooter>
-          </form>
-        </Card>
-      </div>
+  
+       </CardFooter>
+       </form>
+     </Card>
+         </div>
+    
     </div>
+    
+        
+  
+      
+  
+  
+  
+      
+    </> 
+          
   );
 };
 

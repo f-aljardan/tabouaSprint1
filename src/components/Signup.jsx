@@ -13,7 +13,6 @@ function Signup(){
     const [errorMessage, setErrorMessage] = useState('');  // state to show error message
     const [emailError, setEmailError] = useState(null);// state to store email error
     const [passwordError, setPasswordError] = useState(null); // state to store password error
-  
       
     const navigate = useNavigate();
 
@@ -61,7 +60,7 @@ if (!querySnapshot.empty) {
   console.error('No document found with the provided email.');
 }
    // Successful sign-up, you can redirect the user to the main page
-        navigate('/');
+        navigate('/PasswordReset');
       } catch (error) {
         console.error('Sign-up error:', error);
       }
@@ -182,7 +181,6 @@ if (!querySnapshot.empty) {
 
     
 
-    
 
 
     

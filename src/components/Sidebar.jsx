@@ -89,7 +89,7 @@ import {
                 />
               }
             >
-          <ListItem  className="p-0 "
+          <ListItem  className="p-0 " 
           selected={openAccordion === 1}>
             <AccordionHeader className="flex justify-start gap-2 items-center mr-3" onClick={() => handleAccordionToggle(1)} style={{ borderBottom: '1px solid transparent' }}>
             <ListItemPrefix>
@@ -102,7 +102,7 @@ import {
 
           <AccordionBody className="py-1">
                 <List className="p-0">
-                  <ListItem className={activeItem === 'garbage' ? 'active' : ''}>
+                  <ListItem className={activeItem === 'garbage' ? 'active' : ''} style={{ paddingRight: '30px' }}>
                   <ListItemPrefix>
               <ChevronLeftIcon className="h-3 w-3" />
             </ListItemPrefix> 
@@ -110,7 +110,7 @@ import {
                   </ListItem>
                   <hr />
 
-                  <ListItem className={activeItem === 'requestedgarbage' ? 'active' : ''}>
+                  <ListItem className={activeItem === 'requestedgarbage' ? 'active' : ''} style={{ paddingRight: '30px' }}>
                   <ListItemPrefix>
               <ChevronLeftIcon className="h-3 w-3" />
             </ListItemPrefix> 

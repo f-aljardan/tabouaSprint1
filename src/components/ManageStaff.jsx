@@ -284,9 +284,11 @@ return (
   filteredStaff.map((staffMember, index) => (
     <tr key={index}>
       <td className="p-4 border-b border-blue-gray-50 text-right">
-        <Typography variant="small" color="blue-gray" className="font-normal" component={'span'}>
           {isEditMode && editedStaffData.id === `${staffMember.id}` ? (
             // Render the edited data when in edit mode
+           
+            
+
             <>
               <Input
                 type="text"
@@ -316,10 +318,8 @@ return (
             // Render the staff data when not in edit mode
             <span>{`${staffMember.firstName} ${staffMember.fatherName} ${staffMember.lastName}`}</span>
           )}
-        </Typography>
       </td>
       <td className="p-4 border-b border-blue-gray-50 text-right">
-        <Typography variant="small" color="blue-gray" className="font-normal" component={'span'}>
           {isEditMode && editedStaffData.id === `${staffMember.id}` ? (
             // Render the edited email when in edit mode
             <>
@@ -335,7 +335,6 @@ return (
             // Render the staff email when not in edit mode
             <span>{`${staffMember.email}`}</span>
           )}
-        </Typography>
       </td>
       <td className="p-4 border-b border-blue-gray-50 text-right">
         <Tooltip content="حذف الموظف" className="bg-white font-baloo text-md text-gray-600">

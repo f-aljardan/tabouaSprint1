@@ -2,7 +2,7 @@
 import React, { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import ProfileMenu from './ProfileMenu';
-import logo from '/tabouaNo.png';
+import logo from '/src/assets/tabouaNo.png';
 import { TrashIcon } from '@heroicons/react/24/solid';
 import { FaRecycle } from 'react-icons/fa';
 import { AiOutlineHeatMap } from 'react-icons/ai';

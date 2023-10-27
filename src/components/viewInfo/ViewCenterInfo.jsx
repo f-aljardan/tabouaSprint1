@@ -194,6 +194,8 @@ export default function ViewCenterInfo({ open, onClose, DeleteMethod, center }) 
           </List>
         </li>
 
+       
+
         <Button
           size="sm"
           className="mt-3"

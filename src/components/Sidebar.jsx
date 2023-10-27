@@ -20,7 +20,7 @@ import {
   import { TbMessageReport } from 'react-icons/tb';
   import { AiOutlineHeatMap } from 'react-icons/ai';
   import { MdManageAccounts } from 'react-icons/md';
-  import logo from "/tabouaNo.png";
+  import logo from "/src/assets/tabouaNo.png";
 
 
   function Sidebar({ authorized, showSidebar, setShowSidebar , activeItem, setActiveItem}) {

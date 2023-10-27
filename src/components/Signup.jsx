@@ -3,7 +3,7 @@ import  { useState } from 'react';
 import { db, auth,  }  from "/src/firebase";
 import { collection, query, where, getDocs, setDoc,} from 'firebase/firestore';
 import {Card, CardBody, CardFooter, Input, Button,} from "@material-tailwind/react";
-import logo from "../../public/tabouaNo.png";
+import logo from "/src/assets/tabouaNo.png";
 import {createUserWithEmailAndPassword} from 'firebase/auth';
 import { useNavigate } from 'react-router-dom';
 

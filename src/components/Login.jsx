@@ -1,6 +1,6 @@
 
 import {Card,CardBody, CardFooter, Input, Button,} from "@material-tailwind/react";
-import logo from "/tabouaNo.png" ;
+import logo from "/src/assets/tabouaNo.png" ;
 import { useState } from 'react';
 import  { getAuth, signInWithEmailAndPassword } from "firebase/auth";
 import { collection, getDocs , } from 'firebase/firestore';

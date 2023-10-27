@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Menu, MenuHandler, MenuList, MenuItem, Avatar, Typography, Button, Input } from "@material-tailwind/react";
-import userIcon from "/userIcon.svg";
+import userIcon from "/src/assets/userIcon.svg";
 import { getAuth, signOut, updatePassword } from "firebase/auth";
 import { useNavigate } from 'react-router-dom';
 import { Dialog, DialogHeader, DialogBody, DialogFooter } from "@material-tailwind/react";

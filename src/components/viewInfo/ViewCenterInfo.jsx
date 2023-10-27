@@ -153,7 +153,7 @@ export default function ViewCenterInfo({ open, onClose, DeleteMethod, center }) 
                   <FaRecycle className="h-5 w-5 ml-2" />
                   <span className="font-medium ">النفايات المستقبلة :</span>
                 </ListItemPrefix>
-                <div className="flex wrap gap-2 justify-end mr-8">{typeList}</div>
+                <div className="flex wrap gap-1 justify-right mr-5">{typeList}</div>
               </ul>
             </ListItem>
 

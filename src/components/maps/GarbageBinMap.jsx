@@ -277,8 +277,6 @@ const onMapChangeLocationClick = async (lat , lng) => {
 
 const onMapClick = async (event) => {
 
- 
-
     // Capture the coordinates and display a confirmation message
     const lat = event.latLng.lat();
     const lng = event.latLng.lng();
@@ -310,7 +308,10 @@ const onMapClick = async (event) => {
 };
 
 
+
+
 const checkTerrainType = (lat, lng) => {
+
   return new Promise((resolve, reject) => {
     if (window.google) {
       const geocoder = new window.google.maps.Geocoder();

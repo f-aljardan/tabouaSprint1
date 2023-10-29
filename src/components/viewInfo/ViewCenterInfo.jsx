@@ -78,10 +78,11 @@ const formatOpeningHours = (centerData) => {
         const dayData = centerData.openingHours[day];
         // Add a condition to check if the day is "fri" or "sun" and is closed
         //if ( centerData.openingHours["sat"].isClosed && centerData.openingHours["fai"].isClosed) {
+          /*
           if ((day === "fri" && isSatClosed && isFriClosed) || (day === "sat" && isFriClosed && isSatClosed)) {
 
           return "مغلق ترا"; // Return null if closed for "fri" or "sun"
-        }
+        }*/
         return (
           <li key={day}>
             <span style={{ fontWeight: 'bold', marginLeft: '8px' }}>
@@ -572,19 +573,7 @@ updatedData.openingHours =centerOpeningHours;
 
 
   
-/*
-  const handleInputChange = (e) => {
-    const { name, value } = e.target;
-    
-    setEditedCenterData({
-      ...editedCenterData,
-      [name]: value,
-    });
-    
 
-    
-  };
-*/
   const handleChange = (e) => {
     const { name, value } = e.target;
     
@@ -593,8 +582,6 @@ updatedData.openingHours =centerOpeningHours;
       [name]: value,
     });
     
-
-
     
   };
 
@@ -616,7 +603,6 @@ updatedData.openingHours =centerOpeningHours;
   
       
     
-    //console.log("time " , time , " day " , day ," per " ,period);
 
 
   }
@@ -684,20 +670,25 @@ updatedData.openingHours =centerOpeningHours;
     <>
       <Drawer placement="right" size={450} open={open} onClose={onClose} className="p-5 font-baloo overflow-y-auto">
         <div className="mb-4 flex items-center justify-between">
-        {editMode && centerData.name? (
-            <Input
-              id="name"
-              name="name"
-              value={centerData.name || ''}
-              onChange={handleChange}
-              className="text-3xl font-semibold"
-            />
-          ) : (
-            <Typography variant="h5">
-              <span>{centerData.name || ''}</span>
-            </Typography>
-          )}
+        {editMode ? (
 
+     <Input
+       id="name"
+       name="name"
+       value={centerData.name || ''}
+        onChange={handleChange}
+        className="text-3xl font-semibold"
+          />
+
+         ) : (
+
+         <Typography variant="h5">
+
+         <span>{centerData.name || ''}</span>
+
+        </Typography>
+
+      )}
 
 
           <IconButton variant="text" color="blue-gray" onClick={onClose}>
@@ -767,17 +758,11 @@ updatedData.openingHours =centerOpeningHours;
               </ul>
             </ListItem>
 
-            <ListItem ripple={false}>
-              <ul>
-                <ListItemPrefix className="flex pb-2">
-                  <FaRecycle className="h-5 w-5 ml-2" />
-                  <span className="font-medium ">النفايات المستقبلة :</span>
-                </ListItemPrefix>
-                <div className="flex wrap gap-1 justify-right mr-5">{typeList}</div>
-              </ul>
-            </ListItem>
 
-         
+           
+
+   <ListItem ripple={false}>
+ 
       <ul>
         <ListItemPrefix className="flex pb-2">
           <FaRecycle className="h-5 w-5 ml-2" />
@@ -821,6 +806,7 @@ updatedData.openingHours =centerOpeningHours;
           </div>
         )}
       </ul>
+      </ListItem>
 
 
 
@@ -879,13 +865,13 @@ updatedData.openingHours =centerOpeningHours;
                                 className='w-32'
                                 views={['hours']}
                                 label="من"
-                                value={centerData.openingHours.fri.from||time}
+                                value={time}
                                 onChange={(time) => handleOpeningHoursChange(time, 'fri', 'from')} />
                               <TimePicker
                                 className='w-32'
                                 views={['hours']}
                                 label="إلى"
-                                value={centerData.openingHours.fri.to ||time}
+                                value={time}
                                 onChange={(time) => handleOpeningHoursChange(time, 'fri', 'to')} />
                               <div className='flex gap-2 items-center'>
                                 <input

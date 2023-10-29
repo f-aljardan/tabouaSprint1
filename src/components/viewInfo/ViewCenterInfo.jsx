@@ -777,8 +777,7 @@ updatedData.openingHours =centerOpeningHours;
               </ul>
             </ListItem>
 
-            <ListItem ripple={false}>
-           <ListItem ripple={false}>
+         
       <ul>
         <ListItemPrefix className="flex pb-2">
           <FaRecycle className="h-5 w-5 ml-2" />
@@ -822,7 +821,6 @@ updatedData.openingHours =centerOpeningHours;
           </div>
         )}
       </ul>
-    </ListItem>
 
 
 

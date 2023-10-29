@@ -33,21 +33,20 @@ const arabicDays = ['- الجمعة', '- السبت', '- ايام الاسبوع
 
 const formatTimeRange = (from, to) => {
   //console.log("ceheck",editedCenterData.openingHours.fri);
-  if ( !from || !to ) {
-    
+  if ( from=="" || to=="" ) {
+   
     return "!!!!مغلق"; // Handle the case where from or to are missing
   }
-  console.log("From:", from);
-  console.log("To:", to);
+
   const fromDate = parseISO(from);
   const toDate = parseISO(to);
 
-  if (isNaN(fromDate) || isNaN(toDate)) {
-    console.log("Invalid date or time") ;
-    //console.log(fromDate);
-   // console.log(toDate);
+  // if (isNaN(fromDate) || isNaN(toDate)) {
+  //   console.log("Invalid date or time") ;
+  //   //console.log(fromDate);
+  //  // console.log(toDate);
 
-  }
+  // }
 
   // Define the Arabic strings for AM and PM
   const amString = "ص";
@@ -68,10 +67,10 @@ const formatOpeningHours = (centerData) => {
 
   const orderedDays = ["fri", "sat", "weekdays"]; // Define the desired order of days
 
-  const isFriClosed = centerData.openingHours["fri"].isClosed;
-  const isSatClosed = centerData.openingHours["sat"].isClosed;
-  console.log("isFriClosed " , isFriClosed);
-  console.log("isSatClosed " , isSatClosed);
+  // const isFriClosed = centerData.openingHours["fri"].isClosed;
+  // const isSatClosed = centerData.openingHours["sat"].isClosed;
+  // console.log("isFriClosed " , isFriClosed);
+  // console.log("isSatClosed " , isSatClosed);
   return (
     <ul>
       {orderedDays.map((day) => {
@@ -112,10 +111,9 @@ export default function ViewCenterInfo({ open, onClose, DeleteMethod, center , c
     fri:{ from: '', to: '', isClosed: false },
     weekdays:{ from: '', to: '' },
     sat: { from: '', to: '', isClosed: false },
+  });
 
 
-  }
-  );
   const [centerData, setCenterData] = useState({
     name: '',
     description: '',
@@ -129,10 +127,10 @@ export default function ViewCenterInfo({ open, onClose, DeleteMethod, center , c
       sat: { from: '', to: '', isClosed: false },
     },
     phoneNo: '',
-
-
   });
+
   const [wasteListTypes, setWasteListTypes] = useState([]);
+
   const [editedCenterData, setEditedCenterData] = useState({ 
     name: '',
     description: '',
@@ -146,7 +144,6 @@ export default function ViewCenterInfo({ open, onClose, DeleteMethod, center , c
       sat: { from: '', to: '', isClosed: false },
     },
     phoneNo: '',
-
    });
 
    const [editedWasteTypes, setEditedWasteTypes] = useState(center.types || []);
@@ -369,12 +366,7 @@ openingHours:centerHours,
         sat: { from: '', to: '', isClosed: false },
       },
       phoneNo: '',
-  
-  
-  
     });
-
-
   }
 }, [center]);
 
@@ -431,10 +423,6 @@ setWasteListTypes(types);
            
           },
           phoneNo: data.phoneNo,
-
-
-
-
 
           });
         }
@@ -622,6 +610,7 @@ updatedData.openingHours =centerOpeningHours;
 
     
   }
+  
 
   const handleTypeChange = (selectedOptions) => {
     const selectedTypes = selectedOptions.map((option) => option.value);
@@ -917,7 +906,7 @@ updatedData.openingHours =centerOpeningHours;
                       
                       <div className="opening-hours mr-8">
                       
-                      {centerData.openingHours ? formatOpeningHours(centerData) : "معلومات ساعات العمل غير متوفرة"}
+                      {center.openingHours ? formatOpeningHours(center) : "معلومات ساعات العمل غير متوفرة"}
                       
                       </div>
                       

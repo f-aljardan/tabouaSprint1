@@ -95,7 +95,7 @@ const { isLoaded } = useJsApiLoader({
 //set the marker icon 
 if (isLoaded) {
   customIcon = {
-  url: '/src/assets/recyclingcenter.png', // Replace with the actual path to your icon
+  url: '/recyclingcenter.png', // Replace with the actual path to your icon
   scaledSize: new window.google.maps.Size(45, 45), // Set the desired width and height
 };
 }

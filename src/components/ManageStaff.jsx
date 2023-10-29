@@ -222,7 +222,7 @@ return (
      
  <AddStaff open={showAddStaffDialog} handler={handleAddStaff} />
      
-<div style={{ overflowX: "auto",  width: "800px",  maxHeight: "100vh",}}>
+<div style={{ overflowX: "auto",  width: "90vh",  maxHeight: "100vh",}}>
 
 <Card className="max-w-2xl p-8">
         <h2 className="text-2xl font-semibold mb-4">قائمة الموظفين</h2> 

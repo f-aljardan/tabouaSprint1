@@ -45,8 +45,8 @@ function RecyclingCentersMap() {
     const [showUserLocation, setShowUserLocation] = useState(false);
     const [userLocationRange, setUserLocationRange] = useState(null);
     const [map, setMap] = React.useState(null)
-
-
+    const [centerId, setCenterId] = React.useState(null);
+ 
     const openInfoDrawer = () => setViewInfo(true);
     const closeInfoDrawer = () => setViewInfo(false);
     const handleAlertZoom = () => setShowAlertZoom(!showAlertZoom);
@@ -75,7 +75,6 @@ function RecyclingCentersMap() {
              centersData.push({ id: doc.id, location });
            });
            setRecyclingCenters(centersData);
-         
          } catch (error) {
            console.error("Error fetching recycling centers:", error);
          }
@@ -188,6 +187,7 @@ const handleMarkerClick = async (recycleCenter) => {
   }
   openInfoDrawer();
   setSelectedLocation(recycleCenter);
+  setCenterId(recycleCenter.id);
 };
 
 
@@ -398,7 +398,7 @@ const onDeleteRecyclingCenter = async (centerId) => {
         <Circle center={userLocationRange} options={{ radius: userLocationRange.radius, strokeColor: '#4285F4', fillColor: '#4285F4', fillOpacity: 0.2 }} />
       </Marker>
     )}
-    <ViewCenterInfo open={viewInfo} onClose={closeInfoDrawer} DeleteMethod={handleDeletion} center={centerData} />
+    <ViewCenterInfo open={viewInfo} onClose={closeInfoDrawer} DeleteMethod={handleDeletion} center={centerData} centerID={centerId} />
     <RecyclingCenterForm open={formVisible} handler={handleForm} method={handleAddRecyclingCenter} />
     <Success open={showSuccessAlert} handler={handleSuccessAlert} message=" تم إضافة مركز التدوير بنجاح" />
     <Success open={showAlertSuccessDeletion} handler={handleAlertSuccessDeletion} message=" تم حذف مركز التدوير بنجاح" />

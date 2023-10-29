@@ -7,13 +7,22 @@ import { useState, useEffect } from "react";
 import { db } from "/src/firebase";
 import { doc , Timestamp, updateDoc } from "firebase/firestore";
 
-export default function ViewGarbageInfo({ open, onClose, DeleteMethod, bin, binId }) {
+export default function ViewGarbageInfo({ open, onClose, DeleteMethod, Changelocation, bin, binId }) {
   const [maintenanceDate, setMaintenanceDate] = useState(null);
   const [editingMaintenanceDate, setEditingMaintenanceDate] = useState(false);
   const [deleteConfirmation, setDeleteConfirmation] = useState(false);
+  const [editButtonsVisible, setEditButtonsVisible] = useState(false);
+  const [changeLocation, setChangeLocation] = useState(true);
 
+
+  const handleEdit = () => {
+    // Toggle the visibility of the buttons when "تعديل معلومات الحاوية" is clicked
+    setEditButtonsVisible(!editButtonsVisible);
+  };
   const handleDeleteConfirmation = () => setDeleteConfirmation(!deleteConfirmation);
-  const handleEditMaintenanceDate = () => setEditingMaintenanceDate(!editingMaintenanceDate);
+  const handleEditMaintenanceDate = () => { setEditingMaintenanceDate(!editingMaintenanceDate); handleChangeLocation();}
+  const handleChangeLocation = () =>  setChangeLocation(!changeLocation);
+
 
   // Use a useEffect to set the initial value of maintenanceDate
   useEffect(() => {
@@ -131,15 +140,7 @@ export default function ViewGarbageInfo({ open, onClose, DeleteMethod, bin, binI
                 <span className="block">{formattedMaintenanceDate}</span>
               )}
             </div>
-            <Button // Button to toggle editing
-              size="sm"
-              className="mr-3 w-20"
-              variant="gradient"
-              style={{ background: '#97B980', color: '#ffffff' }}
-              onClick={handleEditMaintenanceDate}
-            >
-              <span>{editingMaintenanceDate ? 'إلغاء' : 'تعديل'}</span>
-            </Button>
+            
           </ListItem>
 
           <ListItem ripple={false}>
@@ -153,9 +154,67 @@ export default function ViewGarbageInfo({ open, onClose, DeleteMethod, bin, binI
           </ListItem>
         </List>
 
-        <Button size="md" fullWidth={true} variant="gradient" style={{ background: "#FE5500", color: "#ffffff" }} onClick={handleDeleteConfirmation}>
-          <span>حذف الحاوية </span>
-        </Button>
+        {editButtonsVisible ? (
+          <>
+           <div className="flex flex-col gap-2">
+         {changeLocation ? ( <Button
+              size="md"
+              fullWidth={true}
+              onClick={() => {Changelocation(binId); handleEdit();} }
+              variant="gradient"
+              style={{ background: '#97B980', color: '#ffffff' }}
+            >
+              <span>تغيير موقع الحاوية</span>
+            </Button> ): null}
+        
+            <Button // Button to toggle editing
+            size="md"
+              fullWidth={true}
+              variant="gradient"
+              style={{ background: '#97B980', color: '#ffffff' }}
+              onClick={handleEditMaintenanceDate}
+            >
+              <span>{editingMaintenanceDate ? 'إلغاء' : ' تعديل تاريخ الصيانة'}</span>
+            </Button>
+
+            {changeLocation ? (  <Button
+              size="md"
+              fullWidth={true}
+              onClick={handleEdit}
+              variant="gradient"
+              style={{ background: '#97B980', color: '#ffffff' }}
+            >
+              <span>إلغاء</span>
+            </Button>) : null}
+            </div>
+          </>
+        ) : ( <>
+      
+         <div className="flex flex-col gap-2">
+           <Button
+            size="md"
+            fullWidth={true}
+            onClick={handleEdit}
+            variant="gradient"
+            style={{ background: '#97B980', color: '#ffffff' }}
+          >
+            <span>تعديل معلومات الحاوية</span>
+          </Button>
+
+<Button size="md" fullWidth={true} variant="gradient" style={{ background: "#FE5500", color: "#ffffff" }} onClick={handleDeleteConfirmation}>
+<span>حذف الحاوية </span>
+</Button>
+</div>
+</>
+        )}
+
+        
+
+        {/* <Button size="md" fullWidth={true} onClick={() => Changelocation(binId)} variant="gradient" style={{ background: '#97B980', color: '#ffffff' }}><span>تغيير موقع الحاوية</span> </Button>
+
+        <Button size="md" fullWidth={true} onClick={() => handleEdit} variant="gradient" style={{ background: '#97B980', color: '#ffffff' }}><span>تعديل معلومات الحاوية</span> </Button>
+       */}
+        
       </Drawer>
 
       <Confirm open={deleteConfirmation} handler={handleDeleteConfirmation} method={DeleteMethod} message="   هل انت متأكد من حذف حاوية النفاية بالموقع المحدد؟" />

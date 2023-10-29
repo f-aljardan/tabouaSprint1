@@ -767,6 +767,17 @@ updatedData.openingHours =centerOpeningHours;
               </ul>
             </ListItem>
 
+            <ListItem ripple={false}>
+              <ul>
+                <ListItemPrefix className="flex pb-2">
+                  <FaRecycle className="h-5 w-5 ml-2" />
+                  <span className="font-medium ">النفايات المستقبلة :</span>
+                </ListItemPrefix>
+                <div className="flex wrap gap-1 justify-right mr-5">{typeList}</div>
+              </ul>
+            </ListItem>
+
+            <ListItem ripple={false}>
            <ListItem ripple={false}>
       <ul>
         <ListItemPrefix className="flex pb-2">
@@ -977,6 +988,8 @@ updatedData.openingHours =centerOpeningHours;
             </ListItem>
           </List>
         </li>
+
+       
 
         {editMode ? (
           <Button

@@ -117,7 +117,7 @@ function GarbageBinMap() {
 //set the marker icon 
   if (isLoaded) {
       customIcon = {
-      url: '/src/assets/trash.png', 
+      url: '/trash.png', 
       scaledSize: new window.google.maps.Size(45, 45), // Set the desired width and height
     };
     }

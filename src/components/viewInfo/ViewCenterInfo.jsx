@@ -32,7 +32,6 @@ import { enUS } from 'date-fns/locale';
 const arabicDays = ['- الجمعة', '- السبت', '- ايام الاسبوع'];
 
 const formatTimeRange = (from, to) => {
-  //console.log("ceheck",editedCenterData.openingHours.fri);
   if ( from=="" || to=="" ) {
    
     return "!مغلق"; // Handle the case where from or to are missing
@@ -93,11 +92,7 @@ export default function ViewCenterInfo({ open, onClose, DeleteMethod, center , c
   const [selectedOptions, setSelectedOptions] = useState([]);
   const [time, setTime] = useState(dayjs('2022-04-17T00:00'));
 
-  const[listOpeningHours , setListOpeningHours] = useState({
-    fri:{ from: '', to: '', isClosed: false },
-    weekdays:{ from: '', to: '' },
-    sat: { from: '', to: '', isClosed: false },
-  });
+
 
 
   const [centerData, setCenterData] = useState({
@@ -355,8 +350,8 @@ setWasteListTypes(types);
       },
    
     weekdays: {
-      from: centerData.openingHours.weekdays.from.toDate().toISOString(),
-      to: centerData.openingHours.weekdays.to.toDate().toISOString(),
+      from: centerData.openingHours.weekdays.from ? centerData.openingHours.weekdays.from.toDate().toISOString() :center.openingHours.weekdays.from,
+      to: centerData.openingHours.weekdays.to ? centerData.openingHours.weekdays.to.toDate().toISOString() : center.openingHours.weekdays.to,
     },
     sat: {
         from: centerData.openingHours.sat.isClosed ? '' : centerData.openingHours.sat.from.toDate().toISOString(),
@@ -566,47 +561,7 @@ updatedData.openingHours =centerOpeningHours;
 
            
 
-   <ListItem ripple={false}>
- 
-      <ul>
-        <ListItemPrefix className="flex pb-2">
-          <FaRecycle className="h-5 w-5 ml-2" />
-          <span className="font-medium">النفايات المستقبلة:</span>
-        </ListItemPrefix>
-        {editMode ? (
-          // Display the Select component in edit mode
-          <>
-          <Select
-           placeholder="أنواع النفايات المستقبلة..."
-            closeMenuOnSelect={false}
-            isMulti
-            components={animatedComponents}
-            options={options}
-            value={selectedOptions}  
-            onChange={handleWasteTypeChange}
-          />
-          <div className="flex wrap gap-2 justify-end mr-8">
-          {selectedOptions.map((option, index) => (
-      <span key={index}>{option.label}</span>
-    ))}
-        </div>
-          </>
-          
-        ) : (
-          // Display the selected waste types when not in edit mode
-          <div className="flex wrap gap-2 justify-end mr-8">
-          
-
-<div className="flex wrap gap-2 justify-end mr-8">
-            {wasteListTypes}
-          </div>
-
-           
-          </div>
-        )}
-      </ul>
-      </ListItem>
-
+  
 
 
 
@@ -657,7 +612,7 @@ updatedData.openingHours =centerOpeningHours;
                                 className='w-32'
                                 views={['hours']}
                                 label="إلى"
-                                value={ centerData.openingHours.fri.to || time}
+                                value={ time}
                                 onChange={(time) => handleOpeningHoursChange(time, 'fri', 'to')} />
                               <div className='flex gap-1 items-center'>
                                 <input
@@ -717,6 +672,46 @@ updatedData.openingHours =centerOpeningHours;
               </ul>
             </ListItem>
          
+            <ListItem ripple={false}>
+ 
+ <ul>
+   <ListItemPrefix className="flex pb-2">
+     <FaRecycle className="h-5 w-5 ml-2" />
+     <span className="font-medium">النفايات المستقبلة:</span>
+   </ListItemPrefix>
+   {editMode ? (
+     // Display the Select component in edit mode
+     <>
+     <Select
+      placeholder="أنواع النفايات المستقبلة..."
+       closeMenuOnSelect={false}
+       isMulti
+       components={animatedComponents}
+       options={options}
+       value={selectedOptions}  
+       onChange={handleWasteTypeChange}
+     />
+     <div className="flex wrap gap-2 justify-end mr-8">
+     {selectedOptions.map((option, index) => (
+ <span key={index}>{option.label}</span>
+))}
+   </div>
+     </>
+     
+   ) : (
+     // Display the selected waste types when not in edit mode
+     <div className="flex wrap gap-2 justify-end mr-8">{/* div to show design of waste types */}
+     
+
+<div className="flex wrap gap-2 justify-end mr-8">
+       {wasteListTypes}
+     </div>
+
+      
+     </div>
+   )}
+ </ul>
+ </ListItem>
 
            
             <ListItem ripple={false}>

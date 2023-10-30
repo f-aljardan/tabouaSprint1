@@ -84,7 +84,7 @@ const formatOpeningHours = (centerData) => {
 };
 
 
-export default function ViewCenterInfo({ open, onClose, DeleteMethod, center , centerID}) {
+export default function ViewCenterInfo({ open, onClose, DeleteMethod, Changelocation, center , centerID}) {
   const [deleteConfirmation, setDeleteConfirmation] = useState(false);
   const [showCenterLogo, setShowCenterLogo] = useState(true);
   const [editMode, setEditMode] = useState(false);
@@ -92,6 +92,15 @@ export default function ViewCenterInfo({ open, onClose, DeleteMethod, center , c
   const [selectedOptions, setSelectedOptions] = useState([]);
   const [time, setTime] = useState(dayjs('2022-04-17T00:00'));
 
+  const [editButtonsVisible, setEditButtonsVisible] = useState(false);
+  const [changeLocation, setChangeLocation] = useState(true);
+
+
+  const handleEdit = () => {
+    // Toggle the visibility of the buttons when "تعديل معلومات الحاوية" is clicked
+    setEditButtonsVisible(!editButtonsVisible);
+  };
+  const handleChangeLocation = () =>  setChangeLocation(!changeLocation);
 
 
 
@@ -291,8 +300,9 @@ setWasteListTypes(types);
 
 
 
-  const handleEdit = () => {
+  const handleEditCenter = () => {
  
+    handleChangeLocation();
 
     setEditedCenterData({
 
@@ -317,6 +327,7 @@ setWasteListTypes(types);
   // Create a reference to the staff member's document in the database
 
   
+    handleChangeLocation();
 
   const centerUpdate = doc(db, 'recyclingCenters', centerID);
   // Prepare the data to be updated
@@ -758,7 +769,21 @@ updatedData.openingHours =centerOpeningHours;
 
        
 
-        {editMode ? (
+       
+{editButtonsVisible ? (
+          <>
+           <div className="flex flex-col gap-2">
+         {changeLocation ? ( <Button
+              size="md"
+              fullWidth={true}
+              onClick={() => {Changelocation(centerID); handleEdit();} }
+              variant="gradient"
+              style={{ background: '#97B980', color: '#ffffff' }}
+            >
+              <span>تغيير موقع المركز</span>
+            </Button> ): null}
+        
+            {editMode ? (
           <Button
             size="sm"
             className="mt-3"
@@ -771,17 +796,40 @@ updatedData.openingHours =centerOpeningHours;
           </Button>
         ) : (
           <Button
-            size="sm"
+          size="md"
             className="mt-3"
             fullWidth={true}
             variant="gradient"
-            style={{ background: "#808080", color: "#ffffff" }}
-            onClick={handleEdit}
+            style={{ background: '#97B980', color: '#ffffff' }}
+            onClick={handleEditCenter}
           >
-            <span>تعديل المركز</span>
+            <span>تعديل معلومات المركز</span>
           </Button>
         )}
 
+
+            {changeLocation ? (  <Button
+              size="md"
+              fullWidth={true}
+              onClick={handleEdit}
+              variant="gradient"
+              style={{ background: '#97B980', color: '#ffffff' }}
+            >
+              <span>رجوع</span>
+            </Button>) : null}
+            </div>
+          </>
+        ) : ( 
+<div className="flex flex-col gap-2">
+           <Button
+            size="md"
+            fullWidth={true}
+            onClick={handleEdit}
+            variant="gradient"
+            style={{ background: '#97B980', color: '#ffffff' }}
+          >
+            <span>تعديل  </span>
+          </Button>
         <Button
           size="sm"
           className="mt-3"
@@ -792,6 +840,8 @@ updatedData.openingHours =centerOpeningHours;
         >
           <span>حذف المركز</span>
         </Button>
+        </div>
+        )}
       </Drawer>
 
       <Confirm open={deleteConfirmation} handler={handleDeleteConfirmation} method={DeleteMethod} message="   هل انت متأكد من حذف حاوية النفاية بالموقع المحدد؟" />

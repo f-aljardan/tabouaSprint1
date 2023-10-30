@@ -184,7 +184,7 @@ export default function ViewGarbageInfo({ open, onClose, DeleteMethod, Changeloc
               variant="gradient"
               style={{ background: '#97B980', color: '#ffffff' }}
             >
-              <span>إلغاء</span>
+              <span>رجوع</span>
             </Button>) : null}
             </div>
           </>
@@ -210,10 +210,7 @@ export default function ViewGarbageInfo({ open, onClose, DeleteMethod, Changeloc
 
         
 
-        {/* <Button size="md" fullWidth={true} onClick={() => Changelocation(binId)} variant="gradient" style={{ background: '#97B980', color: '#ffffff' }}><span>تغيير موقع الحاوية</span> </Button>
-
-        <Button size="md" fullWidth={true} onClick={() => handleEdit} variant="gradient" style={{ background: '#97B980', color: '#ffffff' }}><span>تعديل معلومات الحاوية</span> </Button>
-       */}
+      
         
       </Drawer>
 

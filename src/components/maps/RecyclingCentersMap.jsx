@@ -2,11 +2,12 @@ import React from 'react'
 import { GoogleMap, useJsApiLoader, Marker,Circle, } from '@react-google-maps/api';
 import { useEffect, useState, useRef } from "react";
 import { db } from "/src/firebase";
-import { getDocs, collection, addDoc, GeoPoint, deleteDoc, doc} from "firebase/firestore";
+import { getDocs, collection, addDoc, GeoPoint, deleteDoc, doc, updateDoc} from "firebase/firestore";
 import {  getDoc } from "firebase/firestore";
 import ViewCenterInfo from "../viewInfo/ViewCenterInfo"
 import RecyclingCenterForm from "../forms/RecyclingCenterForm"
 import Success from "../messages/Success"
+import ErrorAlertMessage from "../messages/ErrorAlertMessage"
 import AlertMessage from "../messages/AlertMessage"
 import { Button , Tooltip} from "@material-tailwind/react";
 
@@ -39,14 +40,18 @@ function RecyclingCentersMap() {
     const [showAlertZoom, setShowAlertZoom] = useState(false);
     const [showAlertBuilding, setShowAlertBuilding] = useState(false);
     const [showSuccessAlert, setShowSuccessAlert] = useState(false);
+    const [showAlertLocation, setShowAlertLocation] = useState(false);
     const [showAlertSuccessDeletion, setShowAlertSuccessDeletion] = useState(false);
+    const [showAlertSuccessLocation, setShowAlertSuccessLocation] = useState(false);
     const [viewInfo, setViewInfo] = React.useState(false);
     const [userPosition, setUserPosition] = useState(null);
     const [showUserLocation, setShowUserLocation] = useState(false);
     const [userLocationRange, setUserLocationRange] = useState(null);
     const [map, setMap] = React.useState(null)
     const [centerId, setCenterId] = React.useState(null);
- 
+    const [isChangingCenterLocation, setIsChangingCenterLocation] = useState(false);
+
+
     const openInfoDrawer = () => setViewInfo(true);
     const closeInfoDrawer = () => setViewInfo(false);
     const handleAlertZoom = () => setShowAlertZoom(!showAlertZoom);
@@ -54,7 +59,8 @@ function RecyclingCentersMap() {
     const handleSuccessAlert = () => setShowSuccessAlert(!showSuccessAlert);
     const handleForm = () => setFormVisible(!formVisible);
     const handleAlertSuccessDeletion = () => setShowAlertSuccessDeletion(!showAlertSuccessDeletion);
-
+    const handleAlertLocation = () => {setShowAlertLocation(!showAlertLocation);  setIsChangingCenterLocation(false); }
+    const handleAlertSuccessLocation = () => setShowAlertSuccessLocation(!showAlertSuccessLocation);
   
  // Define the acceptable zoom level range
  const minZoomLevel = 18;
@@ -192,6 +198,43 @@ const handleMarkerClick = async (recycleCenter) => {
 
 
 
+// Function to change the Marker's location
+const handleChangeMarkerLocation = (centerID) => {
+  setIsChangingCenterLocation(true);
+  setShowAlertLocation(true);
+  setSelectedLocation(null);
+  setCenterId(centerID);
+  setShowAlertLocation(true); // Show the alert when changing location
+  setViewInfo(false);
+ 
+};
+
+// Function to capture coordinates when changing a marker's location
+const onMapChangeLocationClick = async (lat , lng) => {
+  
+      const garbageBinRef = doc(db, "recyclingCenters", centerId);
+      const geoPoint = new GeoPoint(lat, lng);
+
+      // Update the location in Firestore
+      try {
+        await updateDoc(garbageBinRef, { location: geoPoint });
+        console.log("Successfully updated center location");
+
+        // Update the garbageBins state with the new location
+        setRecyclingCenters((prevRecyclingCenters) =>
+        prevRecyclingCenters.map((b) => (b.id === centerId ? { ...b, location: geoPoint } : b))
+        );
+
+        setIsChangingCenterLocation(false); // Set the state back to indicate you're not changing a bin location
+        setShowAlertLocation(false);
+        setShowAlertSuccessLocation(true);
+      } catch (error) {
+        console.error("Error updating center location:", error);
+      }
+   
+};
+
+
     const onMapClick = async (event) => {
         // Capture the coordinates 
         const lat = event.latLng.lat();
@@ -201,9 +244,15 @@ const handleMarkerClick = async (recycleCenter) => {
   if (currentZoomLevelRef.current >= minZoomLevel) {
     const terrainType = await checkTerrainType(lat, lng);
     if (terrainType === 'building') {
+
+      if (isChangingCenterLocation) {
+        onMapChangeLocationClick(lat,lng)
+      }else{
        // Store the new center location temporarily
        setNewRecyclingCenterLocation({ lat, lng });
        setFormVisible(true);
+      }
+
      } else {
        // Show an alert message indicating that a recycling center can only be added on a building.
        handleAlertBuilding();
@@ -363,14 +412,18 @@ const onDeleteRecyclingCenter = async (centerId) => {
       </Button>
     </div>
   
-    <div style={{ position: 'absolute', zIndex: 2000 }}>
-      <AlertMessage open={showAlertZoom} handler={handleAlertZoom} message="كبر الخريطة لتتمكن من إضافة مركز تدوير " />
+    <div style={{ position: 'absolute', zIndex: 3000 }}>
+      <ErrorAlertMessage open={showAlertZoom} handler={handleAlertZoom} message="كبر الخريطة لتتمكن من إضافة مركز تدوير " />
+    </div>
+  
+    <div style={{ position: 'absolute', zIndex: 3000 }}>
+      <ErrorAlertMessage open={showAlertBuilding} handler={handleAlertBuilding} message="  التزم بحدود المباني عند إضافة مركز التدوير" />
     </div>
   
     <div style={{ position: 'absolute', zIndex: 2000 }}>
-      <AlertMessage open={showAlertBuilding} handler={handleAlertBuilding} message="  التزم بحدود المباني عند إضافة مركز التدوير" />
-    </div>
-  
+        <AlertMessage open={showAlertLocation} handler={handleAlertLocation} message="انت الان في وضع تغيير موقع المركز" />
+      </div>
+
     <GoogleMap
       mapContainerStyle={containerStyle}
       center={userPosition || center}
@@ -384,7 +437,7 @@ const onDeleteRecyclingCenter = async (centerId) => {
         {recyclingCenters.map((recycleCenter) => (
           <Marker
             key={recycleCenter.id}
-            position={{ lat: recycleCenter.location._lat, lng: recycleCenter.location._long }} // Update here
+            position={{ lat: recycleCenter.location._lat, lng: recycleCenter.location._long }} 
             onClick={() => handleMarkerClick(recycleCenter)}
             icon={customIcon}
           >    
@@ -398,10 +451,12 @@ const onDeleteRecyclingCenter = async (centerId) => {
         <Circle center={userLocationRange} options={{ radius: userLocationRange.radius, strokeColor: '#4285F4', fillColor: '#4285F4', fillOpacity: 0.2 }} />
       </Marker>
     )}
-    <ViewCenterInfo open={viewInfo} onClose={closeInfoDrawer} DeleteMethod={handleDeletion} center={centerData} centerID={centerId} />
+    <ViewCenterInfo open={viewInfo} onClose={closeInfoDrawer} DeleteMethod={handleDeletion} Changelocation={handleChangeMarkerLocation} center={centerData} centerID={centerId} />
     <RecyclingCenterForm open={formVisible} handler={handleForm} method={handleAddRecyclingCenter} />
     <Success open={showSuccessAlert} handler={handleSuccessAlert} message=" تم إضافة مركز التدوير بنجاح" />
     <Success open={showAlertSuccessDeletion} handler={handleAlertSuccessDeletion} message=" تم حذف مركز التدوير بنجاح" />
+    <Success open={showAlertSuccessLocation} handler={handleAlertSuccessLocation} message=" تم تغيير موقع حاوية القمامة بنجاح" />
+
   </GoogleMap>
 </div>
   ) : <></>

@@ -35,18 +35,13 @@ const formatTimeRange = (from, to) => {
   //console.log("ceheck",editedCenterData.openingHours.fri);
   if ( from=="" || to=="" ) {
    
-    return "!!!!مغلق"; // Handle the case where from or to are missing
+    return "!مغلق"; // Handle the case where from or to are missing
   }
 
   const fromDate = parseISO(from);
   const toDate = parseISO(to);
 
-  // if (isNaN(fromDate) || isNaN(toDate)) {
-  //   console.log("Invalid date or time") ;
-  //   //console.log(fromDate);
-  //  // console.log(toDate);
-
-  // }
+ 
 
   // Define the Arabic strings for AM and PM
   const amString = "ص";
@@ -67,21 +62,12 @@ const formatOpeningHours = (centerData) => {
 
   const orderedDays = ["fri", "sat", "weekdays"]; // Define the desired order of days
 
-  // const isFriClosed = centerData.openingHours["fri"].isClosed;
-  // const isSatClosed = centerData.openingHours["sat"].isClosed;
-  // console.log("isFriClosed " , isFriClosed);
-  // console.log("isSatClosed " , isSatClosed);
+ 
   return (
     <ul>
       {orderedDays.map((day) => {
         const dayData = centerData.openingHours[day];
-        // Add a condition to check if the day is "fri" or "sun" and is closed
-        //if ( centerData.openingHours["sat"].isClosed && centerData.openingHours["fai"].isClosed) {
-          /*
-          if ((day === "fri" && isSatClosed && isFriClosed) || (day === "sat" && isFriClosed && isSatClosed)) {
-
-          return "مغلق ترا"; // Return null if closed for "fri" or "sun"
-        }*/
+       
         return (
           <li key={day}>
             <span style={{ fontWeight: 'bold', marginLeft: '8px' }}>
@@ -158,48 +144,13 @@ export default function ViewCenterInfo({ open, onClose, DeleteMethod, center , c
     { value: 'أخرى', label: 'أخرى' },
   ];
 
-  /*
-  useEffect(() => {
-    const centerDocRef = doc(db, 'recyclingCenters');
-
-    const unsubscribe = onSnapshot(centerDocRef, (docSnapshot) => {
-      if (docSnapshot.exists()) {
-        setCenterData(docSnapshot.data());
-      } else {
-        console.log("Center not found");
-      }
-    });
-
-    return () => {
-      // Unsubscribe from the listener when the component unmounts
-      unsubscribe();
-    };
-  }, [centerID]);
-
-  if (centerData === null) {
-    return <div>Loading center data...</div>;
-  }
-*/
+  
 
 
 useEffect(() => {
   // Make sure that the center object exists and contains the required data
-  console.log("helo first");
-if (center && center.openingHours && center.openingHours.fri.from ) {
-  const centerddd = center.openingHours.fri.from;
-
-  /*
-  setCenterData({
-    ...centerData,
-    openingHours: {
-      ...centerData.openingHours,
-      fri: {
-        ...centerData.openingHours.fri,
-        from: centerddd
-      }
-    }
-  });*/
-  console.log("hellllo fron effect!!!!!!@@!@!" , centerddd);
+if (center && center.openingHours ) {
+  
 
 const wasteTypes = center.type || [];
 
@@ -208,74 +159,11 @@ const types = wasteTypes.map((type, index) => (
 <Chip key={index} style={{ background: "#07512D", color: "#ffffff"  }} value={type} />
 ));
 setWasteListTypes(types);
-/*
-if(center.openingHours ) {
-  console.log("Hellllllo from ");
-  const fri = {
-    from: center.openingHours.fri.isClosed ? '' : center.openingHours.fri.from,
-    to: center.openingHours.fri.isClosed ? '' : center.openingHours.fri.to,
-    isClosed: center.openingHours.fri.isClosed,
 
-  }
-
-  const updatedListOpeningHoursFri = { ...listOpeningHours };
-
-  updatedListOpeningHoursFri.fri.from = center.openingHours.fri.isClosed ? '' : center.openingHours.fri.from;
-  updatedListOpeningHoursFri.fri.to = center.openingHours.fri.isClosed ? '' : center.openingHours.fri.to;
-  updatedListOpeningHoursFri.fri.isClosed = center.openingHours.fri.isClosed;
-}
-
-
-if(center.openingHours && center.sat) {
-  const sat = {
-    from: center.openingHours.sat.isClosed ? '' : center.openingHours.sat.from,
-    to: center.openingHours.sat.isClosed ? '' : center.openingHours.sat.to,
-    isClosed: center.openingHours.sat.isClosed,
-
-  }
-  const updatedListOpeningHoursSat = { ...listOpeningHours };
-
-  updatedListOpeningHoursSat.sat.from = center.openingHours.sat.isClosed ? '' : center.openingHours.sat.from;
-  updatedListOpeningHoursSat.sat.to = center.openingHours.sat.isClosed ? '' : center.openingHours.sat.to;
-  updatedListOpeningHoursSat.sat.isClosed = center.openingHours.sat.isClosed;
-}
-
-
-if(center.openingHours && center.weekdays) {
-  const weekdays = {
-    from: center.openingHours.weekdays.from,
-    to: center.openingHours.weekdays.to,
-  }
-
-  const updatedListOpeningHoursWeek = { ...listOpeningHours };
-
-  updatedListOpeningHoursWeek.weekdays.from =center.openingHours.weekdays.from;
-  updatedListOpeningHoursWeek.weekdays.to =center.openingHours.weekdays.to;
-
-}
-*/
-/*
-const openingHoursCenter = {
-  fri: {
-    from: center.openingHours.fri? '' : center.openingHours.fri.from?.toDate().toISOString() || '',
-    to: center.openingHours.fri?.isClosed ? '' : center.openingHours.fri.to?.toDate().toISOString() || '',
-    isClosed: center.openingHours.fri?.isClosed || false,
-  },
-  weekdays: {
-    from: center.openingHours.weekdays.from?.toDate().toISOString() || '',
-    to: center.openingHours.weekdays.to?.toDate().toISOString() || '',
-  },
-  sat: {
-    from: center.openingHours.sat?.isClosed ? '' : center.openingHours.sat.from?.toDate().toISOString() || '',
-    to: center.openingHours.sat?.isClosed ? '' : center.openingHours.sat.to?.toDate().toISOString() || '',
-    isClosed: center.openingHours.sat?.isClosed || false,
-  },
-};
-*/
 
 const centerHours = {
   fri: {
-      from: center.openingHours.fri.isClosed ? '' : center.openingHours.fri.from,
+    from: center.openingHours.fri.isClosed ? '' : center.openingHours.fri.from,
       to: center.openingHours.fri.isClosed ? '' : center.openingHours.fri.to,
       isClosed: center.openingHours.fri.isClosed,
 
@@ -303,46 +191,7 @@ const centerHours = {
       imageURL: center.imageURL,
       logoURL: center.logoURL,
       websiteURL: center.websiteURL,
-/*
-      openingHours: {
-        fri: {
-            from: center.openingHours.fri.isClosed ? '' : center.openingHours.fri.from,
-            to: center.openingHours.fri.isClosed ? '' : center.openingHours.fri.to,
-            isClosed: center.openingHours.fri.isClosed,
-    
-          },
-       
-        weekdays: {
-          from: center.openingHours.weekdays.from,
-          to: center.openingHours.weekdays.to,
-        },
-        sat: {
-            from: center.openingHours.sat.isClosed ? '' : center.openingHours.sat.from,
-            to: center.openingHours.sat.isClosed ? '' : center.openingHours.sat.to,
-            isClosed: center.openingHours.sat.isClosed,
-          },
-       
-      },*/
-/*
-      openingHours: {
-        fri: {
-          from: center.openingHours.fri.isClosed ? '' : center.openingHours.fri.from.toDate().toISOString(),
-          to: center.openingHours.fri.isClosed ? '' : center.openingHours.fri.to.toDate().toISOString(),
-          isClosed: center.openingHours.fri.isClosed,
-        },
-        weekdays: {
-          from: center.openingHours.weekdays.from.toDate().toISOString(),
-          to:  center.openingHours.weekdays.to.toDate().toISOString(),
-        },
-        sat: {
-          from: center.openingHours.sat.isClosed ? '' : center.openingHours.sat.from.toDate().toISOString(),
-          to: center.openingHours.sat.isClosed ? '' : center.openingHours.sat.to.toDate().toISOString(),
-          isClosed: center.openingHours.sat.isClosed,
-        },
-      },
-      */
- 
-//openingHours: center.openingHours,
+
 openingHours:centerHours,
 
       phoneNo: center.phoneNo,
@@ -370,13 +219,7 @@ openingHours:centerHours,
   }
 }, [center]);
 
-/*
-useEffect(() => {
-  if (centerData.openingHours) {
-    console.log(centerData.openingHours);
-  }
-}, [centerData]);
-*/
+
   useEffect(() => {
     const centerCollection = collection(db, 'recyclingCenters');
     const unsubscribe = onSnapshot(centerCollection, (snapshot) => {
@@ -465,24 +308,7 @@ setWasteListTypes(types);
       imageURL: center.imageURL,
       logoURL: center.logoURL,
       websiteURL:center.websiteURL,
-        /*
-        fri: {
-          from: center.openingHours?.fri?.from || '',
-          to: center.openingHours?.fri?.to || '',
-          isClosed: false,
-        },
-        weekdays: {
-          from: center.openingHours?.weekdays?.from || '',
-          to: center.openingHours?.weekdays?.to || '',
-        },
-        sat: {
-          from: center.openingHours?.sat?.from || '',
-          to: center.openingHours?.sat?.to || '',
-          isClosed: false,
-        },*/
-        
-        openingHours: center.openingHours,
-      
+      openingHours: center.openingHours,
       phoneNo: center.phoneNo,
 
 
@@ -495,8 +321,7 @@ setWasteListTypes(types);
  const handleSaveEdit = async () => {
   // Create a reference to the staff member's document in the database
 
-  //console.log("centerData" , centerData.openingHours.fri.from.toDate().toISOString());
-  //console.log("center" , center.openingHours.fri.from);
+  
 
   const centerUpdate = doc(db, 'recyclingCenters', centerID);
   // Prepare the data to be updated
@@ -523,9 +348,9 @@ setWasteListTypes(types);
  
   const centerOpeningHours = {
     fri: {
-        from: centerData.openingHours.fri.isClosed ? '' : centerData.openingHours.fri.from.toDate().toISOString(),
-        to: centerData.openingHours.fri.isClosed ? '' : centerData.openingHours.fri.to.toDate().toISOString(),
-        isClosed: centerData.openingHours.fri.isClosed,
+      from: centerData.openingHours.fri.isClosed ? '' : centerData.openingHours.fri.from.toDate().toISOString(),
+      to: centerData.openingHours.fri.isClosed ? '' : centerData.openingHours.fri.to.toDate().toISOString(),
+      isClosed: centerData.openingHours.fri.isClosed,
 
       },
    
@@ -545,6 +370,9 @@ updatedData.openingHours =centerOpeningHours;
 
   try {
     // Update the document with the new data
+    console.log("fri" , centerData.openingHours.fri);
+    console.log("sat" , centerData.openingHours.sat);
+
     await updateDoc(centerUpdate, updatedData);
 
     // Exit edit mode and clear the edited data
@@ -612,24 +440,12 @@ updatedData.openingHours =centerOpeningHours;
   }
   
 
-  const handleTypeChange = (selectedOptions) => {
-    const selectedTypes = selectedOptions.map((option) => option.value);
-    setCenterData({
-      ...centerData,
-      types: selectedTypes,
-    });
-    setErrors({
-      ...errors,
-      types: '',
-    });
 
-  };
 
  
 
   const handleWasteTypeChange = (selected) => {
     // Extract the values of the selected options
-    //const selectedValues = selectedOptions.map((option) => option.value);
 
     const selectedTypes = selected.map((option) => option.value);
 
@@ -766,7 +582,6 @@ updatedData.openingHours =centerOpeningHours;
             isMulti
             components={animatedComponents}
             options={options}
-            //value={options.filter((option) => editedWasteTypes.includes(option.value))}
             value={selectedOptions}  
             onChange={handleWasteTypeChange}
           />
@@ -780,12 +595,7 @@ updatedData.openingHours =centerOpeningHours;
         ) : (
           // Display the selected waste types when not in edit mode
           <div className="flex wrap gap-2 justify-end mr-8">
-            {/*
-            
-             {editedCenterData.map((type, index) => (
-              <span key={index}>{type}</span>
-            ))}
-             */ }
+          
 
 <div className="flex wrap gap-2 justify-end mr-8">
             {wasteListTypes}
@@ -801,22 +611,7 @@ updatedData.openingHours =centerOpeningHours;
 
 
 
-    {/*
-    
- <ListItem ripple={false}>
-              <ul className="flex flex-col gap-2">
-                <ListItemPrefix className="flex ">
-                  <HiClock className="h-5 w-5 ml-2" />
-                  <span className="font-medium">ساعات العمل:</span>
-                </ListItemPrefix>
-
-                <div className="opening-hours mr-8">
-                  {center.openingHours ? formatOpeningHours(center) : "معلومات ساعات العمل غير متوفرة"}
-                </div>
-              </ul>
-            </ListItem>
-
-            */}
+   
 
 <ListItem ripple={false}>
               <ul className="flex flex-col gap-2">
@@ -846,23 +641,25 @@ updatedData.openingHours =centerOpeningHours;
                             value={time}
                             onChange={(time) => handleOpeningHoursChange(time, 'weekdays', 'to')} />
                         </LocalizationProvider>
-                      </div><div className="flex gap-8 items-center">
+                      </div>
+                      
+                      <div className="flex gap-8 items-center">
                           <span>الجمعة:</span>
                           <LocalizationProvider dateAdapter={AdapterDayjs}>
-                            <div className="flex gap-2">
+                            <div className="flex  gap-2">
                               <TimePicker
                                 className='w-32'
                                 views={['hours']}
                                 label="من"
-                                value={time}
+                                value={ time}
                                 onChange={(time) => handleOpeningHoursChange(time, 'fri', 'from')} />
                               <TimePicker
                                 className='w-32'
                                 views={['hours']}
                                 label="إلى"
-                                value={time}
+                                value={ centerData.openingHours.fri.to || time}
                                 onChange={(time) => handleOpeningHoursChange(time, 'fri', 'to')} />
-                              <div className='flex gap-2 items-center'>
+                              <div className='flex gap-1 items-center'>
                                 <input
                                   type="checkbox"
                                   checked={centerData.openingHours.fri.isClosed }
@@ -896,7 +693,9 @@ updatedData.openingHours =centerOpeningHours;
                               </div>
                             </div>
                           </LocalizationProvider>
-                        </div></>
+                        </div>
+                        
+                        </>
                      ):(
                       <ListItem ripple={false}>
 
@@ -906,7 +705,7 @@ updatedData.openingHours =centerOpeningHours;
                       
                       <div className="opening-hours mr-8">
                       
-                      {center.openingHours ? formatOpeningHours(center) : "معلومات ساعات العمل غير متوفرة"}
+                      {centerData.openingHours ? formatOpeningHours(centerData) : "معلومات ساعات العمل غير متوفرة"}
                       
                       </div>
                       

@@ -6,6 +6,7 @@ import {Card, CardBody, CardFooter, Input, Button,} from "@material-tailwind/rea
 import logo from "/src/assets/tabouaNo.png";
 import {createUserWithEmailAndPassword} from 'firebase/auth';
 import { useNavigate } from 'react-router-dom';
+import { Typography } from "@material-tailwind/react";
 
 function Signup(){
     const [email, setEmail] = useState('');// state to store email
@@ -121,8 +122,9 @@ if (!querySnapshot.empty) {
       
           <div className="font-baloo text-2xl  font-bold text-center">  تفعيل الحساب</div>
           <div className="font-baloo text-sm  text-center"> الرجاء التسجيل بالبيانات المرسلة عبر البريد الإلكتروني</div>
-
+           
           <Card className="w-96">
+         
       
       <div className='flex justify-center'>
            <img src={logo} className="h-40 w-40"/>
@@ -150,7 +152,9 @@ if (!querySnapshot.empty) {
        label="كلمةالمرور"
         size="lg" />
         {passwordError && <span style={{ color: 'red' }}>{passwordError}</span>}
-
+        <Typography variant='small' className='mb-5' style={{ marginBottom: '0.5%' }}>
+                <span>كلمة المرور يجب أن تكون مكونة من ٨ خانات على الأقل و تشمل حرف كبير ، حرف صغير ، رمز</span>
+              </Typography>
        <div className="-ml-2.5">
        {errorMessage && <p style={{ color: 'red' }}>{errorMessage}</p>}
        </div>
@@ -164,7 +168,7 @@ if (!querySnapshot.empty) {
        onClick={validate}
        >
 
-       <span> تسجيل</span>
+       <span> تفعيل</span>
        </Button>
        <div 
        style= {{marginTop: "50px"}}

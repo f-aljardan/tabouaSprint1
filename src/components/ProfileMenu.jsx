@@ -193,7 +193,7 @@ export default function ProfileMenu({ userData }) {
           <DialogBody divider className="font-baloo text-right">
             <div className="text-right">
               <Typography variant='small' className='mb-5'>
-                <span>كلمة المرور يجب أن تكون مكونة من ٨ خانات على الأقل و تشمل حرف كبير ، حرف صغير ، ورمز</span>
+                <span>كلمة المرور يجب أن تكون مكونة من ٨ خانات على الأقل و تشمل حرف كبير ، حرف صغير ، رمز</span>
               </Typography>
               <Input
                 type="password"

@@ -94,18 +94,7 @@ export default function ProfileMenu({ userData }) {
       <span className="text-red-600">كلمة المرور لا تلبي المتطلبات</span>
     )
   ) : null}
-  {
-    /*
-
-
-
-     {(passwordValidationRegex.test(newPassword) && newPassword !== '' && con) ? (
-        <span className="text-green-600">كلمة المرور تلبي المتطلبات</span>
-      ) : (
-        <span className="text-red-600">كلمة المرور لا تلبي المتطلبات</span>
-      )}
-    */
-  }
+  
      
     </div>
   );

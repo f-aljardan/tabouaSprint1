@@ -9,6 +9,7 @@ import RecyclingCenterForm from "../forms/RecyclingCenterForm"
 import Success from "../messages/Success"
 import ErrorAlertMessage from "../messages/ErrorAlertMessage"
 import AlertMessage from "../messages/AlertMessage"
+import AlertMessageCenter from '../messages/AlertMessageCenter';
 import { Button , Tooltip} from "@material-tailwind/react";
 import Select from 'react-select';
 import makeAnimated from 'react-select/animated';
@@ -66,7 +67,8 @@ function RecyclingCentersMap() {
     const [isChangingCenterLocation, setIsChangingCenterLocation] = useState(false);
     const [selectedCenterType, setSelectedCenterType] = useState('');
     const [filteredRecyclingCenters, setFilteredRecyclingCenters] = useState([]);
-
+    const [centerCount, setCenterCount] = useState(0); // State to store the center count
+    const [showCenterWasteType , setShowCenterWasteType] = useState(false);
 
     const openInfoDrawer = () => setViewInfo(true);
     const closeInfoDrawer = () => setViewInfo(false);
@@ -77,12 +79,16 @@ function RecyclingCentersMap() {
     const handleAlertSuccessDeletion = () => setShowAlertSuccessDeletion(!showAlertSuccessDeletion);
     const handleAlertLocation = () => {setShowAlertLocation(!showAlertLocation);  setIsChangingCenterLocation(false); }
     const handleAlertSuccessLocation = () => setShowAlertSuccessLocation(!showAlertSuccessLocation);
+    const handleAlertshowNumberWasteType = () => setShowCenterWasteType(!showCenterWasteType);
   
  // Define the acceptable zoom level range
  const minZoomLevel = 18;
  const currentZoomLevelRef = useRef(null);
  const mapRef = useRef(null);
 
+ useEffect(() => {
+ 
+}, [centerCount]);
 
     useEffect(() => {
     
@@ -400,6 +406,7 @@ const onDeleteRecyclingCenter = async (centerId) => {
   const filterRecyclingCenters = (type) => {
     if (type === '') {
       // If no type is selected, show all recycling centers
+      setCenterCount(0); // Reset the center count
       setFilteredRecyclingCenters(recyclingCenters);
 
       
@@ -407,18 +414,26 @@ const onDeleteRecyclingCenter = async (centerId) => {
    
         // Create an array to store the filtered recycling centers
         const filteredCenters = [];
+        //const count = 0;
       //check on each center if is receive this waste type 
         recyclingCenters.forEach((center) => {
           center.type.forEach((centerType) => {
           if (centerType === type) {
             // If the center's type matches the selected type, add it to the filteredCenters array
             filteredCenters.push(center);
+         //   count++;
+            console.log(centerType,filteredCenters.length);
+             // Set the center count
+
           }
        
         });
       });
       setFilteredRecyclingCenters(filteredCenters);
-   
+      const count = filteredCenters.length;
+      setCenterCount(count);
+      console.log("count" , count);
+
 
     }
   };
@@ -428,6 +443,8 @@ const onDeleteRecyclingCenter = async (centerId) => {
   const handleCenterTypeSelect = (selectedOption) => {
     setSelectedCenterType(selectedOption.value);
     filterRecyclingCenters(selectedOption.value);
+    handleAlertshowNumberWasteType();
+
   };
   
   
@@ -474,6 +491,15 @@ const onDeleteRecyclingCenter = async (centerId) => {
 />
 
     </div>
+    
+      {/* to show how many center recivce the selected waste type */}
+{selectedCenterType && centerCount > 0 && (
+  <div style={{ position: 'absolute', zIndex: 2000 }}>
+        <AlertMessageCenter open={showCenterWasteType} handler={handleAlertshowNumberWasteType} message="عدد المراكز التي تستقبل" type={selectedCenterType} data={centerCount}/>
+      </div>
+)}
+
+
   
     <div style={{ position: 'absolute', zIndex: 3000 }}>
       <ErrorAlertMessage open={showAlertZoom} handler={handleAlertZoom} message="كبر الخريطة لتتمكن من إضافة مركز تدوير " />

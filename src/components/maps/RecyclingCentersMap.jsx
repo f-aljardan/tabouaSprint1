@@ -10,8 +10,22 @@ import Success from "../messages/Success"
 import ErrorAlertMessage from "../messages/ErrorAlertMessage"
 import AlertMessage from "../messages/AlertMessage"
 import { Button , Tooltip} from "@material-tailwind/react";
+import Select from 'react-select';
+import makeAnimated from 'react-select/animated';
 
 
+const animatedComponents = makeAnimated();
+
+const options = [
+  { value: '', label: 'جميع أنواع النفايات' },
+  { value: 'بلاستيك', label: 'بلاستيك' },
+  { value: 'ورق', label: 'ورق' },
+  { value: 'زجاج', label: 'زجاج' },
+  { value: 'كرتون', label: 'كرتون' },
+  { value: 'معدن', label: 'معدن' },
+  { value: 'إلكترونيات', label: 'إلكترونيات' },
+  { value: 'أخرى', label: 'أخرى' },
+];
 
 
 // Define constants for the Google Map
@@ -50,6 +64,8 @@ function RecyclingCentersMap() {
     const [map, setMap] = React.useState(null)
     const [centerId, setCenterId] = React.useState(null);
     const [isChangingCenterLocation, setIsChangingCenterLocation] = useState(false);
+    const [selectedCenterType, setSelectedCenterType] = useState('');
+    const [filteredRecyclingCenters, setFilteredRecyclingCenters] = useState([]);
 
 
     const openInfoDrawer = () => setViewInfo(true);
@@ -78,9 +94,13 @@ function RecyclingCentersMap() {
            querySnapshot.forEach((doc) => {
              const data = doc.data();
              const location = data.location || {};
-             centersData.push({ id: doc.id, location });
+             const type = data.type;
+             const centerName = data.name;
+             centersData.push({ id: doc.id, location , type , centerName });
+             
            });
            setRecyclingCenters(centersData);
+           setFilteredRecyclingCenters(centersData);
          } catch (error) {
            console.error("Error fetching recycling centers:", error);
          }
@@ -375,9 +395,41 @@ const onDeleteRecyclingCenter = async (centerId) => {
     }
   };
 
-  
-  
 
+  // return centers that have the selected waste type
+  const filterRecyclingCenters = (type) => {
+    if (type === '') {
+      // If no type is selected, show all recycling centers
+      setFilteredRecyclingCenters(recyclingCenters);
+
+      
+    } else {
+   
+        // Create an array to store the filtered recycling centers
+        const filteredCenters = [];
+      //check on each center if is receive this waste type 
+        recyclingCenters.forEach((center) => {
+          center.type.forEach((centerType) => {
+          if (centerType === type) {
+            // If the center's type matches the selected type, add it to the filteredCenters array
+            filteredCenters.push(center);
+          }
+       
+        });
+      });
+      setFilteredRecyclingCenters(filteredCenters);
+   
+
+    }
+  };
+  
+  
+  //handle filter centers by waste type
+  const handleCenterTypeSelect = (selectedOption) => {
+    setSelectedCenterType(selectedOption.value);
+    filterRecyclingCenters(selectedOption.value);
+  };
+  
   
   return isLoaded ? (
     <div style={{ position: 'relative', width: '100%', height: '100%' }}>
@@ -410,6 +462,17 @@ const onDeleteRecyclingCenter = async (centerId) => {
       >
         <span>عرض الموقع الحالي</span>
       </Button>
+
+      <Select
+  placeholder="تصفية حسب نوع النفايات المستقبلة..."
+  closeMenuOnSelect={false}
+  components={animatedComponents}
+  options={options}
+  value={selectedCenterType !== '' ? options.find((option) => option.value === selectedCenterType) : null}
+  onChange={(value) => handleCenterTypeSelect(value)}
+  required
+/>
+
     </div>
   
     <div style={{ position: 'absolute', zIndex: 3000 }}>
@@ -434,7 +497,7 @@ const onDeleteRecyclingCenter = async (centerId) => {
       ref={mapRef}
     >
 
-        {recyclingCenters.map((recycleCenter) => (
+        {filteredRecyclingCenters.map((recycleCenter) => (
           <Marker
             key={recycleCenter.id}
             position={{ lat: recycleCenter.location._lat, lng: recycleCenter.location._long }} 

@@ -74,7 +74,6 @@ const formatOpeningHours = (centerData) => {
             </span>
             <span style={{ marginLeft: '8px' }}>
               {dayData.isClosed ? 'مغلق' : formatTimeRange(  dayData.from, dayData.to)}
-              {console.log("days " ,day)}
             </span>
           </li>
         );
@@ -376,8 +375,7 @@ updatedData.openingHours =centerOpeningHours;
 
   try {
     // Update the document with the new data
-    console.log("fri" , centerData.openingHours.fri);
-    console.log("sat" , centerData.openingHours.sat);
+   
 
     await updateDoc(centerUpdate, updatedData);
 

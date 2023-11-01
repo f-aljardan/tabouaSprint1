@@ -10,7 +10,7 @@ import Success from "../messages/Success"
 import ErrorAlertMessage from "../messages/ErrorAlertMessage"
 import AlertMessage from "../messages/AlertMessage"
 import AlertMessageCenter from '../messages/AlertMessageCenter';
-import { Button , Tooltip} from "@material-tailwind/react";
+import { Button , Tooltip ,Input} from "@material-tailwind/react";
 import Select from 'react-select';
 import makeAnimated from 'react-select/animated';
 
@@ -69,6 +69,7 @@ function RecyclingCentersMap() {
     const [filteredRecyclingCenters, setFilteredRecyclingCenters] = useState([]);
     const [centerCount, setCenterCount] = useState(0); // State to store the center count
     const [showCenterWasteType , setShowCenterWasteType] = useState(false);
+    const [searchQuery, setSearchQuery] = useState('');
 
     const openInfoDrawer = () => setViewInfo(true);
     const closeInfoDrawer = () => setViewInfo(false);
@@ -101,8 +102,8 @@ function RecyclingCentersMap() {
              const data = doc.data();
              const location = data.location || {};
              const type = data.type;
-             const centerName = data.name;
-             centersData.push({ id: doc.id, location , type , centerName });
+             const name = data.name;
+             centersData.push({ id: doc.id, location , type , name });
              
            });
            setRecyclingCenters(centersData);
@@ -421,8 +422,6 @@ const onDeleteRecyclingCenter = async (centerId) => {
           if (centerType === type) {
             // If the center's type matches the selected type, add it to the filteredCenters array
             filteredCenters.push(center);
-         //   count++;
-            console.log(centerType,filteredCenters.length);
              // Set the center count
 
           }
@@ -432,7 +431,6 @@ const onDeleteRecyclingCenter = async (centerId) => {
       setFilteredRecyclingCenters(filteredCenters);
       const count = filteredCenters.length;
       setCenterCount(count);
-      console.log("count" , count);
 
 
     }
@@ -446,6 +444,42 @@ const onDeleteRecyclingCenter = async (centerId) => {
     handleAlertshowNumberWasteType();
 
   };
+
+  // return the center the have the same name
+  const filterRecyclingCentersBySearch = (query) => {
+   
+const filteredCenters = [];
+
+  recyclingCenters.forEach((center) => {
+    if (
+      center.name &&
+      center.name.includes(query)
+    ) {
+      filteredCenters.push(center);
+    }
+  });
+  if(filteredCenters.length>0) {
+    setFilteredRecyclingCenters(filteredCenters);
+
+  }
+  else{
+    setFilteredRecyclingCenters(recyclingCenters);
+  }
+  };
+
+  // handle serach center name input
+  const handleSearchInputChange = async(CenterName) => {
+    if(CenterName) {
+      const query = CenterName.target.value;//center name writed by user
+      setSearchQuery(query);
+      filterRecyclingCentersBySearch(query);
+    }
+    else{
+        setFilteredRecyclingCenters(recyclingCenters); // return all center 
+    }
+   
+
+  }
   
   
   return isLoaded ? (
@@ -480,7 +514,8 @@ const onDeleteRecyclingCenter = async (centerId) => {
         <span>عرض الموقع الحالي</span>
       </Button>
 
-      <Select
+<div>
+<Select
   placeholder="تصفية حسب نوع النفايات المستقبلة..."
   closeMenuOnSelect={false}
   components={animatedComponents}
@@ -489,6 +524,19 @@ const onDeleteRecyclingCenter = async (centerId) => {
   onChange={(value) => handleCenterTypeSelect(value)}
   required
 />
+</div>
+    
+
+<div>
+<Input
+          type="text"
+          label="البحث عن اسم المركز"
+          value={searchQuery}
+          onChange={handleSearchInputChange} 
+          style={{ background: 'white', color: 'black'}}
+        />
+</div>
+
 
     </div>
     

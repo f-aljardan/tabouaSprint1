@@ -139,6 +139,10 @@ const PasswordReset = () => {
 
        </CardBody>
        <CardFooter className="pt-0 font-baloo">
+
+       <Typography variant='small' className='mb-5' style={{ marginBottom: '0.5%' }}>
+                <span>كلمة المرور يجب أن تكون مكونة من ٨ خانات على الأقل و تشمل حرف كبير ، حرف صغير ، رمز</span>
+    </Typography>
      
          <Button type="submit" 
          variant="gradient" 

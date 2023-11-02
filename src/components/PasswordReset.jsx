@@ -131,9 +131,9 @@ const PasswordReset = () => {
           size="lg" />
           { confirmPasswordError&& <span style={{ color: 'red' }}>{confirmPasswordError}</span>}
 
-          <Typography variant='small' className='mb-5' style={{ marginBottom: '0.5%' }}>
-                <span>كلمة المرور يجب أن تكون مكونة من ٨ خانات على الأقل و تشمل حرف كبير ، حرف صغير ، رمز</span>
-         </Typography>
+          
+                <span variant='small' className='mb-5' style={{fontSize: '0.85rem', marginBottom: '0.5%' }}>كلمة المرور يجب أن تكون مكونة من ٨ خانات على الأقل و تشمل حرف كبير ، حرف صغير ، رمز</span>
+         
        
          <div className="-ml-2.5">
          </div>

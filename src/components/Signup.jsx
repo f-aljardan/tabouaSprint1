@@ -152,9 +152,9 @@ if (!querySnapshot.empty) {
        label="كلمةالمرور"
         size="lg" />
         {passwordError && <span style={{ color: 'red' }}>{passwordError}</span>}
-        <Typography variant='small' className='mb-5' style={{ marginBottom: '0.5%' }}>
+       {/*<Typography variant='small' className='mb-5' style={{ marginBottom: '0.5%' }}>
                 <span>كلمة المرور يجب أن تكون مكونة من ٨ خانات على الأقل و تشمل حرف كبير ، حرف صغير ، رمز</span>
-              </Typography>
+    </Typography> */}
        <div className="-ml-2.5">
        {errorMessage && <p style={{ color: 'red' }}>{errorMessage}</p>}
        </div>

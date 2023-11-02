@@ -2,15 +2,31 @@ import React from 'react'
 import { GoogleMap, useJsApiLoader, Marker,Circle, } from '@react-google-maps/api';
 import { useEffect, useState, useRef } from "react";
 import { db } from "/src/firebase";
-import { getDocs, collection, addDoc, GeoPoint, deleteDoc, doc} from "firebase/firestore";
+import { getDocs, collection, addDoc, GeoPoint, deleteDoc, doc, updateDoc} from "firebase/firestore";
 import {  getDoc } from "firebase/firestore";
 import ViewCenterInfo from "../viewInfo/ViewCenterInfo"
 import RecyclingCenterForm from "../forms/RecyclingCenterForm"
 import Success from "../messages/Success"
+import ErrorAlertMessage from "../messages/ErrorAlertMessage"
 import AlertMessage from "../messages/AlertMessage"
-import { Button , Tooltip} from "@material-tailwind/react";
+import AlertMessageCenter from '../messages/AlertMessageCenter';
+import { Button , Tooltip ,Input} from "@material-tailwind/react";
+import Select from 'react-select';
+import makeAnimated from 'react-select/animated';
 
 
+const animatedComponents = makeAnimated();
+
+const options = [
+  { value: '', label: 'جميع أنواع النفايات' },
+  { value: 'بلاستيك', label: 'بلاستيك' },
+  { value: 'ورق', label: 'ورق' },
+  { value: 'زجاج', label: 'زجاج' },
+  { value: 'كرتون', label: 'كرتون' },
+  { value: 'معدن', label: 'معدن' },
+  { value: 'إلكترونيات', label: 'إلكترونيات' },
+  { value: 'أخرى', label: 'أخرى' },
+];
 
 
 // Define constants for the Google Map
@@ -39,13 +55,21 @@ function RecyclingCentersMap() {
     const [showAlertZoom, setShowAlertZoom] = useState(false);
     const [showAlertBuilding, setShowAlertBuilding] = useState(false);
     const [showSuccessAlert, setShowSuccessAlert] = useState(false);
+    const [showAlertLocation, setShowAlertLocation] = useState(false);
     const [showAlertSuccessDeletion, setShowAlertSuccessDeletion] = useState(false);
+    const [showAlertSuccessLocation, setShowAlertSuccessLocation] = useState(false);
     const [viewInfo, setViewInfo] = React.useState(false);
     const [userPosition, setUserPosition] = useState(null);
     const [showUserLocation, setShowUserLocation] = useState(false);
     const [userLocationRange, setUserLocationRange] = useState(null);
     const [map, setMap] = React.useState(null)
-
+    const [centerId, setCenterId] = React.useState(null);
+    const [isChangingCenterLocation, setIsChangingCenterLocation] = useState(false);
+    const [selectedCenterType, setSelectedCenterType] = useState('');
+    const [filteredRecyclingCenters, setFilteredRecyclingCenters] = useState([]);
+    const [centerCount, setCenterCount] = useState(0); // State to store the center count
+    const [showCenterWasteType , setShowCenterWasteType] = useState(false);
+    const [searchQuery, setSearchQuery] = useState('');
 
     const openInfoDrawer = () => setViewInfo(true);
     const closeInfoDrawer = () => setViewInfo(false);
@@ -54,13 +78,18 @@ function RecyclingCentersMap() {
     const handleSuccessAlert = () => setShowSuccessAlert(!showSuccessAlert);
     const handleForm = () => setFormVisible(!formVisible);
     const handleAlertSuccessDeletion = () => setShowAlertSuccessDeletion(!showAlertSuccessDeletion);
-
+    const handleAlertLocation = () => {setShowAlertLocation(!showAlertLocation);  setIsChangingCenterLocation(false); }
+    const handleAlertSuccessLocation = () => setShowAlertSuccessLocation(!showAlertSuccessLocation);
+    const handleAlertshowNumberWasteType = () => setShowCenterWasteType(!showCenterWasteType);
   
  // Define the acceptable zoom level range
  const minZoomLevel = 18;
  const currentZoomLevelRef = useRef(null);
  const mapRef = useRef(null);
 
+ useEffect(() => {
+ 
+}, [centerCount]);
 
     useEffect(() => {
     
@@ -72,10 +101,13 @@ function RecyclingCentersMap() {
            querySnapshot.forEach((doc) => {
              const data = doc.data();
              const location = data.location || {};
-             centersData.push({ id: doc.id, location });
+             const type = data.type;
+             const name = data.name;
+             centersData.push({ id: doc.id, location , type , name });
+             
            });
            setRecyclingCenters(centersData);
-         
+           setFilteredRecyclingCenters(centersData);
          } catch (error) {
            console.error("Error fetching recycling centers:", error);
          }
@@ -188,8 +220,46 @@ const handleMarkerClick = async (recycleCenter) => {
   }
   openInfoDrawer();
   setSelectedLocation(recycleCenter);
+  setCenterId(recycleCenter.id);
 };
 
+
+
+// Function to change the Marker's location
+const handleChangeMarkerLocation = (centerID) => {
+  setIsChangingCenterLocation(true);
+  setShowAlertLocation(true);
+  setSelectedLocation(null);
+  setCenterId(centerID);
+  setShowAlertLocation(true); // Show the alert when changing location
+  setViewInfo(false);
+ 
+};
+
+// Function to capture coordinates when changing a marker's location
+const onMapChangeLocationClick = async (lat , lng) => {
+  
+      const garbageBinRef = doc(db, "recyclingCenters", centerId);
+      const geoPoint = new GeoPoint(lat, lng);
+
+      // Update the location in Firestore
+      try {
+        await updateDoc(garbageBinRef, { location: geoPoint });
+        console.log("Successfully updated center location");
+
+        // Update the garbageBins state with the new location
+        setRecyclingCenters((prevRecyclingCenters) =>
+        prevRecyclingCenters.map((b) => (b.id === centerId ? { ...b, location: geoPoint } : b))
+        );
+
+        setIsChangingCenterLocation(false); // Set the state back to indicate you're not changing a bin location
+        setShowAlertLocation(false);
+        setShowAlertSuccessLocation(true);
+      } catch (error) {
+        console.error("Error updating center location:", error);
+      }
+   
+};
 
 
     const onMapClick = async (event) => {
@@ -201,9 +271,15 @@ const handleMarkerClick = async (recycleCenter) => {
   if (currentZoomLevelRef.current >= minZoomLevel) {
     const terrainType = await checkTerrainType(lat, lng);
     if (terrainType === 'building') {
+
+      if (isChangingCenterLocation) {
+        onMapChangeLocationClick(lat,lng)
+      }else{
        // Store the new center location temporarily
        setNewRecyclingCenterLocation({ lat, lng });
        setFormVisible(true);
+      }
+
      } else {
        // Show an alert message indicating that a recycling center can only be added on a building.
        handleAlertBuilding();
@@ -326,9 +402,85 @@ const onDeleteRecyclingCenter = async (centerId) => {
     }
   };
 
-  
-  
 
+  // return centers that have the selected waste type
+  const filterRecyclingCenters = (type) => {
+    if (type === '') {
+      // If no type is selected, show all recycling centers
+      setCenterCount(0); // Reset the center count
+      setFilteredRecyclingCenters(recyclingCenters);
+
+      
+    } else {
+   
+        // Create an array to store the filtered recycling centers
+        const filteredCenters = [];
+        //const count = 0;
+      //check on each center if is receive this waste type 
+        recyclingCenters.forEach((center) => {
+          center.type.forEach((centerType) => {
+          if (centerType === type) {
+            // If the center's type matches the selected type, add it to the filteredCenters array
+            filteredCenters.push(center);
+             // Set the center count
+
+          }
+       
+        });
+      });
+      setFilteredRecyclingCenters(filteredCenters);
+      const count = filteredCenters.length;
+      setCenterCount(count);
+
+
+    }
+  };
+  
+  
+  //handle filter centers by waste type
+  const handleCenterTypeSelect = (selectedOption) => {
+    setSelectedCenterType(selectedOption.value);
+    filterRecyclingCenters(selectedOption.value);
+    handleAlertshowNumberWasteType();
+
+  };
+
+  // return the center the have the same name
+  const filterRecyclingCentersBySearch = (query) => {
+   
+const filteredCenters = [];
+
+  recyclingCenters.forEach((center) => {
+    if (
+      center.name &&
+      center.name.includes(query)
+    ) {
+      filteredCenters.push(center);
+    }
+  });
+  if(filteredCenters.length>0) {
+    setFilteredRecyclingCenters(filteredCenters);
+
+  }
+  else{
+    setFilteredRecyclingCenters(recyclingCenters);
+  }
+  };
+
+  // handle serach center name input
+  const handleSearchInputChange = async(CenterName) => {
+    if(CenterName) {
+      const query = CenterName.target.value;//center name writed by user
+      setSearchQuery(query);
+      filterRecyclingCentersBySearch(query);
+    }
+    else{
+        setFilteredRecyclingCenters(recyclingCenters); // return all center 
+    }
+   
+
+  }
+  
   
   return isLoaded ? (
     <div style={{ position: 'relative', width: '100%', height: '100%' }}>
@@ -361,16 +513,54 @@ const onDeleteRecyclingCenter = async (centerId) => {
       >
         <span>عرض الموقع الحالي</span>
       </Button>
+
+<div>
+<Select
+  placeholder="تصفية حسب نوع النفايات المستقبلة..."
+  closeMenuOnSelect={false}
+  components={animatedComponents}
+  options={options}
+  value={selectedCenterType !== '' ? options.find((option) => option.value === selectedCenterType) : null}
+  onChange={(value) => handleCenterTypeSelect(value)}
+  required
+/>
+</div>
+    
+
+<div>
+<Input
+          type="text"
+          label="البحث عن اسم المركز"
+          value={searchQuery}
+          onChange={handleSearchInputChange} 
+          style={{ background: 'white', color: 'black'}}
+        />
+</div>
+
+
+    </div>
+    
+      {/* to show how many center recivce the selected waste type */}
+{selectedCenterType && centerCount > 0 && (
+  <div style={{ position: 'absolute', zIndex: 2000 }}>
+        <AlertMessageCenter open={showCenterWasteType} handler={handleAlertshowNumberWasteType} message="عدد المراكز التي تستقبل" type={selectedCenterType} data={centerCount}/>
+      </div>
+)}
+
+
+  
+    <div style={{ position: 'absolute', zIndex: 3000 }}>
+      <ErrorAlertMessage open={showAlertZoom} handler={handleAlertZoom} message="كبر الخريطة لتتمكن من إضافة مركز تدوير " />
+    </div>
+  
+    <div style={{ position: 'absolute', zIndex: 3000 }}>
+      <ErrorAlertMessage open={showAlertBuilding} handler={handleAlertBuilding} message="  التزم بحدود المباني عند إضافة مركز التدوير" />
     </div>
   
     <div style={{ position: 'absolute', zIndex: 2000 }}>
-      <AlertMessage open={showAlertZoom} handler={handleAlertZoom} message="كبر الخريطة لتتمكن من إضافة مركز تدوير " />
-    </div>
-  
-    <div style={{ position: 'absolute', zIndex: 2000 }}>
-      <AlertMessage open={showAlertBuilding} handler={handleAlertBuilding} message="  التزم بحدود المباني عند إضافة مركز التدوير" />
-    </div>
-  
+        <AlertMessage open={showAlertLocation} handler={handleAlertLocation} message="انت الان في وضع تغيير موقع المركز" />
+      </div>
+
     <GoogleMap
       mapContainerStyle={containerStyle}
       center={userPosition || center}
@@ -381,10 +571,10 @@ const onDeleteRecyclingCenter = async (centerId) => {
       ref={mapRef}
     >
 
-        {recyclingCenters.map((recycleCenter) => (
+        {filteredRecyclingCenters.map((recycleCenter) => (
           <Marker
             key={recycleCenter.id}
-            position={{ lat: recycleCenter.location._lat, lng: recycleCenter.location._long }} // Update here
+            position={{ lat: recycleCenter.location._lat, lng: recycleCenter.location._long }} 
             onClick={() => handleMarkerClick(recycleCenter)}
             icon={customIcon}
           >    
@@ -398,10 +588,12 @@ const onDeleteRecyclingCenter = async (centerId) => {
         <Circle center={userLocationRange} options={{ radius: userLocationRange.radius, strokeColor: '#4285F4', fillColor: '#4285F4', fillOpacity: 0.2 }} />
       </Marker>
     )}
-    <ViewCenterInfo open={viewInfo} onClose={closeInfoDrawer} DeleteMethod={handleDeletion} center={centerData} />
+    <ViewCenterInfo open={viewInfo} onClose={closeInfoDrawer} DeleteMethod={handleDeletion} Changelocation={handleChangeMarkerLocation} center={centerData} centerID={centerId} />
     <RecyclingCenterForm open={formVisible} handler={handleForm} method={handleAddRecyclingCenter} />
     <Success open={showSuccessAlert} handler={handleSuccessAlert} message=" تم إضافة مركز التدوير بنجاح" />
     <Success open={showAlertSuccessDeletion} handler={handleAlertSuccessDeletion} message=" تم حذف مركز التدوير بنجاح" />
+    <Success open={showAlertSuccessLocation} handler={handleAlertSuccessLocation} message=" تم تغيير موقع حاوية القمامة بنجاح" />
+
   </GoogleMap>
 </div>
   ) : <></>

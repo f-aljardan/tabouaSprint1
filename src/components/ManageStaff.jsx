@@ -6,7 +6,7 @@ import Success from "./messages/Success";
 import {Button,Card,IconButton,Typography,Tooltip,Input,} from "@material-tailwind/react";
 import { UserPlusIcon } from "@heroicons/react/24/solid"
 import { db} from "../firebase";
-import { collection,  deleteDoc , doc ,  onSnapshot } from 'firebase/firestore';
+import { collection,  deleteDoc , doc ,  onSnapshot  , updateDoc} from 'firebase/firestore';
 
 export default function ManageStaff(){
   const [showAddStaffDialog, setShowAddStaffDialog] = useState(false); // state to show add staff form
@@ -15,7 +15,14 @@ export default function ManageStaff(){
   const [showAlert, setShowAlert] = useState(false); // state to show success message
   const [staffMembers, setStaffMembers] = useState([]); // to store staff infromation
   const [searchTerm, setSearchTerm] = useState(""); // state to search staff name
-
+  const [isEditMode, setIsEditMode] = useState(false);
+  const [editedStaffData, setEditedStaffData] = useState({
+    id: null,
+    firstName: '',
+    fatherName: '',
+    lastName: '',
+    email: '',
+  });
 
   //change state of add staff form
   const handleAddStaff = () => {
@@ -70,6 +77,70 @@ export default function ManageStaff(){
       .includes(searchTerm.toLowerCase())
   );
 
+
+  const handleEdit = (id , email , firstName , lastName , fatherName) => {
+    setEditedStaffData({
+      id: id,
+      firstName: firstName,
+      fatherName: fatherName,
+      lastName: lastName,
+      email: email,
+    });
+    setIsEditMode(true);
+
+  }
+
+  const handleEditChange = (e) => {
+    const { name, value } = e.target;
+    setEditedStaffData((prevData) => ({
+      ...prevData,
+      [name]: value,
+    }));
+  };
+
+
+  const handleSaveEdit = async () => {
+    // Create a reference to the staff member's document in the database
+    const staffDocRef = doc(db, 'staff', editedStaffData.id);
+  
+    // Prepare the data to be updated
+    const updatedData = {
+      firstName: editedStaffData.firstName,
+      fatherName: editedStaffData.fatherName,
+      lastName: editedStaffData.lastName,
+      email: editedStaffData.email,
+    };
+  
+    try {
+      // Update the document with the new data
+      await updateDoc(staffDocRef, updatedData);
+  
+      // Exit edit mode and clear the edited data
+      setIsEditMode(false);
+      setEditedStaffData({
+        id: null,
+        firstName: '',
+        fatherName: '',
+        lastName: '',
+        email: '',
+      });
+  
+      // You may also want to update the staffMembers state to reflect the changes.
+      // You can fetch the updated data from the database and update the state if needed.
+    } catch (error) {
+      console.error('Error updating document: ', error);
+      // Handle the error as needed (e.g., show an error message to the user).
+    }
+  };
+  
+
+
+
+
+
+
+  
+
 // define trash icon for delete staff
   function TrashIcon() {
 
@@ -94,6 +165,18 @@ export default function ManageStaff(){
     
     );
     
+    }
+
+
+    function PenIcon() {
+return (
+  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-6 h-6">
+  <path strokeLinecap="round" strokeLinejoin="round" d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L6.832 19.82a4.5 4.5 0 01-1.897 1.13l-2.685.8.8-2.685a4.5 4.5 0 011.13-1.897L16.863 4.487zm0 0L19.5 7.125" />
+</svg>
+
+)
+    
+
     }
 
 
@@ -139,7 +222,7 @@ export default function ManageStaff(){
      
  <AddStaff open={showAddStaffDialog} handler={handleAddStaff} />
      
-<div style={{ overflowX: "auto",  width: "800px",  maxHeight: "100vh",}}>
+<div style={{ overflowX: "auto",  width: "90vh",  maxHeight: "100vh",}}>
 
 <Card className="max-w-2xl p-8">
         <h2 className="text-2xl font-semibold mb-4">قائمة الموظفين</h2> 
@@ -170,6 +253,7 @@ export default function ManageStaff(){
                 variant="small"
                 color="blue-gray"
                 className="font-normal leading-none opacity-70 text-right"
+                component={'span'}
               >
                <span>الاسم</span> 
               </Typography>
@@ -179,62 +263,117 @@ export default function ManageStaff(){
                 variant="small"
                 color="blue-gray"
                 className="font-normal leading-none opacity-70 text-right"
+                component={'span'}
               >
                 <span>البريد الإلكتروني</span>
               </Typography>
             </th>
-            <th className="border-b border-blue-gray-100 bg-blue-gray-50 p-4">
-             
+            <th className="border-b border-blue-gray-100 bg-blue-gray-50 p-4"
+            >
+            </th>
+
+            <th className="border-b border-blue-gray-100 bg-blue-gray-50 p-4"
+            >   
             </th>
           </tr>
           
         </thead>
         
         <tbody>
-          {/*filter staff by their first name , father name , last name */}
         {filteredStaff.length > 0 ? (
   filteredStaff.map((staffMember, index) => (
     <tr key={index}>
       <td className="p-4 border-b border-blue-gray-50 text-right">
-        <Typography variant="small" color="blue-gray" className="font-normal">
-          <span>{`${staffMember.firstName} ${staffMember.fatherName} ${staffMember.lastName}`}</span>
-          {/* get staff name from database */}
-        </Typography>
+          {isEditMode && editedStaffData.id === `${staffMember.id}` ? (
+            // Render the edited data when in edit mode
+           
+            
+
+            <>
+              <Input
+                type="text"
+                name="firstName"
+                value={editedStaffData.firstName}
+                onChange={handleEditChange}
+              />
+               <Input
+                type="text"
+                name="fatherName"
+                value={editedStaffData.fatherName}
+                onChange={handleEditChange}
+              />
+
+               <Input
+                type="text"
+                name="lastName"
+                value={editedStaffData.lastName}
+                onChange={handleEditChange}
+              />
+
+
+              
+              {/* You can add input fields for other edited data here */}
+            </>
+          ) : (
+            // Render the staff data when not in edit mode
+            <span>{`${staffMember.firstName} ${staffMember.fatherName} ${staffMember.lastName}`}</span>
+          )}
       </td>
       <td className="p-4 border-b border-blue-gray-50 text-right">
-        <Typography variant="small" color="blue-gray" className="font-normal">
-          <span>{`${staffMember.email}`}</span>
-                    {/* get staff email from database */}
-
-        </Typography>
+          {isEditMode && editedStaffData.id === `${staffMember.id}` ? (
+            // Render the edited email when in edit mode
+            <>
+              <Input
+                type="text"
+                name="email"
+                value={editedStaffData.email}
+                onChange={handleEditChange}
+              />
+              {/* You can style and manage other edited fields here */}
+            </>
+          ) : (
+            // Render the staff email when not in edit mode
+            <span>{`${staffMember.email}`}</span>
+          )}
       </td>
-                {/* click on icon to delete staff  */}
-
       <td className="p-4 border-b border-blue-gray-50 text-right">
-        <Tooltip content="حذف الموظف"  className="bg-white font-baloo text-md text-gray-600">
+        <Tooltip content="حذف الموظف" className="bg-white font-baloo text-md text-gray-600">
           <IconButton variant="text" onClick={() => handleConfirm(staffMember.id)}>
             <TrashIcon className="h-4 w-4 text-red-500" />
           </IconButton>
         </Tooltip>
       </td>
+      <td className="p-4 border-b border-blue-gray-50 text-right">
+        <Tooltip content="تعديل بيانات الموظف" className="bg-white font-baloo text-md text-gray-600">
+          {isEditMode && editedStaffData.id === staffMember.id ? (
+            // Save button in edit mode
+            <Button
+              type="button"
+              variant="text"
+              onClick={handleSaveEdit}
+            >
+              حفظ
+            </Button>
+          ) : (
+            // Edit button when not in edit mode
+            <IconButton variant="text" onClick={() => handleEdit(staffMember.id ,staffMember.email ,staffMember.firstName , staffMember.lastName ,staffMember.fatherName)}>
+              <PenIcon className="w-6 h-6 text-blue-500" />
+            </IconButton>
+          )}
+        </Tooltip>
+      </td>
     </tr>
   ))
-        ):(     
-<tr>
-                    <td className="p-4 border-b border-blue-gray-50 text-center" colSpan="3">
-                      <Typography
-                        variant="small"
-                        color="red"
-                        className="font-normal"
-                      >
-                     {/* if there no staff with that name , it sill show this message*/}
+) : (
+  <tr>
+    <td className="p-4 border-b border-blue-gray-50 text-center" colSpan="3">
+      <Typography variant="small" color="red" className="font-normal">
+        لا يوجد موظفين بهذا الاسم
+      </Typography>
+    </td>
+  </tr>
+)}
 
-                        لا يوجد موظفين بهذا الاسم
-                      </Typography>
-                    </td>
-                  </tr>
-
-        )}
 </tbody>
 
       </table>
@@ -245,6 +384,7 @@ export default function ManageStaff(){
 
     </div>
     </div>
+    
     <Confirm open={showConfirmAlert} handler={handleConfirm} method= {handleDelete} message="هل أنت متأكد من حذف الموظف؟"  // to show confirm message  staff delete 
     
     />

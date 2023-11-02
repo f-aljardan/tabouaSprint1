@@ -37,7 +37,10 @@ function MainPage() {
               const docSnapshot = querySnapshot.docs[0];
               setUserData(docSnapshot.data());
 
-            } else {
+            }  
+            
+            
+            else {
               // Handle the case where no user data is found
               console.log("emptyyy query" , userData.isAdmin);
             }

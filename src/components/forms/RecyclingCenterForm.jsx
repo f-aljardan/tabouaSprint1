@@ -317,6 +317,19 @@ const isValidURL = (url) => {
 
     };
 
+    function alertIcon () {
+
+      return(
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-6 h-6">
+        <path strokeLinecap="round" strokeLinejoin="round" d="M12 9v3.75m9-.75a9 9 0 11-18 0 9 9 0 0118 0zm-9 3.75h.008v.008H12v-.008z" />
+      </svg>
+
+      )
+     
+
+    }
+
+
     return (
       <>
         <div>
@@ -326,7 +339,15 @@ const isValidURL = (url) => {
                 أضف مركز إعادة تدوير جديد
               </DialogHeader>
               <DialogBody divider className="font-baloo text-right">
+              <Typography variant='small' className='mb-5' style={{ color:"red" }}>
+              <span style={{ display: 'flex', alignItems: 'center' }}>
+    {alertIcon()}
+    <span style={{ paddingRight:"0.5%" }} >الرجاء تعبئة جميع الخانات </span>
+  </span>
+              </Typography>
+              
                 <div className='flex justify-between'>
+                  
                   <div className='w-100'>
                     <Typography className="font-baloo text-right text-md font-bold">
                       معلومات المركز:
@@ -510,6 +531,8 @@ const isValidURL = (url) => {
                     </div>
                   </div>
                 </div>
+               
+              
               </DialogBody>
               <DialogFooter className="flex gap-3 justify-center font-baloo text-right">
                 <Button
@@ -523,6 +546,7 @@ const isValidURL = (url) => {
                 <Button variant="outlined" onClick={handleCloseForm}>
                   <span>إلغاء</span>
                 </Button>
+                
               </DialogFooter>
             </form>
           </Dialog>

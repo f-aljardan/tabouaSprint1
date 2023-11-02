@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Menu, MenuHandler, MenuList, MenuItem, Avatar, Typography, Button, Input } from "@material-tailwind/react";
-import userIcon from "/userIcon.svg";
+import userIcon from "/src/assets/userIcon.svg";
 import { getAuth, signOut, updatePassword } from "firebase/auth";
 import { useNavigate } from 'react-router-dom';
 import { Dialog, DialogHeader, DialogBody, DialogFooter } from "@material-tailwind/react";
@@ -55,7 +55,7 @@ export default function ProfileMenu({ userData }) {
   const validatePassword = () => {
     if (!passwordValidationRegex.test(newPassword)) {
       setPasswordChangeError(
-        'كلمة المرور يجب أن تحتوي على حرف صغير وحرف كبير وحرف خاص ورقم ويجب أن تكون مكونة من 8 أحرف على الأقل.'
+        'كلمة المرور يجب أن تحتوي على حرف صغير وحرف كبير ورمز ورقم ويجب أن تكون مكونة من 8 أحرف على الأقل.'
       );
       return false;
     } else {
@@ -86,11 +86,16 @@ export default function ProfileMenu({ userData }) {
 
   const passwordStrengthIndicator = (
     <div className="text-xs mb-2">
-      {passwordValidationRegex.test(newPassword) ? (
-        <span className="text-green-600">كلمة المرور تلبي المتطلبات</span>
-      ) : (
-        <span className="text-red-600">كلمة المرور لا تلبي المتطلبات</span>
-      )}
+      
+      {newPassword !== '' ? (
+    passwordValidationRegex.test(newPassword) ? (
+      <span className="text-green-600">كلمة المرور تلبي المتطلبات</span>
+    ) : (
+      <span className="text-red-600">كلمة المرور لا تلبي المتطلبات</span>
+    )
+  ) : null}
+  
+     
     </div>
   );
 
@@ -188,7 +193,7 @@ export default function ProfileMenu({ userData }) {
           <DialogBody divider className="font-baloo text-right">
             <div className="text-right">
               <Typography variant='small' className='mb-5'>
-                <span>كلمة المرور يجب أن تكون مكونة من ٨ خانات على الأقل و تشمل حرف كبير ، حرف صغير</span>
+                <span>كلمة المرور يجب أن تكون مكونة من ٨ خانات على الأقل و تشمل حرف كبير ، حرف صغير ، رمز</span>
               </Typography>
               <Input
                 type="password"

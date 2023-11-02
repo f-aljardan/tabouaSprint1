@@ -3,9 +3,10 @@ import  { useState } from 'react';
 import { db, auth,  }  from "/src/firebase";
 import { collection, query, where, getDocs, setDoc,} from 'firebase/firestore';
 import {Card, CardBody, CardFooter, Input, Button,} from "@material-tailwind/react";
-import logo from "../../public/tabouaNo.png";
+import logo from "/src/assets/tabouaNo.png";
 import {createUserWithEmailAndPassword} from 'firebase/auth';
 import { useNavigate } from 'react-router-dom';
+import { Typography } from "@material-tailwind/react";
 
 function Signup(){
     const [email, setEmail] = useState('');// state to store email
@@ -13,7 +14,6 @@ function Signup(){
     const [errorMessage, setErrorMessage] = useState('');  // state to show error message
     const [emailError, setEmailError] = useState(null);// state to store email error
     const [passwordError, setPasswordError] = useState(null); // state to store password error
-  
       
     const navigate = useNavigate();
 
@@ -61,7 +61,7 @@ if (!querySnapshot.empty) {
   console.error('No document found with the provided email.');
 }
    // Successful sign-up, you can redirect the user to the main page
-        navigate('/');
+        navigate('/PasswordReset');
       } catch (error) {
         console.error('Sign-up error:', error);
       }
@@ -122,8 +122,9 @@ if (!querySnapshot.empty) {
       
           <div className="font-baloo text-2xl  font-bold text-center">  تفعيل الحساب</div>
           <div className="font-baloo text-sm  text-center"> الرجاء التسجيل بالبيانات المرسلة عبر البريد الإلكتروني</div>
-
+           
           <Card className="w-96">
+         
       
       <div className='flex justify-center'>
            <img src={logo} className="h-40 w-40"/>
@@ -151,7 +152,9 @@ if (!querySnapshot.empty) {
        label="كلمةالمرور"
         size="lg" />
         {passwordError && <span style={{ color: 'red' }}>{passwordError}</span>}
-
+        <Typography variant='small' className='mb-5' style={{ marginBottom: '0.5%' }}>
+                <span>كلمة المرور يجب أن تكون مكونة من ٨ خانات على الأقل و تشمل حرف كبير ، حرف صغير ، رمز</span>
+              </Typography>
        <div className="-ml-2.5">
        {errorMessage && <p style={{ color: 'red' }}>{errorMessage}</p>}
        </div>
@@ -165,11 +168,11 @@ if (!querySnapshot.empty) {
        onClick={validate}
        >
 
-       <span> تسجيل</span>
+       <span> تفعيل</span>
        </Button>
        <div 
        style= {{marginTop: "50px"}}
-       className="font-baloo text-sm  text-center"> قد يستغرق ٦٠ ثانية لتوثيق الحساب</div>
+       className="font-baloo text-sm  text-center"> قد يستغرق ٦٠ ثانية لتفعيل الحساب</div>
 
      </CardFooter>
      </form>
@@ -182,7 +185,6 @@ if (!querySnapshot.empty) {
 
     
 
-    
 
 
     

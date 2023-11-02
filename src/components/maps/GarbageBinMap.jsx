@@ -1,11 +1,12 @@
 import React , {useState, useEffect, useRef} from 'react'
-import { GoogleMap, useJsApiLoader, Marker , Circle,} from '@react-google-maps/api';
+import { GoogleMap, useJsApiLoader, Marker , Circle,InfoWindow} from '@react-google-maps/api';
 import { db } from "/src/firebase";
-import { getDocs, collection, addDoc, GeoPoint, deleteDoc, doc ,getDoc, Timestamp } from "firebase/firestore"; // Import the necessary Firestore functions
-import { Button , Tooltip, } from "@material-tailwind/react";
+import { getDocs, collection, addDoc, GeoPoint, deleteDoc, doc ,getDoc, Timestamp,updateDoc } from "firebase/firestore"; // Import the necessary Firestore functions
+import { Button , Tooltip, Card} from "@material-tailwind/react";
 import Success from "../messages/Success"
 import GarbageBinForm from "../forms/GarbageBinForm"
 import ViewGarbageInfo from "../viewInfo/ViewGarbageInfo"
+import ErrorAlertMessage from "../messages/ErrorAlertMessage"
 import AlertMessage from "../messages/AlertMessage"
 import { v4 as uuidv4 } from 'uuid';
 import Select from 'react-select';
@@ -47,6 +48,8 @@ function GarbageBinMap() {
   const [showAlertStreet, setShowAlertStreet] = useState(false);
   const [showAlertZoom, setShowAlertZoom] = useState(false);
   const [showSuccessAlert, setShowSuccessAlert] = useState(false);
+  const [showAlertLocation, setShowAlertLocation] = useState(false);
+  const [showAlertSuccessLocation, setShowAlertSuccessLocation] = useState(false);
   const [showAlertDeletion, setShowAlertDeletion] = useState(false);
   const [viewInfo, setViewInfo] = React.useState(false);
   const [selectedLocation, setSelectedLocation] = React.useState(false);
@@ -55,11 +58,16 @@ function GarbageBinMap() {
   const [userPosition, setUserPosition] = useState(null);
   const [showUserLocation, setShowUserLocation] = useState(false);
   const [userLocationRange, setUserLocationRange] = useState(null);
+  const [markerRefs, setMarkerRefs] = useState({});
+  const [isChangingBinLocation, setIsChangingBinLocation] = useState(false);
 
 
+  
   const openInfoDrawer = () => setViewInfo(true);
   const closeInfoDrawer = () => setViewInfo(false);
   const handleForm = () => setFormVisible(!formVisible);
+  const handleAlertLocation = () => {setShowAlertLocation(!showAlertLocation);  setIsChangingBinLocation(false); }
+  const handleAlertSuccessLocation = () => setShowAlertSuccessLocation(!showAlertSuccessLocation);
   const handleAlertStreet = () => setShowAlertStreet(!showAlertStreet);
   const handleAlertZoom = () => setShowAlertZoom(!showAlertZoom);
   const handleSuccessAlert = () => setShowSuccessAlert(!showSuccessAlert);
@@ -127,14 +135,13 @@ function GarbageBinMap() {
   
     // Attach the onZoomChanged event listener
     if (map.addListener) {
-      map.addListener('zoom_changed', onZoomChanged);
+      map.addListener('zoom_changed', onZoomChanged, { passive: true });
     }
   }, []);
 
 
   // Callback function when the component unmounts
   const onUnmount = React.useCallback(function callback(map) {
-    console.log("unmount")
     mapRef.current = null;
     setMap(null)
   }, [])
@@ -200,7 +207,7 @@ const handleBinSizeSelect = (selectedOption) => {
 // Attach the onZoomChanged event listener
 useEffect(() => {
   if (mapRef.current) {
-    mapRef.current.addListener('zoom_changed', onZoomChanged);
+    mapRef.current.addListener('zoom_changed', onZoomChanged, { passive: true });
   }
 }, []);
 
@@ -208,6 +215,7 @@ useEffect(() => {
 
  
   const handleMarkerClick = async (bin) => {
+
     
     try {
       // Fetch data for the selected garbage Bin  using its ID
@@ -230,12 +238,48 @@ useEffect(() => {
   };
 
 
+// Function to change the Marker's location
+const handleChangeMarkerLocation = (binId) => {
+  setIsChangingBinLocation(true);
+  setShowAlertLocation(true);
+  setSelectedLocation(null);
+  setBinId(binId);
+  setShowAlertLocation(true); // Show the alert when changing location
+  setViewInfo(false);
+ 
+};
+
+// Function to capture coordinates when changing a marker's location
+const onMapChangeLocationClick = async (lat , lng) => {
+  
+      const garbageBinRef = doc(db, "garbageBins", binId);
+      const geoPoint = new GeoPoint(lat, lng);
+
+      // Update the location in Firestore
+      try {
+        await updateDoc(garbageBinRef, { location: geoPoint });
+        console.log("Successfully updated garbage bin location");
+
+        // Update the garbageBins state with the new location
+        setGarbageBins((prevGarbageBins) =>
+          prevGarbageBins.map((b) => (b.id === binId ? { ...b, location: geoPoint } : b))
+        );
+
+        setIsChangingBinLocation(false); // Set the state back to indicate you're not changing a bin location
+        setShowAlertLocation(false);
+        setShowAlertSuccessLocation(true);
+      } catch (error) {
+        console.error("Error updating garbage bin location:", error);
+      }
+   
+};
+
 
 const onMapClick = async (event) => {
-  
-  // Capture the coordinates and display a confirmation message
-  const lat = event.latLng.lat();
-  const lng = event.latLng.lng();
+
+    // Capture the coordinates and display a confirmation message
+    const lat = event.latLng.lat();
+    const lng = event.latLng.lng();
 
   // Check if the conditions are met
   if (currentZoomLevelRef.current >= minZoomLevel) {
@@ -244,9 +288,18 @@ const onMapClick = async (event) => {
       // Show an alert message indicating that a garbage bin cannot be added on a building.
       handleAlertStreet();
     } else {
-      // Store the new garbage bin location temporarily
-      setNewGarbageBinLocation({ lat, lng });
-      setFormVisible(true);
+    
+      if (isChangingBinLocation) {
+        onMapChangeLocationClick(lat,lng)
+      }else{
+    // If you are adding a new bin, set the new location and open the form for adding a new bin
+    setNewGarbageBinLocation({ lat, lng });
+    setFormVisible(true);
+
+      }
+        
+    
+    
     }
   } else {
     // Show an alert message indicating that a garbage bin can only be added on a specific scale.
@@ -255,7 +308,10 @@ const onMapClick = async (event) => {
 };
 
 
+
+
 const checkTerrainType = (lat, lng) => {
+
   return new Promise((resolve, reject) => {
     if (window.google) {
       const geocoder = new window.google.maps.Geocoder();
@@ -289,9 +345,6 @@ const AddGarbageBin = async (data) => {
       newGarbageBinLocation.lat,
       newGarbageBinLocation.lng
     );
-  
-  
-
     const docRef = await addDoc(collection(db, "garbageBins"), {
       location: geoPoint,
       size: data.size,
@@ -386,14 +439,17 @@ return isLoaded ? (
         />
       </div>
     
-      <div style={{ position: 'absolute', zIndex: 2000 }}>
-        <AlertMessage open={showAlertZoom} handler={handleAlertZoom} message="كبر الخريطة لتتمكن من إضافة حاوية القمامة " />
+      <div style={{ position: 'absolute', zIndex: 3000 }}>
+        <ErrorAlertMessage open={showAlertZoom} handler={handleAlertZoom} message="كبر الخريطة لتتمكن من إضافة حاوية القمامة " />
+      </div>
+
+      <div style={{ position: 'absolute', zIndex: 3000 }}>
+        <ErrorAlertMessage open={showAlertStreet} handler={handleAlertStreet} message=" إلتزم بحدود الطرق عند إضافة حاوية قمامة" />
       </div>
 
       <div style={{ position: 'absolute', zIndex: 2000 }}>
-        <AlertMessage open={showAlertStreet} handler={handleAlertStreet} message=" إلتزم بحدود الطرق عند إضافة حاوية قمامة" />
+        <AlertMessage open={showAlertLocation} handler={handleAlertLocation} message="انت الان في وضع تغيير موقع الحاوية" />
       </div>
-
 
       <GoogleMap
         mapContainerStyle={containerStyle}
@@ -411,6 +467,10 @@ return isLoaded ? (
           position={{ lat: bin.location._lat, lng: bin.location._long }}
           onClick={() => handleMarkerClick(bin)}
           icon={customIcon}
+          ref={(marker) => {
+            // Store a reference to the Marker object in the state
+            markerRefs[bin.id] = marker;
+          }}
         >
         </Marker>
         ))}
@@ -421,10 +481,12 @@ return isLoaded ? (
           </Marker>
         )}
 
-        <ViewGarbageInfo open={viewInfo} onClose={closeInfoDrawer} DeleteMethod={handleDeletion} bin={binData} binId={binId} />
+        <ViewGarbageInfo open={viewInfo} onClose={closeInfoDrawer} DeleteMethod={handleDeletion} Changelocation={handleChangeMarkerLocation} bin={binData} binId={binId} />
         <GarbageBinForm open={formVisible} handler={handleForm} AddMethod={AddGarbageBin} />
         <Success open={showSuccessAlert} handler={handleSuccessAlert} message=" تم إضافة حاوية القمامة بنجاح" />
         <Success open={showAlertDeletion} handler={handlealertDeletion} message=" تم حذف حاوية القمامة بنجاح" />
+        <Success open={showAlertSuccessLocation} handler={handleAlertSuccessLocation} message=" تم تغيير موقع حاوية القمامة بنجاح" />
+
       </GoogleMap>
     </div>
   ) : <></>

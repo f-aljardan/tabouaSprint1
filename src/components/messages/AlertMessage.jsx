@@ -1,5 +1,6 @@
 
-import { Alert, Button } from "@material-tailwind/react";
+
+import { Alert, Button, Typography } from "@material-tailwind/react";
  
 // alert icon 
 function Icon() {
@@ -12,7 +13,7 @@ function Icon() {
     >
       <path
         fillRule="evenodd"
-        d="M9.401 3.003c1.155-2 4.043-2 5.197 0l7.355 12.748c1.154 2-.29 4.5-2.599 4.5H4.645c-2.309 0-3.752-2.5-2.598-4.5L9.4 3.003zM12 8.25a.75.75 0 01.75.75v3.75a.75.75 0 01-1.5 0V9a.75.75 0 01.75-.75zm0 8.25a.75.75 0 100-1.5.75.75 0 000 1.5z"
+        d="M2.25 12c0-5.385 4.365-9.75 9.75-9.75s9.75 4.365 9.75 9.75-4.365 9.75-9.75 9.75S2.25 17.385 2.25 12zm8.706-1.442c1.146-.573 2.437.463 2.126 1.706l-.709 2.836.042-.02a.75.75 0 01.67 1.34l-.04.022c-1.147.573-2.438-.463-2.127-1.706l.71-2.836-.042.02a.75.75 0 11-.671-1.34l.041-.022zM12 9a.75.75 0 100-1.5.75.75 0 000 1.5z"
         clipRule="evenodd"
       />
     </svg>
@@ -28,7 +29,7 @@ export default function AlertMessage({open, handler, message}) {
         variant="gradient"
         open={open}
         icon={<Icon/>}
-        color="red"
+        style={{background:"#F4DA4A", color:'#ffffff'}}
         action={
           <Button
             variant="text"
@@ -41,7 +42,12 @@ export default function AlertMessage({open, handler, message}) {
           </Button>
         }
       >
-      <span className="ml-44 pl-2"> {message}</span> 
+        <Typography className="font-medium">
+      <span className="ml-96 pl-2"> {message}</span> 
+      </Typography>
+      <ul className="mt-2 ml-2 list-inside list-disc">
+          <li>اضغط اغلاق للخروج من الوضع</li>
+        </ul>
       </Alert>
     </>
   );

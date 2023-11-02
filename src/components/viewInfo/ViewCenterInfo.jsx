@@ -206,7 +206,7 @@ export default function ViewCenterInfo({ open, onClose, DeleteMethod, center }) 
         </Button>
       </Drawer>
 
-      <Confirm open={deleteConfirmation} handler={handleDeleteConfirmation} method={DeleteMethod} message="   هل انت متأكد من حذف حاوية النفاية بالموقع المحدد؟" />
+      <Confirm open={deleteConfirmation} handler={handleDeleteConfirmation} method={DeleteMethod} message="   هل انت متأكد من حذف المركز بالموقع المحدد؟" />
     </>
   );
 }

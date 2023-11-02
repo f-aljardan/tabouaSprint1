@@ -172,7 +172,7 @@ if (!querySnapshot.empty) {
        </Button>
        <div 
        style= {{marginTop: "50px"}}
-       className="font-baloo text-sm  text-center"> قد يستغرق ٦٠ ثانية لتفعيل الحساب</div>
+       className="font-baloo text-sm  text-center"> قد يستغرق تفعيل الحساب ٦٠ ثانية</div>
 
      </CardFooter>
      </form>

@@ -1,9 +1,10 @@
 import React , {useState, useEffect, useRef} from 'react'
-import { GoogleMap, useJsApiLoader, Marker , Circle,InfoWindow} from '@react-google-maps/api';
+import { GoogleMap, useJsApiLoader, Marker , Circle} from '@react-google-maps/api';
 import { db } from "/src/firebase";
 import { getDocs, collection, addDoc, GeoPoint, deleteDoc, doc ,getDoc, Timestamp,updateDoc } from "firebase/firestore"; // Import the necessary Firestore functions
-import { Button , Tooltip, Card} from "@material-tailwind/react";
+import { Button , Tooltip} from "@material-tailwind/react";
 import Success from "../messages/Success"
+import Confirm from "../messages/Confirm"
 import GarbageBinForm from "../forms/GarbageBinForm"
 import ViewGarbageInfo from "../viewInfo/ViewGarbageInfo"
 import ErrorAlertMessage from "../messages/ErrorAlertMessage"
@@ -34,6 +35,8 @@ const binSizeOptions = [
   { value: 'حاوية صغيرة', label: 'حاوية صغيرة' },
 ];
 
+
+
 let customIcon;
 
 function GarbageBinMap() {
@@ -60,19 +63,20 @@ function GarbageBinMap() {
   const [userLocationRange, setUserLocationRange] = useState(null);
   const [markerRefs, setMarkerRefs] = useState({});
   const [isChangingBinLocation, setIsChangingBinLocation] = useState(false);
+  const[ checkMessageVisible, setCheckMessageVisible] = useState(false);
 
 
   
   const openInfoDrawer = () => setViewInfo(true);
-  const closeInfoDrawer = () => setViewInfo(false);
+  const closeInfoDrawer = () => {setViewInfo(false);   setBinId(null);}
   const handleForm = () => setFormVisible(!formVisible);
-  const handleAlertLocation = () => {setShowAlertLocation(!showAlertLocation);  setIsChangingBinLocation(false); }
+  const handleAlertLocation = () => {setShowAlertLocation(!showAlertLocation);  setIsChangingBinLocation(false); setBinId(null);}
   const handleAlertSuccessLocation = () => setShowAlertSuccessLocation(!showAlertSuccessLocation);
   const handleAlertStreet = () => setShowAlertStreet(!showAlertStreet);
   const handleAlertZoom = () => setShowAlertZoom(!showAlertZoom);
   const handleSuccessAlert = () => setShowSuccessAlert(!showSuccessAlert);
   const handlealertDeletion = () => setShowAlertDeletion(!showAlertDeletion);
-
+  const handleCheckMessage= () => {    handleAlertStreet(); setCheckMessageVisible(!checkMessageVisible);}
 
  // Define the acceptable zoom level range
  const minZoomLevel = 18;
@@ -114,15 +118,9 @@ function GarbageBinMap() {
   })
 
 
-//set the marker icon 
-  if (isLoaded) {
-      customIcon = {
-      url: '/trash.png', 
-      scaledSize: new window.google.maps.Size(45, 45), // Set the desired width and height
-    };
-    }
 
-
+   
+  
 // Callback function when the map loads
   const onLoad = React.useCallback(function callback(map) {
     mapRef.current = map; // Store the map object in the ref
@@ -268,6 +266,7 @@ const onMapChangeLocationClick = async (lat , lng) => {
         setIsChangingBinLocation(false); // Set the state back to indicate you're not changing a bin location
         setShowAlertLocation(false);
         setShowAlertSuccessLocation(true);
+        setBinId(null);
       } catch (error) {
         console.error("Error updating garbage bin location:", error);
       }
@@ -284,22 +283,12 @@ const onMapClick = async (event) => {
   // Check if the conditions are met
   if (currentZoomLevelRef.current >= minZoomLevel) {
     const terrainType = await checkTerrainType(lat, lng);
-    if (terrainType === 'building') {
-      // Show an alert message indicating that a garbage bin cannot be added on a building.
-      handleAlertStreet();
-    } else {
-    
-      if (isChangingBinLocation) {
-        onMapChangeLocationClick(lat,lng)
-      }else{
-    // If you are adding a new bin, set the new location and open the form for adding a new bin
     setNewGarbageBinLocation({ lat, lng });
-    setFormVisible(true);
-
-      }
-        
-    
-    
+    if (terrainType === 'building') {
+      setCheckMessageVisible(true);
+     
+    } else {
+      handleOnMapClick(lat,lng);
     }
   } else {
     // Show an alert message indicating that a garbage bin can only be added on a specific scale.
@@ -308,7 +297,14 @@ const onMapClick = async (event) => {
 };
 
 
-
+const handleOnMapClick = (lat ,lng) =>{
+  
+  if (isChangingBinLocation) {
+    onMapChangeLocationClick(lat,lng)
+  }else{
+   setFormVisible(true);
+  }
+}
 
 const checkTerrainType = (lat, lng) => {
 
@@ -459,6 +455,7 @@ return isLoaded ? (
         onUnmount={onUnmount} // Callback function that gets executed when the component unmounts.
         onClick={onMapClick}
         ref={mapRef}
+     
       >
 
         {garbageBins.map((bin) => (
@@ -466,13 +463,21 @@ return isLoaded ? (
           key={bin.id}
           position={{ lat: bin.location._lat, lng: bin.location._long }}
           onClick={() => handleMarkerClick(bin)}
-          icon={customIcon}
+          // icon={customIcon}
+          icon={{
+            url: binId === bin.id ?  '/trashChange.png' : '/trash.png',
+            scaledSize: new window.google.maps.Size(45, 45),
+          }}
+          
           ref={(marker) => {
             // Store a reference to the Marker object in the state
             markerRefs[bin.id] = marker;
           }}
         >
+                          
+                                
         </Marker>
+       
         ))}
     
     {showUserLocation && userPosition && (
@@ -486,7 +491,7 @@ return isLoaded ? (
         <Success open={showSuccessAlert} handler={handleSuccessAlert} message=" تم إضافة حاوية القمامة بنجاح" />
         <Success open={showAlertDeletion} handler={handlealertDeletion} message=" تم حذف حاوية القمامة بنجاح" />
         <Success open={showAlertSuccessLocation} handler={handleAlertSuccessLocation} message=" تم تغيير موقع حاوية القمامة بنجاح" />
-
+        <Confirm open={checkMessageVisible} handler={handleCheckMessage} method={()=>{ handleOnMapClick(newGarbageBinLocation.lat,newGarbageBinLocation.lng); setCheckMessageVisible(false);}} message="هل انت متأكد من أن الموقع المحدد يقع على شارع؟" />
       </GoogleMap>
     </div>
   ) : <></>

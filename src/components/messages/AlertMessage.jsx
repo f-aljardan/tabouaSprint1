@@ -29,7 +29,7 @@ export default function AlertMessage({open, handler, message}) {
         variant="gradient"
         open={open}
         icon={<Icon/>}
-        style={{background:"#F4DA4A", color:'#ffffff'}}
+        style={{background:"#FE9B00", color:'#ffffff'}}
         action={
           <Button
             variant="text"
@@ -46,6 +46,7 @@ export default function AlertMessage({open, handler, message}) {
       <span className="ml-96 pl-2"> {message}</span> 
       </Typography>
       <ul className="mt-2 ml-2 list-inside list-disc">
+          <li> لتغيير الموقع قم بالضغط  على الموقع المراد على الخريطة</li>
           <li>اضغط اغلاق للخروج من الوضع</li>
         </ul>
       </Alert>

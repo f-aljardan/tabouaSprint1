@@ -339,11 +339,11 @@ const isValidURL = (url) => {
                 أضف مركز إعادة تدوير جديد
               </DialogHeader>
               <DialogBody divider className="font-baloo text-right">
-              <Typography variant='small' className='mb-5' style={{ color:"red" }}>
+              <Typography variant='small' style={{ color:"red" }}>
               <span style={{ display: 'flex', alignItems: 'center' }}>
-    {alertIcon()}
-    <span style={{ paddingRight:"0.5%" }} >الرجاء تعبئة جميع الخانات </span>
-  </span>
+              {alertIcon()}
+              <span style={{ paddingRight:"0.5%" }} >الرجاء تعبئة جميع الخانات </span>
+              </span>
               </Typography>
               
                 <div className='flex justify-between'>
@@ -415,7 +415,7 @@ const isValidURL = (url) => {
                   </div>
 
                   <div>
-                    <div className="flex flex-col gap-5 items-start w-100">
+                    <div className="flex flex-col gap-2 items-start w-100">
                       <Typography className="font-baloo text-right text-md font-bold">
                         ساعات عمل المركز:
                       </Typography>

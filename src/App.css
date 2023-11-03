@@ -84,3 +84,38 @@ input[type=file]::file-selector-button:hover {
   background:  #97B980;
 }
 
+
+.container {
+  height: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.circle, .circle::before {
+  content: " ";
+  margin: 15px;
+  width: 15px;
+  height: 15px;
+  border-radius: 50%;
+  margin: 0 auto;
+  transition: all 0.3s;
+  background-color: #FF0055;
+}
+
+.circle::before {
+  animation: mymove 2s infinite;
+  position: absolute;
+  background-color: #00FF00
+}
+
+@keyframes mymove {
+  50%   {
+    transform: scale(2);
+    opacity: 0
+  }
+  100%   {
+    transform: scale(2);
+    opacity: 0
+  }
+}

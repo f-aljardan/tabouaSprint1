@@ -7,6 +7,7 @@ import {  getDoc } from "firebase/firestore";
 import ViewCenterInfo from "../viewInfo/ViewCenterInfo"
 import RecyclingCenterForm from "../forms/RecyclingCenterForm"
 import Success from "../messages/Success"
+import Confirm from "../messages/Confirm"
 import ErrorAlertMessage from "../messages/ErrorAlertMessage"
 import AlertMessage from "../messages/AlertMessage"
 import AlertMessageCenter from '../messages/AlertMessageCenter';
@@ -70,26 +71,27 @@ function RecyclingCentersMap() {
     const [centerCount, setCenterCount] = useState(0); // State to store the center count
     const [showCenterWasteType , setShowCenterWasteType] = useState(false);
     const [searchQuery, setSearchQuery] = useState('');
+    const[ checkMessageVisible, setCheckMessageVisible] = useState(false);
+
 
     const openInfoDrawer = () => setViewInfo(true);
-    const closeInfoDrawer = () => setViewInfo(false);
+    const closeInfoDrawer = () => {setViewInfo(false);  setCenterId(null);}
     const handleAlertZoom = () => setShowAlertZoom(!showAlertZoom);
     const handleAlertBuilding = () => setShowAlertBuilding(!showAlertBuilding);
     const handleSuccessAlert = () => setShowSuccessAlert(!showSuccessAlert);
     const handleForm = () => setFormVisible(!formVisible);
     const handleAlertSuccessDeletion = () => setShowAlertSuccessDeletion(!showAlertSuccessDeletion);
-    const handleAlertLocation = () => {setShowAlertLocation(!showAlertLocation);  setIsChangingCenterLocation(false); }
+    const handleAlertLocation = () => {setShowAlertLocation(!showAlertLocation);  setIsChangingCenterLocation(false); setCenterId(null);}
     const handleAlertSuccessLocation = () => setShowAlertSuccessLocation(!showAlertSuccessLocation);
     const handleAlertshowNumberWasteType = () => setShowCenterWasteType(!showCenterWasteType);
-  
+    const handleCheckMessage= () => {    handleAlertBuilding(); setCheckMessageVisible(!checkMessageVisible);}
+
  // Define the acceptable zoom level range
  const minZoomLevel = 18;
  const currentZoomLevelRef = useRef(null);
  const mapRef = useRef(null);
 
- useEffect(() => {
- 
-}, [centerCount]);
+ useEffect(() => { }, [centerCount]);
 
     useEffect(() => {
     
@@ -123,14 +125,6 @@ const { isLoaded } = useJsApiLoader({
   id: 'google-map-script',
   googleMapsApiKey: "AIzaSyA_uotKtYzbjy44Y2IvoQFds2cCO6VmfMk"
 })
-
-//set the marker icon 
-if (isLoaded) {
-  customIcon = {
-  url: '/recyclingcenter.png', // Replace with the actual path to your icon
-  scaledSize: new window.google.maps.Size(45, 45), // Set the desired width and height
-};
-}
 
 
 // Callback function when the map loads
@@ -255,6 +249,7 @@ const onMapChangeLocationClick = async (lat , lng) => {
         setIsChangingCenterLocation(false); // Set the state back to indicate you're not changing a bin location
         setShowAlertLocation(false);
         setShowAlertSuccessLocation(true);
+        setCenterId(null);
       } catch (error) {
         console.error("Error updating center location:", error);
       }
@@ -270,19 +265,22 @@ const onMapChangeLocationClick = async (lat , lng) => {
         // Check if the conditions are met
   if (currentZoomLevelRef.current >= minZoomLevel) {
     const terrainType = await checkTerrainType(lat, lng);
+    setNewRecyclingCenterLocation({ lat, lng });
     if (terrainType === 'building') {
 
-      if (isChangingCenterLocation) {
-        onMapChangeLocationClick(lat,lng)
-      }else{
-       // Store the new center location temporarily
-       setNewRecyclingCenterLocation({ lat, lng });
-       setFormVisible(true);
-      }
+      // if (isChangingCenterLocation) {
+      //   onMapChangeLocationClick(lat,lng)
+      // }else{
+      //  // Store the new center location temporarily
+      // //  setNewRecyclingCenterLocation({ lat, lng });
+      //  setFormVisible(true);
+      // }
+
+      handleOnMapClick(lat,lng);
 
      } else {
        // Show an alert message indicating that a recycling center can only be added on a building.
-       handleAlertBuilding();
+       setCheckMessageVisible(true);
      }
     } else {
         // Show an alert message indicating that a recycling center can only be added on a specefic scale.
@@ -292,6 +290,14 @@ const onMapChangeLocationClick = async (lat , lng) => {
     };
 
 
+    const handleOnMapClick = (lat ,lng) =>{
+  
+      if (isChangingCenterLocation) {
+        onMapChangeLocationClick(lat,lng)
+      }else{
+         setFormVisible(true);
+      }
+    }
     
   const checkTerrainType = (lat, lng) => {
     return new Promise((resolve, reject) => {
@@ -408,9 +414,8 @@ const onDeleteRecyclingCenter = async (centerId) => {
     if (type === '') {
       // If no type is selected, show all recycling centers
       setCenterCount(0); // Reset the center count
-      setFilteredRecyclingCenters(recyclingCenters);
-
-      
+      // setFilteredRecyclingCenters(recyclingCenters);
+      setRecyclingCenters(filteredRecyclingCenters);
     } else {
    
         // Create an array to store the filtered recycling centers
@@ -428,7 +433,8 @@ const onDeleteRecyclingCenter = async (centerId) => {
        
         });
       });
-      setFilteredRecyclingCenters(filteredCenters);
+      // setFilteredRecyclingCenters(filteredCenters);
+      setRecyclingCenters(filteredCenters);
       const count = filteredCenters.length;
       setCenterCount(count);
 
@@ -459,11 +465,12 @@ const filteredCenters = [];
     }
   });
   if(filteredCenters.length>0) {
-    setFilteredRecyclingCenters(filteredCenters);
-
+    // setFilteredRecyclingCenters(filteredCenters);
+    setRecyclingCenters(filteredCenters);
   }
   else{
-    setFilteredRecyclingCenters(recyclingCenters);
+    // setFilteredRecyclingCenters(recyclingCenters);
+    setRecyclingCenters(filteredRecyclingCenters);
   }
   };
 
@@ -475,7 +482,8 @@ const filteredCenters = [];
       filterRecyclingCentersBySearch(query);
     }
     else{
-        setFilteredRecyclingCenters(recyclingCenters); // return all center 
+        // setFilteredRecyclingCenters(recyclingCenters); // return all center 
+        setRecyclingCenters(filteredRecyclingCenters);
     }
    
 
@@ -571,12 +579,15 @@ const filteredCenters = [];
       ref={mapRef}
     >
 
-        {filteredRecyclingCenters.map((recycleCenter) => (
+        {recyclingCenters.map((recycleCenter) => (
           <Marker
             key={recycleCenter.id}
             position={{ lat: recycleCenter.location._lat, lng: recycleCenter.location._long }} 
             onClick={() => handleMarkerClick(recycleCenter)}
-            icon={customIcon}
+            icon={{
+              url: centerId === recycleCenter.id ?  '/recyclingcenterChange.png' : '/recyclingcenter.png',
+              scaledSize: new window.google.maps.Size(45, 45),
+            }}
           >    
 
           </Marker>
@@ -593,7 +604,8 @@ const filteredCenters = [];
     <Success open={showSuccessAlert} handler={handleSuccessAlert} message=" تم إضافة مركز التدوير بنجاح" />
     <Success open={showAlertSuccessDeletion} handler={handleAlertSuccessDeletion} message=" تم حذف مركز التدوير بنجاح" />
     <Success open={showAlertSuccessLocation} handler={handleAlertSuccessLocation} message=" تم تغيير موقع حاوية القمامة بنجاح" />
-
+    <Confirm open={checkMessageVisible} handler={handleCheckMessage} method={()=>{ handleOnMapClick(newRecyclingCenterLocation.lat,newRecyclingCenterLocation.lng); setCheckMessageVisible(false);}} message="هل انت متأكد من أن الموقع المحدد يقع على مبنى؟" />
+   
   </GoogleMap>
 </div>
   ) : <></>

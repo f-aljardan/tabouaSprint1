@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react';
-import { Link } from 'react-router-dom'; 
+import { Link, useLocation , NavLink } from 'react-router-dom'; 
 import {
     Card,
     List,
@@ -25,6 +25,8 @@ import {
 
   function Sidebar({ authorized, showSidebar, setShowSidebar , activeItem, setActiveItem}) {
   
+    const location = useLocation();
+
   useEffect(()=>{
     setShowSidebar(true);
   }, []);
@@ -44,18 +46,21 @@ import {
       }
     };
 
-    const handleLogout = async () => {
-      const auth = getAuth();
-      try {
-        await signOut(auth);
-        navigate('/');
-      } catch (error) {
-        console.error('Logout error:', error);
-      }
-    };
     
     
- 
+    //  an array of routes associated with each button
+  const routes = {
+    home: '/',
+    garbage: '/garbage',
+    garbagebinrequests: '/garbagebinrequests',
+    recycle: '/recycle',
+    complaints: '/complaints',
+    heatmap: '/heatmap',
+    manage: '/manage',
+  };
+ // Find the active item based on the current location
+ const activeRoute = Object.keys(routes).find((item) => location.pathname.includes(routes[item]));
+
   const handleAccordionToggle = (accordionIndex) => {
     setOpenAccordion(openAccordion === accordionIndex ? 0 : accordionIndex);
   };
@@ -102,56 +107,70 @@ import {
 
           <AccordionBody className="py-1">
                 <List className="p-0">
-                  <ListItem className={activeItem === 'garbage' ? 'active' : ''} style={{ paddingRight: '30px' }}>
+                <NavLink to="garbage" activeClassName="active" style={{ borderRadius: '10px' }} >
+                  <ListItem  style={{ paddingRight: '30px' }}>
                   <ListItemPrefix>
               <ChevronLeftIcon className="h-3 w-3" />
             </ListItemPrefix> 
-                  <Link to="garbage"  onClick={() => handleItemClick('garbage')}> إضافة و حذف الحاويات  </Link>
-                  </ListItem>
+                     إضافة و حذف الحاويات 
+                  </ListItem> 
+                  </NavLink>
                   <hr />
 
-                  <ListItem className={activeItem === 'requestedgarbage' ? 'active' : ''} style={{ paddingRight: '30px' }}>
+                  <NavLink to="garbagebinrequests"  activeClassName="active" style={{ borderRadius: '10px' }} >
+                  <ListItem style={{ paddingRight: '30px' }}>
                   <ListItemPrefix>
               <ChevronLeftIcon className="h-3 w-3" />
             </ListItemPrefix> 
-                    <Link to="requestedgarbage" onClick={() => handleItemClick('requestedgarbage')}>إدارة طلبات الحاويات  </Link>
+               إدارة طلبات الحاويات  
                   </ListItem>
+                  </NavLink>
                   <hr />
 
                 </List>
               </AccordionBody>
             </Accordion>
-          <ListItem className={`flex justify-start gap-2  ${activeItem === 'recycle' ? 'active' : ''}`}>
+
+          <NavLink to="recycle"  activeClassName="active" style={{ borderRadius: '10px' }} >
+          <ListItem className={`flex justify-start gap-2`}>
             <ListItemPrefix>
               <FaRecycle className="h-5 w-5" />
             </ListItemPrefix>
-            <Link to="recycle" onClick={() => handleItemClick('recycle')}> إدارة مراكز إعادةالتدوير  </Link>
+            إدارة مراكز إعادةالتدوير 
           </ListItem>
+          </NavLink>
           <hr />
 
-          <ListItem className={`flex justify-start gap-2 ${activeItem === 'complaints' ? 'active' : ''}`}>
+          <NavLink to="complaints" activeClassName="active" style={{ borderRadius: '10px' }} >
+          <ListItem className={`flex justify-start gap-2`}>
             <ListItemPrefix>
               <TbMessageReport className="h-6 w-6" />
             </ListItemPrefix>
-            <Link to="complaints" onClick={() => handleItemClick('complaints')}> إدارةالبلاغات  </Link>
+            إدارةالبلاغات  
           </ListItem>
+          </NavLink>
           <hr />
 
 
-          <ListItem className={`flex justify-start gap-2 ${activeItem === 'heatmap' ? 'active' : ''}`}>
+          <NavLink to="heatmap" activeClassName="active" style={{ borderRadius: '10px' }} >
+          <ListItem className={`flex justify-start gap-2`}>
             <ListItemPrefix>
               <AiOutlineHeatMap className="h-5 w-5"  />
             </ListItemPrefix>
-            <Link to="heatmap" onClick={() => handleItemClick('heatmap')}>الخريطة الحرارية  </Link> 
+            الخريطة الحرارية  
            </ListItem>
+           </NavLink>
            <hr />
          
-         {authorized && <ListItem className={`flex justify-start gap-2 ${activeItem === 'manage' ? 'active' : ''}`}>
+         {authorized && 
+           <NavLink to="manage" activeClassName="active" style={{ borderRadius: '10px' }} >
+         <ListItem className={`flex justify-start gap-2`}>
             <ListItemPrefix>
               <MdManageAccounts className="h-6 w-6" />
             </ListItemPrefix>
-            <Link to="manage" onClick={() => handleItemClick('manage')}> إدارة صلاحيات الموظفين  </Link> 
-          </ListItem>} 
+            إدارة صلاحيات الموظفين  
+          </ListItem>
+          </NavLink>} 
             
         </List>
         </div>

@@ -208,7 +208,7 @@ export default function ViewGarbageInfo({ open, onClose, DeleteMethod, Changeloc
 </>
         )}
 
-        
+         
 
       
         

@@ -10,6 +10,11 @@ body{
   font-family: 'Baloo Bhaijaan 2', cursive;
 }
 
+.custom-placeholder {
+  font-family: 'Baloo Bhaijaan 2', cursive;
+}
+
+
 .app-container {
   display: flex;
   height: 100%;

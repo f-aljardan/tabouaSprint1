@@ -5,6 +5,7 @@ import { collection, query, where ,getDocs} from "firebase/firestore";
 import Home from './Home';
 import Sidebar from './Sidebar';
 import GarbageBinMap from "./maps/GarbageBinMap"
+import GarbageBinRequests from "./GarbageBinRequests"
 import RecyclingCenterMap from "./maps/RecyclingCentersMap"
 import Complaints from './Complaints';
 import Heatmap from './Heatmap';
@@ -75,6 +76,8 @@ function MainPage() {
       {showSidebar && (
         <>
           <Route path="/garbage" element={<div className='map h-[calc(122vh-2rem)]'><GarbageBinMap /></div>} />
+          <Route path="/garbage/:requestId" element={<div className='map h-[calc(122vh-2rem)]'><GarbageBinMap /></div>} />
+          <Route path="/garbagebinrequests" element={<GarbageBinRequests />} />
           <Route path="/recycle" element={<div className='map h-[calc(122vh-2rem)]'><RecyclingCenterMap /></div>} />
           <Route path="/complaints" element={<Complaints />} />
           <Route path="/heatmap" element={<Heatmap />} />

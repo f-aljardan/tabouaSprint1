@@ -7,6 +7,7 @@ import {Button,Card,IconButton,Typography,Tooltip,Input,} from "@material-tailwi
 import { UserPlusIcon } from "@heroicons/react/24/solid"
 import { db} from "../firebase";
 import { collection,  deleteDoc , doc ,  onSnapshot  , updateDoc} from 'firebase/firestore';
+import { MagnifyingGlassIcon } from "@heroicons/react/24/outline";
 
 export default function ManageStaff(){
   const [showAddStaffDialog, setShowAddStaffDialog] = useState(false); // state to show add staff form
@@ -213,18 +214,18 @@ return (
       flexDirection: "column",
       justifyContent: "center",
        alignItems: "center",
-      height: "100vh"
+     
     }}
-    
+    className="m-5"
     >
 
-<div className="flex  items-start justify-end gap-10">
+<div className="flex  items-start justify-end gap-10 ">
      
  <AddStaff open={showAddStaffDialog} handler={handleAddStaff} />
      
-<div style={{ overflowX: "auto",  width: "90vh",  maxHeight: "100vh",}}>
+<div style={{ overflowX: "auto",   maxHeight: "110vh",}}>
 
-<Card className="max-w-2xl p-8">
+<Card className="max-w-2xl p-8  "> 
         <h2 className="text-2xl font-semibold mb-4">قائمة الموظفين</h2> 
 
         {/* button to show add staff form */}
@@ -240,11 +241,15 @@ return (
       {/* input to add staff name for search */}
        <Input
           type="text"
-          label="البحث عن اسم الموظف"
+         icon={<MagnifyingGlassIcon className="h-5 w-5" />}
+          placeholder= "البحث عن اسم الموظف"
+          className="custom-placeholder"
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)} 
         />
 
+             
+              
 <table className="w-full min-w-max table-auto text-left mt-4">
         <thead>
           <tr>
@@ -367,8 +372,8 @@ return (
 ) : (
   <tr>
     <td className="p-4 border-b border-blue-gray-50 text-center" colSpan="3">
-      <Typography variant="small" color="red" className="font-normal">
-        لا يوجد موظفين بهذا الاسم
+      <Typography variant="small" color="red" className="font-bold">
+       <span>لا يوجد موظفين بهذا الاسم</span> 
       </Typography>
     </td>
   </tr>

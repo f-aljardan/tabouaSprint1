@@ -12,10 +12,10 @@ export default function Success({open , handler, message }){
     return(
 <Dialog size = "xs" open={open} handler={handler}  >
                     
-                    <DialogHeader className="font-baloo flex justify-center" >نجاح</DialogHeader>
+                    <DialogHeader className="font-baloo flex justify-center" >تم بنجاح</DialogHeader>
                    
                     <DialogBody divider className="font-baloo text-right">
-                    {message} {/* pass message form other pages */}
+                    {message} 
                     </DialogBody>
 
                     <DialogFooter className="flex gap-3 justify-center">

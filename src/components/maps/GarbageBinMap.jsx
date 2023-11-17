@@ -1,7 +1,7 @@
 import React , {useState, useEffect, useRef} from 'react'
-import { GoogleMap, useJsApiLoader, Marker , Circle, InfoWindow } from '@react-google-maps/api';
+import { GoogleMap, useJsApiLoader, Marker , Circle,  } from '@react-google-maps/api';
 import { db } from "/src/firebase";
-import { getDocs,setDoc, collection, addDoc, GeoPoint, deleteDoc, doc ,getDoc, Timestamp,updateDoc } from "firebase/firestore"; // Import the necessary Firestore functions
+import { getDocs, collection, addDoc, GeoPoint, deleteDoc, doc ,getDoc, Timestamp,updateDoc } from "firebase/firestore"; // Import the necessary Firestore functions
 import { Button , Tooltip} from "@material-tailwind/react";
 import Success from "../messages/Success"
 import Confirm from "../messages/Confirm"
@@ -9,12 +9,9 @@ import GarbageBinForm from "../forms/GarbageBinForm"
 import ViewGarbageInfo from "../viewInfo/ViewGarbageInfo"
 import ErrorAlertMessage from "../messages/ErrorAlertMessage"
 import AlertMessage from "../messages/AlertMessage"
-import RejectionMessage from "../messages/MessageDialog" ;
 import { v4 as uuidv4 } from 'uuid';
 import Select from 'react-select';
 import makeAnimated from 'react-select/animated';
-import { useParams } from 'react-router-dom'; 
-import { useNavigate } from 'react-router-dom'; 
 
 
 const animatedComponents = makeAnimated();
@@ -46,8 +43,6 @@ const binSizeOptions = [
 
 function GarbageBinMap() {
   
-  const { requestId } = useParams(); // Get the request ID from the route
-  const navigate = useNavigate(); // Use a navigation hook
   const [map, setMap] = React.useState(null)
   const [zoom, setZoom] = useState(10); // set the initial zoom level
   const [garbageBins, setGarbageBins] = useState([]);
@@ -71,10 +66,7 @@ function GarbageBinMap() {
   const [markerRefs, setMarkerRefs] = useState({});
   const [isChangingBinLocation, setIsChangingBinLocation] = useState(false);
   const[ checkMessageVisible, setCheckMessageVisible] = useState(false);
-  const [requestedPlacement, setRequestedPlacement] = useState(null);
-  const [showInfoWindow, setShowInfoWindow] = useState(false);
-  const[ rejectMessageVisible, setRejectMessageVisible] = useState(false); 
-  const[ showAlertSuccessReject, setAlertSuccessReject] = useState(false);
+ 
 
   const openInfoDrawer = () => setViewInfo(true);
   const closeInfoDrawer = () => {setViewInfo(false);   setBinId(null);}
@@ -85,12 +77,10 @@ function GarbageBinMap() {
   const handleAlertZoom = () => setShowAlertZoom(!showAlertZoom);
   const handleSuccessAlert = () => setShowSuccessAlert(!showSuccessAlert);
   const handlealertDeletion = () => setShowAlertDeletion(!showAlertDeletion);
-  const handleAlertSuccessReject = () => setAlertSuccessReject(!showAlertSuccessReject);
   const handleCheckMessage= () => { 
      handleAlertStreet(); 
      setCheckMessageVisible(!checkMessageVisible); 
     }
-  const handleRejectMessage= () => {setRejectMessageVisible(!rejectMessageVisible);}
 
  // Define the acceptable zoom level range
  const minZoomLevel = 18;
@@ -125,91 +115,6 @@ function GarbageBinMap() {
   }, []);
 
 
-// Function to fetch requested placement data
-const fetchPlacementData = async (requestId) => {
-  try {
-    const placementRef = doc(db, 'requestedGarbageBin', requestId);
-    const docSnapshot = await getDoc(placementRef);
-
-    if (docSnapshot.exists()) {
-      // Data found, return it
-      return docSnapshot.data();
-    } else {
-      // Data not found
-      return null;
-    }
-  } catch (error) {
-    console.error('Error fetching placement data:', error);
-    return null;
-  }
-};
-
-
-useEffect(() => {
-  if(requestId) {
-  const fetchRequestedPlacement = async () => {
-    try {
-      const placementData = await fetchPlacementData(requestId);
-
-      if (placementData) {
-        setRequestedPlacement(placementData);
-        // setShowInfoWindow(true); // Show the InfoWindow
-        setZoom(20);
-        center.lat = placementData.location._lat;
-        center.lng = placementData.location._long;
-      } else {
-        // Handle case where placement data does not exist for the request ID
-        setShowInfoWindow(false); // Hide the InfoWindow
-      }
-
-    } catch (error) {
-      // Handle any errors that occur during data fetching
-      console.error('Error fetching placement data:', error);
-    }
-  };
- 
-  fetchRequestedPlacement();
-  
-}
-}, [requestId]);
-
-
-const handleAcceptRequest = async () => {
-
-  const placementRef = doc(db, "requestedGarbageBin", requestId);
-  try {
-    await setDoc(placementRef, { status: "مقبول", responseDate: new Date() }, { merge: true });
-  } catch (error) {
-    console.error("Error updating Firestore document:", error);
-  }
-
-
-  setRequestedPlacement(null);  
-  setShowInfoWindow(false); // Close the InfoWindow
-  navigate(`/mainpage/garbage`); // Navigate to the GarbageBinMap page without the request ID as a route parameter
- 
-};
-
-const handleRejectRequest = async (rejectionComment) => {
-
-  const placementRef = doc(db, "requestedGarbageBin", requestId);
-  try {
-    await setDoc(placementRef, {
-      status: "مرفوض",
-      responseDate: new Date(),
-      rejectionComment: rejectionComment ,
-    }, { merge: true });
-  } catch (error) {
-    console.error("Error updating Firestore document:", error);
-  }
-
-
-  setRequestedPlacement(null);  
-  setShowInfoWindow(false); // Close the InfoWindow
-  navigate(`/mainpage/garbage`); // Navigate to the GarbageBinMap page without the request ID as a route parameter
- 
- setAlertSuccessReject(true);
-};
 
 
   // Load Google Maps JavaScript API
@@ -314,8 +219,6 @@ useEffect(() => {
 
  
   const handleMarkerClick = async (bin) => {
-
-    
     try {
       // Fetch data for the selected garbage Bin  using its ID
       const BinDocRef = doc(db, "garbageBins", bin.id);
@@ -371,7 +274,6 @@ const onMapChangeLocationClick = async (lat , lng) => {
       } catch (error) {
         console.error("Error updating garbage bin location:", error);
       }
-   
 };
 
 
@@ -392,8 +294,7 @@ const checkLocationCondtion = async (lat ,lng) =>{
     if (terrainType === 'building') {
       setCheckMessageVisible(true);
     } else {
-      handleOnMapClick(lat,lng);
-      
+      handleOnMapClick(lat,lng);  
   }
 
   } else {
@@ -409,9 +310,9 @@ const handleOnMapClick = (lat ,lng) =>{
   }else{
    setFormVisible(true);
   }
- 
- 
 }
+
+
 
 const checkTerrainType = (lat, lng) => {
 
@@ -460,10 +361,6 @@ const AddGarbageBin = async (data) => {
     setFormVisible(false);
     setShowSuccessAlert(true);
 
-    if(requestedPlacement){
-      handleAcceptRequest();
-      }
-    
   } catch (error) {
     console.error("Error saving garbage bin coordinates:", error);
   }
@@ -505,24 +402,12 @@ const onDeleteGarbageBin = async (garbageBinId) => {
   }
 };
 
-// Function to handle when the InfoWindow is closed
-const handleInfoWindowClose = async () => {
 
-  const placementRef = doc(db, "requestedGarbageBin", requestId);
-  try {
-    await setDoc(placementRef, { status: "جديد"}, { merge: true });
-  } catch (error) {
-    console.error("Error updating Firestore document:", error);
-  }
-
-  setRequestedPlacement(null);  
-  setShowInfoWindow(false); // Close the InfoWindow
-  navigate(`/mainpage/garbage`); // Navigate to the GarbageBinMap page without the request ID as a route parameter
-  
-};
 
 return isLoaded ? (
   <div style={{ position: 'relative', width: '100%', height: '100%' }}>
+
+
       <div className="flex gap-5 p-4 mr-12 z-10" style={{ position: 'absolute' }}>
         <Tooltip
           className="bg-white font-baloo text-md text-gray-600"
@@ -560,6 +445,7 @@ return isLoaded ? (
         />
       </div>
     
+
       <div style={{ position: 'absolute', zIndex: 3000 }}>
         <ErrorAlertMessage open={showAlertZoom} handler={handleAlertZoom} message="كبر الخريطة لتتمكن من إضافة حاوية القمامة " />
       </div>
@@ -574,20 +460,15 @@ return isLoaded ? (
 
       <GoogleMap
         mapContainerStyle={containerStyle}
-        // center={
-        //   requestedPlacement
-        //     ? { lat: requestedPlacement.location._lat, lng: requestedPlacement.location._long }
-        //     :  userPosition || center
-        // }
        center={userPosition || center}
        zoom={zoom}
-       //zoom={requestedPlacement ? 20 : zoom}
         onLoad={onLoad} // Callback function that gets executed when the map is loaded.
         onUnmount={onUnmount} // Callback function that gets executed when the component unmounts.
         onClick={onMapClick}
         ref={mapRef}
-     
       >
+
+
 
         {garbageBins.map((bin) => (
           <Marker
@@ -603,61 +484,25 @@ return isLoaded ? (
             // Store a reference to the Marker object in the state
             markerRefs[bin.id] = marker;
           }}
-        >
-                          
-                                
+        >                        
         </Marker>
-       
         ))}
     
+
     {showUserLocation && userPosition && (
           <Marker position={userPosition} icon={{ path: window.google.maps.SymbolPath.CIRCLE, scale: 10, fillColor: '#4285F4', fillOpacity: 0.8, strokeColor: '#4285F4' }}>
             <Circle center={userLocationRange} options={{ radius: userLocationRange.radius, strokeColor: '#4285F4', fillColor: '#4285F4', fillOpacity: 0.2 }} />
           </Marker>
         )}
 
-        
-{requestedPlacement && (
-  <Marker
-    position={{ lat: requestedPlacement.location._lat, lng: requestedPlacement.location._long }}
-  >
-    {/* {showInfoWindow && ( */}
-      <InfoWindow
-        position={{ lat: requestedPlacement.location._lat, lng: requestedPlacement.location._long }}
-        onCloseClick={handleInfoWindowClose}
-        options={{ pixelOffset: new window.google.maps.Size(0, -30) }} 
-      >
-    <div className='flex items-center gap-3 pr-5'>
-          <Button
-            variant="gradient"
-            style={{ background: "#97B980", color: '#ffffff' }}
-            size="sm"
-            onClick={() => { checkLocationCondtion(requestedPlacement.location._lat, requestedPlacement.location._long) }}
-          >
-            <span> قبول </span>
-          </Button>
-          <Button
-            variant="gradient"
-            style={{ background: "#FE5500", color: '#ffffff' }}
-            size="sm"
-            onClick={() => setRejectMessageVisible(true)}>
-            <span> رفض </span>
-          </Button>
-        </div>
-      </InfoWindow>
-    {/* )} */}
-  </Marker>
-)}
-
+    
 
         <ViewGarbageInfo open={viewInfo} onClose={closeInfoDrawer} DeleteMethod={handleDeletion} Changelocation={handleChangeMarkerLocation} bin={binData} binId={binId} />
         <GarbageBinForm open={formVisible} handler={handleForm} AddMethod={AddGarbageBin} />
         <Success open={showSuccessAlert} handler={handleSuccessAlert} message=" تم إضافة حاوية القمامة بنجاح" />
         <Success open={showAlertDeletion} handler={handlealertDeletion} message=" تم حذف حاوية القمامة بنجاح" />
         <Success open={showAlertSuccessLocation} handler={handleAlertSuccessLocation} message=" تم تغيير موقع حاوية القمامة بنجاح" />
-        <Success open={showAlertSuccessReject} handler={handleAlertSuccessReject} message=" تم الرفض بنجاح" />
         <Confirm open={checkMessageVisible} handler={handleCheckMessage} method={()=>{ handleOnMapClick(newGarbageBinLocation.lat,newGarbageBinLocation.lng); setCheckMessageVisible(false);}} message="هل انت متأكد من أن الموقع المحدد يقع على شارع؟" />
-        <RejectionMessage open={rejectMessageVisible} handler={handleRejectMessage} method={handleRejectRequest} />
       </GoogleMap>
     </div>
   ) : <></>

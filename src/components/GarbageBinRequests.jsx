@@ -13,13 +13,36 @@ import {
 import { useNavigate } from 'react-router-dom'; 
 import Success from "./messages/Success";
 import Select from "react-select"; 
+import ViewRequestInfo from "./viewInfo/ViewRequestInfo"
 
 export default function GarbageBinRequests() {
-    const navigate = useNavigate(); // Use a navigation hook
+ 
   const [requests, setRequests] = useState([]);
+  const [selectedRequest, setSelectedRequest] = useState(null);
   const [statusFilter, setStatusFilter] = useState(""); 
   const [searchQuery, setSearchQuery] = useState('');
   const [searchResults, setSearchResults] = useState([]);
+  const [showRequestInfo, setShowRequestInfo] = useState(false);
+
+  const handleRequestInfo = () =>  setShowRequestInfo(!showRequestInfo);
+
+  const handleRequestClick = (request) => {
+    const requestDoc = doc(db, 'requestedGarbageBin', request.id);
+    const unsubscribe = onSnapshot(requestDoc, (requestSnapshot) => {
+      if (requestSnapshot.exists()) {
+        const requestData = requestSnapshot.data();
+        // Update selectedRequest with the latest data from Firebase
+        setSelectedRequest({ ...request, ...requestData });
+        setShowRequestInfo(true);
+      }
+    });
+    
+    return () => {
+      unsubscribe();
+    };
+  };
+
+
 
 
   useEffect(() => {
@@ -53,27 +76,17 @@ export default function GarbageBinRequests() {
   }, [searchQuery, requests]);
 
 
-  const handleRequestProcessing = async (request) => {
-    try {
-        const requestRef = doc(db, 'requestedGarbageBin', request.id);
-        await updateDoc(requestRef, { status: 'قيد التنفيذ' });
-        // After updating the status, initiate navigation to the GarbageBinMap page.
-        navigateToGarbageBinMap(request.id); // You should implement this function.
-      } catch (error) {
-        console.error('Error updating request status:', error);
-      }
-  
-  };
 
-  const navigateToGarbageBinMap = (requestId) => {
-    navigate(`/mainpage/garbage/${requestId}`); // Navigate to the GarbageBinMap page with the request ID as a route parameter
-  };
+
+
+
+  
 
   const statusOptions = [
     { value: "الكل", label: "الكل" },
     { value: "جديد", label: "جديد" },
     { value: "قيد التنفيذ", label: "قيد التنفيذ" },
-    { value: "مقبول", label: "مقبول" },
+    { value: 'تم التنفيذ', label: 'تم التنفيذ' },
     { value: "مرفوض", label: "مرفوض" },
   ];
 
@@ -146,44 +159,6 @@ export default function GarbageBinRequests() {
           <span>الحالة</span>
         </Typography>
       </th>
-      {statusFilter === "مقبول" || statusFilter === "مرفوض" ? (
-        <>
-          <th className="border-b border-blue-gray-100 bg-blue-gray-50 p-4">
-            <Typography
-              variant="small"
-              color="blue-gray"
-              className="font-normal leading-none opacity-70 text-right"
-              component={"span"}
-            >
-              <span>تاريخ الرد</span>
-            </Typography>
-          </th>
-          {statusFilter === "مرفوض" && (
-            <th className="border-b border-blue-gray-100 bg-blue-gray-50 p-4">
-              <Typography
-                variant="small"
-                color="blue-gray"
-                className="font-normal leading-none opacity-70 text-right"
-                component={"span"}
-              >
-                <span>سبب الرفض</span>
-              </Typography>
-            </th>
-          )}
-        </>
-      ) : null}
-      {statusFilter === "جديد" && (
-        <th className="border-b border-blue-gray-100 bg-blue-gray-50 p-4">
-          <Typography
-            variant="small"
-            color="blue-gray"
-            className="font-normal leading-none opacity-70 text-right"
-            component={"span"}
-          >
-            <span>الإجراء</span>
-          </Typography>
-        </th>
-      )}
     </tr>
   </thead>
   <tbody>
@@ -201,18 +176,23 @@ export default function GarbageBinRequests() {
         searchResults.map((request) => {
           return (
             <tr key={request.id}>
-              <td className="p-4 text-right">{request.requestNo}</td>
-              <td className="p-4 text-right">
+             <td className="p-4 text-right cursor-pointer hover:text-red" onClick={() => handleRequestClick(request)}>
+              <Typography  color="teal">
+                 <span>{request.requestNo}</span>
+               </Typography>
+</td>
+   <td className="p-4 text-right">
                 {request.requestDate?.toDate().toLocaleDateString() || 'N/A'}
               </td>
               <td className="p-4 text-center">
-                <div className="w-max">
+                <div className="w-20">
                   <Chip
+                  className="rounded-full  text-center"
                     size="sm"
                     variant="ghost"
                     value={request.status}
                     color={
-                      request.status === 'مقبول'
+                      request.status === "تم التنفيذ"
                         ? 'green'
                         : request.status === 'مرفوض'
                         ? 'red'
@@ -223,29 +203,6 @@ export default function GarbageBinRequests() {
                   />
                 </div>
               </td>
-              {statusFilter === 'مقبول' || statusFilter === 'مرفوض' ? (
-                <>
-                  <td className="p-4 text-right">
-                    {request.responseDate?.toDate().toLocaleDateString() || 'N/A'}
-                  </td>
-                  {statusFilter === 'مرفوض' && (
-                    <td className="p-4 text-right">{request.rejectionComment}</td>
-                  )}
-                </>
-              ) : null}
-              {statusFilter === 'جديد' && (
-                <td className="p-4 text-right">
-                  <Button
-                    size="md"
-                    fullWidth={true}
-                    variant="gradient"
-                    style={{ background: '#97B980', color: '#ffffff' }}
-                    onClick={() => handleRequestProcessing(request)}
-                  >
-                    <span>معالجة</span>
-                  </Button>
-                </td>
-              )}
             </tr>
           );
         })
@@ -254,18 +211,23 @@ export default function GarbageBinRequests() {
         if (statusFilter === '' || statusFilter === 'الكل' || request.status === statusFilter) {
           return (
             <tr key={request.id}>
-              <td className="p-4 text-right">{request.requestNo}</td>
+          <td className="p-4 text-right cursor-pointer hover:text-red" onClick={() => handleRequestClick(request)}>
+              <Typography  color="teal">
+                 <span>{request.requestNo}</span>
+               </Typography>
+          </td>
               <td className="p-4 text-right">
                 {request.requestDate?.toDate().toLocaleDateString() || 'N/A'}
               </td>
               <td className="p-4 text-center">
-                <div className="w-max">
+                <div className="w-20">
                   <Chip
+                   className="rounded-full text-center"
                     size="sm"
                     variant="ghost"
                     value={request.status}
                     color={
-                      request.status === 'مقبول'
+                      request.status === "تم التنفيذ"
                         ? 'green'
                         : request.status === 'مرفوض'
                         ? 'red'
@@ -276,29 +238,6 @@ export default function GarbageBinRequests() {
                   />
                 </div>
               </td>
-              {statusFilter === 'مقبول' || statusFilter === 'مرفوض' ? (
-                <>
-                  <td className="p-4 text-right">
-                    {request.responseDate?.toDate().toLocaleDateString() || 'N/A'}
-                  </td>
-                  {statusFilter === 'مرفوض' && (
-                    <td className="p-4 text-right">{request.rejectionComment}</td>
-                  )}
-                </>
-              ) : null}
-              {statusFilter === 'جديد' && (
-                <td className="p-4 text-right">
-                  <Button
-                    size="md"
-                    fullWidth={true}
-                    variant="gradient"
-                    style={{ background: '#97B980', color: '#ffffff' }}
-                    onClick={() => handleRequestProcessing(request)}
-                  >
-                    <span>معالجة</span>
-                  </Button>
-                </td>
-              )}
             </tr>
           );
         }
@@ -310,8 +249,11 @@ export default function GarbageBinRequests() {
 
 </table>
 
-      </Card> </div>
+      </Card> 
       </div>
+      </div>
+
+      <ViewRequestInfo  open={showRequestInfo} handler={handleRequestInfo} requestInfo={selectedRequest} />
     </>
   );
         }  

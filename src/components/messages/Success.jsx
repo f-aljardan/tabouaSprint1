@@ -12,7 +12,7 @@ export default function Success({open , handler, message }){
     return(
 <Dialog size = "xs" open={open} handler={handler}  >
                     
-                    <DialogHeader className="font-baloo flex justify-center" >تم بنجاح</DialogHeader>
+                    <DialogHeader className="font-baloo flex justify-center" >تم التنفيذ بنجاح</DialogHeader>
                    
                     <DialogBody divider className="font-baloo text-right">
                     {message} 

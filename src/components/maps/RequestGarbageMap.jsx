@@ -223,7 +223,6 @@ const handleOnMapClick =() =>{
         location: new GeoPoint(draggedLocation.lat, draggedLocation.lng),
       });
     }
-
     setShowSuccessAlert(true);
   };
   
@@ -312,13 +311,17 @@ function generateSerialNumber() {
   checkLocationCondtion(draggedLocation ? draggedLocation.lat : request.location._lat , draggedLocation ? draggedLocation.lng : request.location._long);
 
     }else if (selectedOption && selectedOption.value === 'رفض') {
-        console.log("reject");
         setRejectMessageVisible(true);
     } else {
-        console.log("none")
+        console.log("no choosed action")
     }
     };
   
+
+
+
+
+
   return isLoaded  ? ( 
     <div className='flex flex-col gap-5'> 
     
@@ -358,17 +361,8 @@ function generateSerialNumber() {
 
 <div style={{ position: 'relative',}}>
          
-{request && request.status == 'قيد التنفيذ' && ( 
-         <div className="flex gap-5 p-4 mr-12 z-10" style={{ position: 'absolute' }}>
-          <Tooltip
-            className="bg-white font-baloo text-md text-gray-600"
-            content="لإضافة موقع حاوية جديدة قم بالضغط على الموقع المحدد والالتزام بحدود الطرق"
-            placement="bottom"
-          >
-        <Button style={{ background: "#97B980", color: '#ffffff' }} size='sm'><span>تعليمات إضافة حاوية</span></Button>
-          </Tooltip>
-        </div> )}
-    
+
+  
         
         <div style={{ position: 'absolute', zIndex: 3000 }}>
           <ErrorAlertMessage open={showAlertZoom} handler={handleAlertZoom} message="كبر الخريطة لتتمكن من إضافة حاوية القمامة " />
@@ -435,13 +429,27 @@ function generateSerialNumber() {
   
            <GarbageBinForm open={formVisible} handler={handleForm} AddMethod={AddGarbageBin} />
            <Success open={showSuccessAlert} handler={handleSuccessAlert} message=" تم إضافة حاوية القمامة بنجاح" />
-          {/*<Success open={showAlertDeletion} handler={handlealertDeletion} message=" تم حذف حاوية القمامة بنجاح" />
-          <Success open={showAlertSuccessLocation} handler={handleAlertSuccessLocation} message=" تم تغيير موقع حاوية القمامة بنجاح" />*/}
           <Success open={showAlertSuccessReject} handler={handleAlertSuccessReject} message=" تم الرفض بنجاح" />
            <Confirm open={checkMessageVisible} handler={handleCheckMessage} method={()=>{ handleOnMapClick(); setCheckMessageVisible(false);}} message="هل انت متأكد من أن الموقع المحدد يقع على شارع؟" />  
         <MessageDialog open={acceptMessageVisible} handler={handleAcceptMessage} method={handleAcceptRequest} status="accept" />
         <MessageDialog open={rejectMessageVisible} handler={handleRejectMessage} method={handleRejectRequest}  status="reject" />
+        
+        
         </GoogleMap>
+        {request && request.status == 'قيد التنفيذ' && ( 
+        //  <div className="flex gap-5 p-4 mr-12 z-10" style={{ position: 'absolute' }}>
+        //   <Tooltip
+        //     className="bg-black font-baloo text-md text-gray-600"
+        //     content="لإضافة موقع حاوية جديدة قم بالضغط على الموقع المحدد والالتزام بحدود الطرق"
+        //     placement="bottom"
+        //   >
+        // <Button style={{ background: "#97B980", color: '#ffffff' }} size='sm'><span>تعليمات إضافة حاوية</span></Button>
+       
+        //   </Tooltip>
+        <div className=" z-10 " style={{ position: 'absolute' ,}}>
+    <Typography variant="small"><span>لتعديل موقع الحاوية قم بسحب المؤشر الى الموقع المحدد والالتزام بحدود الطرق</span></Typography>
+         </div> 
+        )}
 
 
 </div> 

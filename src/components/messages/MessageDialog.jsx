@@ -52,7 +52,7 @@ export default function MessageDialog({open , handler, method , status }) {
         <DialogBody>
           <Typography className="mb-10 -mt-7 " color="gray" variant="lead">
           {status=="reject" && ( <span> قم بتوضيح سبب الرفض ثم انقر على زر الإرسال.</span>)}
-          {status=="accept" && ( <span>  قم بأضافة تعليق في حال الحاجةأو قم بالتخطي  </span>)}
+          {status=="accept" && ( <span>  قم بأضافة تعليق في حال الحاجة أو قم بالتخطي  </span>)}
           </Typography>
           <div className="grid gap-6">
             
@@ -79,7 +79,7 @@ export default function MessageDialog({open , handler, method , status }) {
           {status=="reject" && (<Button variant="outlined"   onClick={handler}>
           <span>  إلغاء</span>
           </Button> )}
-          {status=="accept" && (<Button variant="outlined"   onClick={()=>{setMessage(null); handleSendMessage();}}>
+          {status=="accept" && (<Button variant="outlined"   onClick={()=>{setMessage(""); handleSendMessage();}}>
           <span>  تخطي </span>
           </Button> )}
 

@@ -1,60 +1,64 @@
-import { Button, Dialog, DialogHeader, DialogBody, DialogFooter, Input,Textarea,Typography,Chip, IconButton} from "@material-tailwind/react";
-import Select from 'react-select';
-import { useState , useEffect} from 'react';
-import makeAnimated from 'react-select/animated';
+import {useState, useEffect} from "react"
+import { Button, Dialog, DialogHeader, DialogBody, Typography,Chip, IconButton} from "@material-tailwind/react";
 import { db } from "../../firebase";
 import {
-    collection,
     doc,
     onSnapshot,
     updateDoc,
-    query,
-    getDoc
   } from "firebase/firestore";
 import RequestGarbageMap from  "../maps/RequestGarbageMap"
 
 
 export default function ViewRequestInfo({ open, handler, requestInfo }) { 
 
-//from requestInfo.requesterId fetch user info to display in the window
+
 const [requesterInfo, setRequesterInfo] = useState(null);
-// const [RequestInfo, setRequestInfo] = useState({requestInfo});
+
 
 
 useEffect(() => {
-    if (requestInfo && requestInfo.requesterId) {
-      const fetchUserInfo = async () => {
-        try {
-          const userDoc = doc(db, 'users', requestInfo.requesterId);
-          const unsubscribeUser = onSnapshot(userDoc, (userSnapshot) => {
-            if (userSnapshot.exists()) {
-              const userData = userSnapshot.data();
-              setRequesterInfo(userData);
-            }
-          });
+  let unsubscribeUser;
+  let unsubscribeRequest;
 
-          // Unsubscribe from the user snapshot listener when the component unmounts
-          return () => unsubscribeUser();
-        } catch (error) {
-          console.error('Error fetching user information:', error);
-        }
-      };
+  if (requestInfo && requestInfo.requesterId) {
+    const fetchUserInfo = async () => {
+      try {
+        const userDoc = doc(db, 'users', requestInfo.requesterId);
+        unsubscribeUser = onSnapshot(userDoc, (userSnapshot) => {
+          if (userSnapshot.exists()) {
+            const userData = userSnapshot.data();
+            setRequesterInfo(userData);
+          }
+        });
+      } catch (error) {
+        console.error('Error fetching user information:', error);
+      }
+    };
 
-      const requestDoc = doc(db, 'requestedGarbageBin', requestInfo.id);
-      const unsubscribeRequest = onSnapshot(requestDoc, (requestSnapshot) => {
-        if (requestSnapshot.exists()) {
-          const requestData = requestSnapshot.data(); 
+    const requestDoc = doc(db, 'requestedGarbageBin', requestInfo.id);
+    unsubscribeRequest = onSnapshot(requestDoc, (requestSnapshot) => {
+      if (requestSnapshot.exists()) {
+        const requestData = requestSnapshot.data();
+        // You can update the request data if needed
+      }
+    });
 
-        }
-      });
+    // Call fetchUserInfo and return the cleanup function
+    fetchUserInfo();
+  }
 
-      // Unsubscribe from the request snapshot listener when the component unmounts
-      return () => {
-        unsubscribeRequest();
-        fetchUserInfo();
-      };
+  // Unsubscribe from the snapshots when the component is unmounted
+  return () => {
+    if (unsubscribeUser) {
+      unsubscribeUser();
     }
-  }, [requestInfo]);
+    if (unsubscribeRequest) {
+      unsubscribeRequest();
+    }
+  };
+}, [requestInfo]);
+  
+
 
   const handleRequestProcessing = async (request) => {
     try {
@@ -70,6 +74,19 @@ useEffect(() => {
   };
     
 
+  function calculateAge(dateOfBirth) {
+    
+     // convert dateOfBirth value into date object
+   var birthDate = new Date(dateOfBirth);
+   console.log(" birthDate"+ birthDate);
+  
+  // get difference from current date;
+  var difference=Date.now() - birthDate.getTime(); 
+     
+  var  ageDate = new Date(difference); 
+  var age = Math.abs(ageDate.getUTCFullYear() - 1970);
+    return age;
+  }
 
 
 return (
@@ -79,11 +96,11 @@ return (
         size="xl"
         handler={handler}
       >
-        <DialogHeader className="flex justify-between font-baloo text-right">
-            
+        <DialogHeader className="flex justify-between font-baloo text-right ">
+    
             <span>معلومات الطلب</span> 
-
-        <IconButton
+         
+            <IconButton
             variant="text"
             color="blue-gray"
             onClick={handler}
@@ -109,9 +126,9 @@ return (
      
         <DialogBody>
           
-<div className="flex justify-between">
+<div className="flex justify-between items-start">
 
- <div className="flex flex-col gap-5 ">
+ <div className="flex flex-col gap-3 ">
  {/* Display user info here: fullName, email */}
  {requesterInfo && (
             <div>
@@ -119,6 +136,18 @@ return (
                       معلومات العميل:
                     </Typography>
                     <Typography> <span><span className="font-bold">اسم العميل:</span> {requesterInfo.firstName} {requesterInfo.lastName}</span> </Typography>
+                    <Typography>
+      <span>
+        <span className="font-bold">العمر:</span>{' '}
+        {calculateAge(requesterInfo.DateOfBirth)}
+      </span>
+    </Typography>
+    <Typography>
+      <span>
+        <span className="font-bold">رقم الهاتف:</span>{' '}
+        {requesterInfo.phoneNumber}
+      </span>
+    </Typography>
                     <Typography> <span><span className="font-bold">البريد الإلكتروني:</span>  {requesterInfo.email}</span> </Typography>
             </div>
           )}
@@ -132,6 +161,7 @@ return (
                     </Typography>
                     <Typography> <span><span className="font-bold">رقم الطلب : </span>  {requestInfo.requestNo}</span></Typography>
                     <Typography>  <span><span className="font-bold">حجم الحاوية :</span> {requestInfo.garbageSize}</span></Typography>
+                    <Typography> <span><span className="font-bold">موقغ الطلب : </span>  {requestInfo.localArea}</span></Typography>
                     <Typography> <span> <span className="font-bold"> سبب الطلب : </span> {requestInfo.requestReason}</span></Typography>
                     <Typography> <span><span className="font-bold">تاريخ الطلب : </span> {requestInfo.requestDate?.toDate().toLocaleDateString() || 'N/A'}</span></Typography>
                      
@@ -142,13 +172,7 @@ return (
                        {(requestInfo.status === 'مرفوض' || requestInfo.status ===  'تم التنفيذ' ) && (
   <>
     <Typography> <span><span className="font-bold">تاريخ انتهاء التنفيذ : </span>{requestInfo.responseDate?.toDate().toLocaleDateString() || 'N/A'}</span></Typography>
-    {requestInfo.staffComment && (
-  <Typography>
-    <span>
-      <span className="font-bold">تعليق :</span>{requestInfo.staffComment}
-    </span>
-  </Typography>
-)}
+   
  </>
 )}
                     </div>               
@@ -175,6 +199,7 @@ return (
                         />
 
                     </div>
+
 )}
 
 </div>     
@@ -183,7 +208,11 @@ return (
 <div className="flex flex-col gap-5 ">
 
       {/*here Display the requested garbage bin location*/}
-    {  requestInfo  &&( <div ><RequestGarbageMap request={requestInfo}  /></div>)}
+    {  requestInfo  &&( <div > <Typography className="font-baloo text-right text-lg font-bold">
+     معاينة الموقع:
+                    </Typography><RequestGarbageMap request={requestInfo}  /> 
+             
+    </div>)}
 
 {/* display request prosseccing button here , if the request status is new , if not , display a dropdown menu that have the following values (قبول , رفض) */}
         {requestInfo && requestInfo.status === 'جديد' && (
@@ -199,28 +228,27 @@ return (
                     <span>معالجة</span>
                   </Button>
                   )}
+ 
+{requestInfo && requestInfo.staffComment && (
+  <Typography >
+    <span className="flex gap-3 items-center">
+  
+    {requestInfo.status === 'مرفوض' && ( <Typography className="font-baloo text-right text-lg font-bold">سبب الرفض :</Typography>)}
+    {requestInfo.status ==="تم التنفيذ" && ( <Typography className="font-baloo text-right text-lg font-bold">التعليق:  </Typography>)}
+    <span>{requestInfo.staffComment}</span>
+  
+    </span>
+  </Typography>
+)}
 
-                  
+         
 </div>
 
 
 </div>
 
         </DialogBody>
-        {/* <DialogFooter>
-
-          <Button
-            variant="text"
-            color="red"
-            onClick={handler}
-            className="mr-1"
-          >
-            <span>رجوع</span>
-          </Button>
-
-          
-        
-        </DialogFooter> */}
+       
       </Dialog>
     </>
   );

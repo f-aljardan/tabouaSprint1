@@ -78,7 +78,6 @@ useEffect(() => {
     
      // convert dateOfBirth value into date object
    var birthDate = new Date(dateOfBirth);
-   console.log(" birthDate"+ birthDate);
   
   // get difference from current date;
   var difference=Date.now() - birthDate.getTime(); 
@@ -161,7 +160,7 @@ return (
                     </Typography>
                     <Typography> <span><span className="font-bold">رقم الطلب : </span>  {requestInfo.requestNo}</span></Typography>
                     <Typography>  <span><span className="font-bold">حجم الحاوية :</span> {requestInfo.garbageSize}</span></Typography>
-                    <Typography> <span><span className="font-bold">موقغ الطلب : </span>  {requestInfo.localArea}</span></Typography>
+                    <Typography> <span><span className="font-bold">موقع الطلب : </span>  {requestInfo.localArea}</span></Typography>
                     <Typography> <span> <span className="font-bold"> سبب الطلب : </span> {requestInfo.requestReason}</span></Typography>
                     <Typography> <span><span className="font-bold">تاريخ الطلب : </span> {requestInfo.requestDate?.toDate().toLocaleDateString() || 'N/A'}</span></Typography>
                      
@@ -233,8 +232,8 @@ return (
   <Typography >
     <span className="flex gap-3 items-center">
   
-    {requestInfo.status === 'مرفوض' && ( <Typography className="font-baloo text-right text-lg font-bold">سبب الرفض :</Typography>)}
-    {requestInfo.status ==="تم التنفيذ" && ( <Typography className="font-baloo text-right text-lg font-bold">التعليق:  </Typography>)}
+    {requestInfo.status === 'مرفوض' && ( <span className="font-baloo text-right text-lg font-bold">سبب الرفض :</span>)}
+    {requestInfo.status ==="تم التنفيذ" && ( <span className="font-baloo text-right text-lg font-bold">التعليق:  </span>)}
     <span>{requestInfo.staffComment}</span>
   
     </span>

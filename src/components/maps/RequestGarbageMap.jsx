@@ -49,6 +49,7 @@ const [selectedOption, setSelectedOption] = useState(null);
 const[acceptMessageVisible, setAcceptMessageVisible] = useState(false); 
 const[ rejectMessageVisible, setRejectMessageVisible] = useState(false); 
 const[ showAlertSuccessReject, setAlertSuccessReject] = useState(false);
+const [address, setAddress] = useState('');
 
 
  const handleForm = () => setFormVisible(!formVisible);
@@ -103,7 +104,7 @@ const[ showAlertSuccessReject, setAlertSuccessReject] = useState(false);
       setZoom(20);
       center.lat = request.location._lat;
       center.lng = request.location._long;
-  
+      fetchAddress(request.location._lat, request.location._long);
       fetchGarbageBins();
     }
   }, [request]);
@@ -137,6 +138,42 @@ const calculateDistance = (lat1, lon1, lat2, lon2) => {
     googleMapsApiKey: "AIzaSyA_uotKtYzbjy44Y2IvoQFds2cCO6VmfMk"
   })
 
+
+  
+  const fetchAddress = async (lat, lng) => {
+    if (window.google) {
+      const geocoder = new window.google.maps.Geocoder();
+      const latLng = new window.google.maps.LatLng(lat, lng);
+  
+      const geocodeRequest = {
+        location: latLng,
+        language: 'ar' 
+      };
+  
+      geocoder.geocode(geocodeRequest, (results, status) => {
+        if (status === 'OK') {
+          const addressComponents = results[0]?.address_components;
+         
+          if (addressComponents) {
+            const route = addressComponents.find(component => component.types.includes('route'))?.long_name || '';
+            const political = addressComponents.find(component => component.types.includes('political'))?.long_name || '';
+            const postalCode = addressComponents.find(component => component.types.includes('postal_code'))?.long_name || '';
+  
+            const formattedAddress = {
+              route: route,
+              political: political,
+              postalCode: postalCode
+            };
+  
+            setAddress(formattedAddress);
+          }
+        } else {
+          console.error('Error fetching address:', status);
+        }
+      });
+    }
+  };
+  
 
 // Callback function when the map loads
 const onLoad = React.useCallback(function callback(map) {
@@ -396,37 +433,38 @@ function generateSerialNumber() {
   
           
  
-    { request && (<Marker
-  position={{
-    lat: draggedLocation ? draggedLocation.lat : request.location._lat,
-    lng: draggedLocation ? draggedLocation.lng : request.location._long,
-  }}
-  zIndex={1000} // Set a high zIndex value
-  draggable={true}
-  onDragEnd={(e) => {
-    const newLocation = {
-      lat: e.latLng.lat(),
-      lng: e.latLng.lng(),
-    };
-
-    setDraggedLocation(newLocation);
-    
-  }}
->
-        {/* <InfoWindow
+      {request && (
+        <Marker
           position={{
             lat: draggedLocation ? draggedLocation.lat : request.location._lat,
             lng: draggedLocation ? draggedLocation.lng : request.location._long,
           }}
-          options={{ pixelOffset: new window.google.maps.Size(0, -30) }} 
+          zIndex={1000}
+          draggable={true}
+          onDragEnd={(e) => {
+            const newLocation = {
+              lat: e.latLng.lat(),
+              lng: e.latLng.lng(),
+            };
+            setDraggedLocation(newLocation);
+            fetchAddress(newLocation.lat, newLocation.lng);
+          }}
         >
-      <div className='flex items-center gap-3 pr-5'>
-      {checkLocationCondtion(draggedLocation ? draggedLocation.lat : request.location._lat,  draggedLocation ? draggedLocation.lng : request.location._long)? "صحيح" : "غير"}
-          </div>
-        </InfoWindow>
-     */}
-    </Marker>
-    )}
+          <InfoWindow
+            position={{
+              lat: draggedLocation ? draggedLocation.lat : request.location._lat,
+              lng: draggedLocation ? draggedLocation.lng : request.location._long,
+            }}
+            options={{ pixelOffset: new window.google.maps.Size(0, -30) }}
+          >
+            <div className="flex flex-col items-center gap-3 pr-5">
+              {/* <Typography variant="small"> */}
+                <span> {address.political}, {address.route}, {address.postalCode}</span>
+              {/* </Typography> */}
+            </div>
+          </InfoWindow>
+        </Marker>
+      )}
   
   
            <GarbageBinForm open={formVisible} handler={handleForm} AddMethod={AddGarbageBin} />
@@ -439,15 +477,6 @@ function generateSerialNumber() {
         
         </GoogleMap>
         {request && request.status == 'قيد التنفيذ' && ( 
-        //  <div className="flex gap-5 p-4 mr-12 z-10" style={{ position: 'absolute' }}>
-        //   <Tooltip
-        //     className="bg-black font-baloo text-md text-gray-600"
-        //     content="لإضافة موقع حاوية جديدة قم بالضغط على الموقع المحدد والالتزام بحدود الطرق"
-        //     placement="bottom"
-        //   >
-        // <Button style={{ background: "#97B980", color: '#ffffff' }} size='sm'><span>تعليمات إضافة حاوية</span></Button>
-       
-        //   </Tooltip>
         <div className=" z-10 " style={{ position: 'absolute' ,}}>
     <Typography variant="small"><span>لتعديل موقع الحاوية قم بسحب المؤشر الى الموقع المحدد والالتزام بحدود الطرق</span></Typography>
          </div> 

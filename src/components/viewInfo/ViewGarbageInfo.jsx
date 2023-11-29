@@ -7,6 +7,9 @@ import { useState, useEffect } from "react";
 import { db } from "/src/firebase";
 import { doc , Timestamp, updateDoc } from "firebase/firestore";
 
+
+
+
 export default function ViewGarbageInfo({ open, onClose, DeleteMethod, Changelocation, bin, binId }) {
   const [maintenanceDate, setMaintenanceDate] = useState(null);
   const [editingMaintenanceDate, setEditingMaintenanceDate] = useState(false);
@@ -118,7 +121,7 @@ export default function ViewGarbageInfo({ open, onClose, DeleteMethod, Changeloc
               <MdOutlineDateRange className="h-5 w-5 ml-2" />
             </ListItemPrefix>
             <div>
-              <span className="font-medium">تاريخ الصيانة:</span>
+              <span className="font-medium">تاريخ أخر الصيانة:</span>
               {editingMaintenanceDate ? ( // Conditionally render input or text
                 <>
                   <input

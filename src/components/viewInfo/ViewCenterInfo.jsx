@@ -99,6 +99,11 @@ export default function ViewCenterInfo({ open, onClose, DeleteMethod, Changeloca
     // Toggle the visibility of the buttons when "تعديل معلومات الحاوية" is clicked
     setEditButtonsVisible(!editButtonsVisible);
   };
+
+  const handleBackButton = () =>{
+    setEditMode(!editMode);
+    handleChangeLocation();
+  };
   const handleChangeLocation = () =>  setChangeLocation(!changeLocation);
 
 
@@ -421,7 +426,7 @@ updatedData.openingHours =centerOpeningHours;
     }));
 
   
-      
+   // formatOpeningHours(centerData)  ;
     
 
 
@@ -474,6 +479,7 @@ updatedData.openingHours =centerOpeningHours;
     console.log(centerData.types);
   }
  
+  
 
   return (
     <>
@@ -575,7 +581,8 @@ updatedData.openingHours =centerOpeningHours;
 
 
 
-   
+   {
+
 
 <ListItem ripple={false}>
               <ul className="flex flex-col gap-2">
@@ -636,6 +643,7 @@ updatedData.openingHours =centerOpeningHours;
                           <span>السبت:</span>
                           <LocalizationProvider dateAdapter={AdapterDayjs}>
                             <div className="flex  gap-2">
+
                               <TimePicker
                                 className='w-32'
                                 views={['hours']}
@@ -680,6 +688,25 @@ updatedData.openingHours =centerOpeningHours;
                 </div>
               </ul>
             </ListItem>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+   }
+
+
          
             <ListItem ripple={false}>
  
@@ -782,6 +809,7 @@ updatedData.openingHours =centerOpeningHours;
             </Button> ): null}
         
             {editMode ? (
+              <>
           <Button
             size="sm"
             className="mt-3"
@@ -792,8 +820,22 @@ updatedData.openingHours =centerOpeningHours;
           >
             <span>حفظ</span>
           </Button>
-        ) : (
+
           <Button
+         size="sm"
+        className="mt-3"
+        fullWidth={true}
+      variant="gradient"
+        style={{ background: "#007BFF", color: "#ffffff" }}
+      onClick={handleBackButton}
+    >
+      <span>رجوع</span>
+    </Button>
+    </>
+
+        ) : (
+          <>
+           <Button
           size="md"
             className="mt-3"
             fullWidth={true}
@@ -803,7 +845,10 @@ updatedData.openingHours =centerOpeningHours;
           >
             <span>تعديل معلومات المركز</span>
           </Button>
+          </>
+         
         )}
+
 
 
             {changeLocation ? (  <Button

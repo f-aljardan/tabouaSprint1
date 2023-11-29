@@ -60,7 +60,7 @@ useEffect(() => {
   
 
 
-  const handleRequestProcessing = async (request) => {
+  const handleProcessRequest = async (request) => {
     try {
       const requestRef = doc(db, 'requestedGarbageBin', request.id);
       // Update request status to 'قيد التنفيذ' and store the in-progress date
@@ -221,7 +221,7 @@ return (
                     fullWidth={true}
                     variant="gradient"
                     style={{ background: '#97B980', color: '#ffffff' }}
-                    onClick={() => handleRequestProcessing(requestInfo)}
+                    onClick={() => handleProcessRequest(requestInfo)}
                     className="text-md font-bold"
                   >
                     <span>معالجة</span>

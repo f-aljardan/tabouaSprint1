@@ -375,12 +375,12 @@ function generateSerialNumber() {
 
 const handleDeletion = () => {
   // Call the onDeleteGarbageBin function passed as a prop to handle deletion.
-  onDeleteGarbageBin(selectedLocation.id);
+  DeleteGarbageBin(selectedLocation.id);
   setSelectedLocation(false);
 
 };
 
-const onDeleteGarbageBin = async (garbageBinId) => {
+const DeleteGarbageBin = async (garbageBinId) => {
   try {
     // Construct a reference to the garbage bin document to be deleted
     const garbageBinRef = doc(db, "garbageBins", garbageBinId);

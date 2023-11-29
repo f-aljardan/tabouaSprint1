@@ -121,7 +121,7 @@ export default function ViewGarbageInfo({ open, onClose, DeleteMethod, Changeloc
               <MdOutlineDateRange className="h-5 w-5 ml-2" />
             </ListItemPrefix>
             <div>
-              <span className="font-medium">تاريخ أخر الصيانة:</span>
+              <span className="font-medium">تاريخ أخر صيانة:</span>
               {editingMaintenanceDate ? ( // Conditionally render input or text
                 <>
                   <input

@@ -1,5 +1,5 @@
 
-import React, {useState , useEffect} from "react";
+import {useState , useEffect} from "react";
 import AddStaff from "./forms/AddStaff.jsx";
 import Confirm from "../components/messages/Confirm"
 import Success from "./messages/Success";
@@ -183,7 +183,7 @@ return (
 
 
     // handle delete staff from database
-    const handleDelete = async (staffMember) =>{
+    const handleDeleteStaff = async () =>{
 
       try {
         // Delete the document from the "staff" collection
@@ -228,6 +228,8 @@ return (
 <Card className="max-w-2xl p-8  "> 
         <h2 className="text-2xl font-semibold mb-4">قائمة الموظفين</h2> 
 
+       
+       
         {/* button to show add staff form */}
         <Button
         className="flex items-center gap-3 text-white text-sm"
@@ -238,6 +240,9 @@ return (
         <span>إضافة موظف</span>
         <UserPlusIcon strokeWidth={2} className="h-5 w-5" />
       </Button>
+     
+     
+     
       {/* input to add staff name for search */}
        <Input
           type="text"
@@ -390,7 +395,7 @@ return (
     </div>
     </div>
     
-    <Confirm open={showConfirmAlert} handler={handleConfirm} method= {handleDelete} message="هل أنت متأكد من حذف الموظف؟"  // to show confirm message  staff delete 
+    <Confirm open={showConfirmAlert} handler={handleConfirm} method= {handleDeleteStaff} message="هل أنت متأكد من حذف الموظف؟"  // to show confirm message  staff delete 
     
     />
     <Success open={showAlert} handler={handlealert} message="تم حذف الموظف بنجاح" // to show success message when add staff

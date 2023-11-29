@@ -1,19 +1,20 @@
 
 import { useState, useEffect } from "react";
 import { MagnifyingGlassIcon } from "@heroicons/react/24/outline";
-import { Button, Card, Typography, Chip,Input } from "@material-tailwind/react";
+import {Card, Typography, Chip,Input } from "@material-tailwind/react";
 import { db } from "../firebase";
 import {
   collection,
   doc,
   onSnapshot,
-  updateDoc,
   query,
 } from "firebase/firestore";
-import { useNavigate } from 'react-router-dom'; 
-import Success from "./messages/Success";
 import Select from "react-select"; 
 import ViewRequestInfo from "./viewInfo/ViewRequestInfo"
+
+
+
+
 
 export default function GarbageBinRequests() {
  
@@ -26,7 +27,9 @@ export default function GarbageBinRequests() {
 
   const handleRequestInfo = () =>  setShowRequestInfo(!showRequestInfo);
 
-  const handleRequestClick = (request) => {
+
+
+  const handleViewRequestClick = (request) => {
     const requestDoc = doc(db, 'requestedGarbageBin', request.id);
     const unsubscribe = onSnapshot(requestDoc, (requestSnapshot) => {
       if (requestSnapshot.exists()) {
@@ -60,7 +63,10 @@ export default function GarbageBinRequests() {
     return () => {
       unsubscribe();
     };
+    
   }, []);
+
+
 
 
   // Update searchResults when requests change
@@ -75,12 +81,6 @@ export default function GarbageBinRequests() {
     }
   }, [searchQuery, requests]);
 
-
-
-
-
-
-  
 
   const statusOptions = [
     { value: "الكل", label: "الكل" },
@@ -176,7 +176,7 @@ export default function GarbageBinRequests() {
         searchResults.map((request) => {
           return (
             <tr key={request.id}>
-             <td className="p-4 text-right cursor-pointer hover:text-red" onClick={() => handleRequestClick(request)}>
+             <td className="p-4 text-right cursor-pointer hover:text-red" onClick={() => handleViewRequestClick(request)}>
               <Typography  color="teal">
                  <span>{request.requestNo}</span>
                </Typography>
@@ -211,7 +211,7 @@ export default function GarbageBinRequests() {
         if (statusFilter === '' || statusFilter === 'الكل' || request.status === statusFilter) {
           return (
             <tr key={request.id}>
-          <td className="p-4 text-right cursor-pointer hover:text-red" onClick={() => handleRequestClick(request)}>
+          <td className="p-4 text-right cursor-pointer hover:text-red" onClick={() => handleViewRequestClick(request)}>
               <Typography  color="teal">
                  <span>{request.requestNo}</span>
                </Typography>

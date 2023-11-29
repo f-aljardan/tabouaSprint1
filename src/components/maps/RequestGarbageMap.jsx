@@ -1,8 +1,8 @@
 import React , {useState, useEffect, useRef} from 'react'
-import { GoogleMap, useJsApiLoader, Marker , Circle, InfoWindow } from '@react-google-maps/api';
+import { GoogleMap, useJsApiLoader, Marker , InfoWindow } from '@react-google-maps/api';
 import { db } from "/src/firebase";
-import { getDocs,setDoc, collection, addDoc, GeoPoint, deleteDoc, doc ,getDoc, Timestamp,updateDoc } from "firebase/firestore"; // Import the necessary Firestore functions
-import { Button , Tooltip, Typography} from "@material-tailwind/react";
+import { getDocs, collection, addDoc, GeoPoint, doc , Timestamp,updateDoc } from "firebase/firestore"; // Import the necessary Firestore functions
+import { Button , Typography} from "@material-tailwind/react";
 import Success from "../messages/Success"
 import Confirm from "../messages/Confirm"
 import GarbageBinForm from "../forms/GarbageBinForm"
@@ -33,7 +33,7 @@ const containerStyle = {
 
   export default function RequestGarbageMap({request}) {
 
-    const [map, setMap] = React.useState(null)
+    const [map, setMap] = useState(null)
     const [zoom, setZoom] = useState(10); // set the initial zoom level
     const [garbageBins, setGarbageBins] = useState([]);
     const [formVisible, setFormVisible] = useState(false);// To control confirmation message visibility
@@ -42,7 +42,6 @@ const containerStyle = {
     const [showAlertZoom, setShowAlertZoom] = useState(false);
     const [showSuccessAlert, setShowSuccessAlert] = useState(false);
     const[ checkMessageVisible, setCheckMessageVisible] = useState(false);
-    // Add a state to track the dragged location
 const [draggedLocation, setDraggedLocation] = useState(null);
 const animatedComponents = makeAnimated();
 const [selectedOption, setSelectedOption] = useState(null);
@@ -54,15 +53,15 @@ const [address, setAddress] = useState('');
 
  const handleForm = () => setFormVisible(!formVisible);
  const handleAlertStreet = () => setShowAlertStreet(!showAlertStreet);
-    const handleAlertZoom = () => setShowAlertZoom(!showAlertZoom);
-    const handleSuccessAlert = () => setShowSuccessAlert(!showSuccessAlert);
-   const handleAlertSuccessReject = () => setAlertSuccessReject(!showAlertSuccessReject);
-    const handleCheckMessage= () => { 
+ const handleAlertZoom = () => setShowAlertZoom(!showAlertZoom);
+ const handleSuccessAlert = () => setShowSuccessAlert(!showSuccessAlert);
+ const handleAlertSuccessReject = () => setAlertSuccessReject(!showAlertSuccessReject);
+ const handleCheckMessage= () => { 
        handleAlertStreet(); 
        setCheckMessageVisible(!checkMessageVisible); 
       }
-    const handleRejectMessage= () => {setRejectMessageVisible(!rejectMessageVisible);}
-    const handleAcceptMessage= () => {setAcceptMessageVisible(!acceptMessageVisible);}
+  const handleRejectMessage= () => {setRejectMessageVisible(!rejectMessageVisible);}
+  const handleAcceptMessage= () => {setAcceptMessageVisible(!acceptMessageVisible);}
   
 
      // Define the acceptable zoom level range
@@ -70,8 +69,10 @@ const [address, setAddress] = useState('');
  const currentZoomLevelRef = useRef(null);
  const mapRef = useRef(null);
 
+
+
+
   // Load the garbage bin data from Firestore that only are near the requested garbage bin location request.location as geopoints
-  
   useEffect(() => {
 
     if (request ) {
@@ -132,6 +133,8 @@ const calculateDistance = (lat1, lon1, lat2, lon2) => {
   return distance;
 };
 
+
+
   // Load Google Maps JavaScript API
   const { isLoaded } = useJsApiLoader({
     id: 'google-map-script',
@@ -139,7 +142,7 @@ const calculateDistance = (lat1, lon1, lat2, lon2) => {
   })
 
 
-  
+  // Function to fetch the readable address from the provided lat,lng
   const fetchAddress = async (lat, lng) => {
     if (window.google) {
       const geocoder = new window.google.maps.Geocoder();
@@ -174,6 +177,7 @@ const calculateDistance = (lat1, lon1, lat2, lon2) => {
     }
   };
   
+
 
 // Callback function when the map loads
 const onLoad = React.useCallback(function callback(map) {
@@ -343,7 +347,7 @@ function generateSerialNumber() {
 
 
 
-  const handleRequestSubmitting = async () => {
+  const handleSubmittingRequestProcess = async () => {
     if (selectedOption && selectedOption.value === 'قبول') {
      
           // Check if the conditions are met
@@ -389,7 +393,7 @@ function generateSerialNumber() {
           size="sm"
           variant="gradient"
           style={{ background: '#97B980', color: '#ffffff' }}
-            onClick={()=>handleRequestSubmitting()}
+            onClick={()=>handleSubmittingRequestProcess()}
             className="text-md"
           >
             <span>تنفيذ</span>
@@ -467,10 +471,10 @@ function generateSerialNumber() {
       )}
   
   
-           <GarbageBinForm open={formVisible} handler={handleForm} AddMethod={AddGarbageBin} />
-           <Success open={showSuccessAlert} handler={handleSuccessAlert} message=" تم إضافة حاوية القمامة بنجاح" />
-          <Success open={showAlertSuccessReject} handler={handleAlertSuccessReject} message=" تم الرفض بنجاح" />
-           <Confirm open={checkMessageVisible} handler={handleCheckMessage} method={()=>{ handleOnMapClick(); setCheckMessageVisible(false);}} message="هل انت متأكد من أن الموقع المحدد يقع على شارع؟" />  
+        <GarbageBinForm open={formVisible} handler={handleForm} AddMethod={AddGarbageBin} />
+        <Success open={showSuccessAlert} handler={handleSuccessAlert} message=" تم إضافة حاوية القمامة بنجاح" />
+        <Success open={showAlertSuccessReject} handler={handleAlertSuccessReject} message=" تم الرفض بنجاح" />
+        <Confirm open={checkMessageVisible} handler={handleCheckMessage} method={()=>{ handleOnMapClick(); setCheckMessageVisible(false);}} message="هل انت متأكد من أن الموقع المحدد يقع على شارع؟" />  
         <MessageDialog open={acceptMessageVisible} handler={handleAcceptMessage} method={handleAcceptRequest} status="accept" />
         <MessageDialog open={rejectMessageVisible} handler={handleRejectMessage} method={handleRejectRequest}  status="reject" />
         

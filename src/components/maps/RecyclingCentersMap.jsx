@@ -383,11 +383,11 @@ const onMapChangeLocationClick = async (lat , lng) => {
  
   const handleDeletion = () => {
     
-      onDeleteRecyclingCenter(selectedLocation.id);
+      DeleteRecyclingCenter(selectedLocation.id);
       setSelectedLocation(false); // Close the drawer window after deletion.
   };
 
-const onDeleteRecyclingCenter = async (centerId) => {
+const DeleteRecyclingCenter = async (centerId) => {
     try {
       // Construct a reference to the center document to be deleted
       const centerDocRef = doc(db, "recyclingCenters", centerId);

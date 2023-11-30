@@ -7,6 +7,9 @@ import dayjs from 'dayjs';
 import { db } from "/src/firebase";
 import { collection , doc ,  onSnapshot  , updateDoc} from 'firebase/firestore';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
+import { storage } from "../../firebase";
+import { getDownloadURL, ref, uploadBytes }  from '@firebase/storage';
+
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import {
   Drawer,
@@ -26,7 +29,7 @@ import {
   HiOutlineGlobeAlt,
 } from "react-icons/hi";
 import { FaRecycle } from 'react-icons/fa';
-import { format, parseISO } from 'date-fns';
+import { format, parseISO, set } from 'date-fns';
 import { enUS } from 'date-fns/locale';
 
 const arabicDays = ['- الجمعة', '- السبت', '- ايام الاسبوع'];
@@ -152,7 +155,61 @@ export default function ViewCenterInfo({ open, onClose, DeleteMethod, Changeloca
     { value: 'أخرى', label: 'أخرى' },
   ];
 
-  
+ //Handle Edit image
+
+ // Handle the upload of the center's logo
+ const handleLogoChange = (e) => {
+  const file = e.target.files[0];
+  handleLogoUpload(file);
+};
+
+
+ const handleLogoUpload = async (file) => {
+  if (file) {
+    try {
+      const logoName = Date.now().toString();
+      const storageRef = ref(storage, `logos/${logoName}`);
+      await uploadBytes(storageRef, file);
+      const logoUrl = await getDownloadURL(storageRef);
+
+      setCenterData((prevData) => ({
+        ...prevData,
+        logoURL: logoUrl,
+      }));
+    } catch (error) {
+      console.error('Error uploading logo image:', error);
+    
+    }
+  }
+};
+const handleImageChange = (e) => {
+  const file = e.target.files[0];
+  handleImageUpload(file);
+};
+const handleImageUpload = async (file) => {
+  if (file) {
+    try {
+      const imageName = Date.now().toString();
+      const storageRef = ref(storage, `images/${imageName}`);
+      await uploadBytes(storageRef, file);
+      const imageUrl = await getDownloadURL(storageRef);
+
+      setCenterData((prevData) => ({
+        ...prevData,
+        imageURL: imageUrl,
+      }));
+    } catch (error) {
+      console.error('Error uploading image:', error);
+      setErrors((prevErrors) => ({
+        ...prevErrors,
+        imageURL: 'Error uploading image',
+      }));
+    }
+  }
+};
+
+
+
 
 
 useEffect(() => {
@@ -189,7 +246,7 @@ const centerHours = {
  
 };
 
-
+//setTime(dayjs(centerHours.weekdays.from));
 
 
     setCenterData({
@@ -236,10 +293,9 @@ openingHours:centerHours,
       snapshot.forEach((doc) => {
         const data = doc.data();
         const id = doc.id;
-        // Check if the 'isAdmin' field is explicitly set to false
         if(centerID ==id ) {
 
-  const wasteTypes = centerData.type || [];
+  const wasteTypes = centerData.types || [];
 
 const types = wasteTypes.map((type, index) => (
 
@@ -279,7 +335,7 @@ setWasteListTypes(types);
         }
       });
   
-      setCenterData(centerInfo);// store staff information
+      setCenterData(centerInfo);
     });
   
     // Return the cleanup function to unsubscribe from the listener
@@ -340,22 +396,33 @@ setWasteListTypes(types);
     description: centerData.description,
     websiteURL: centerData.websiteURL,
     phoneNo: centerData.phoneNo,
+    logoURL:centerData.logoURL,
   };
+
 
   if (centerData.types) {
     updatedData.type = centerData.types;
   }
 
-  if (editedCenterData.imageURL) {
-    updatedData.imageURL = editedCenterData.imageURL;
+  if (centerData.imageURL) {
+    updatedData.imageURL = centerData.imageURL;
   }
 
-  if (editedCenterData.logoURL) {
-    updatedData.logoURL = editedCenterData.logoURL;
+  if (centerData.logoURL) {
+    updatedData.logoURL = centerData.logoURL;
   }
+ 
 
   // Handle the opening hours fields
  
+  if(centerData.openingHours.weekdays.from) {
+
+    console.log(centerData.openingHours.weekdays.from);
+  }
+   if(time == dayjs('2022-04-17T00:00')) {
+    console.log("ytrfedshjak");
+   }
+
   const centerOpeningHours = {
     fri: {
       from: centerData.openingHours.fri.isClosed ? '' : centerData.openingHours.fri.from.toDate().toISOString(),
@@ -375,6 +442,8 @@ setWasteListTypes(types);
       },
    
   };
+ 
+  
 
 updatedData.openingHours =centerOpeningHours;
 
@@ -426,7 +495,6 @@ updatedData.openingHours =centerOpeningHours;
     }));
 
   
-   // formatOpeningHours(centerData)  ;
     
 
 
@@ -512,18 +580,20 @@ updatedData.openingHours =centerOpeningHours;
             </svg>
           </IconButton>
         </div>
-
+        {!editMode ? (
+<>
         <div className="flex justify-center h-56">
           <div style={{ width: "100%", maxHeight: "100%", overflow: "hidden", textAlign: "center" }}>
             {showCenterLogo ? (
-              <img src={center.logoURL} alt="Center Logo" style={{ width: "100%", height: "100%" }} />
+              <img src={
+                centerData.logoURL} alt="Center Logo" style={{ width: "100%", height: "100%" }} />
             ) : (
-              <img src={center.imageURL} alt="Center Photo" style={{ width: "100%", height: "100%" }} />
+              <img src={centerData.imageURL} alt="Center Photo" style={{ width: "100%", height: "100%" }} />
             )}
           </div>
         </div>
-
-        <div className="flex justify-between mt-3">
+         
+  <div className="flex justify-between mt-3">
           {showCenterLogo && (
             <Button
               size="sm"
@@ -548,6 +618,43 @@ updatedData.openingHours =centerOpeningHours;
             </Button>
           )}
         </div>
+
+
+
+</>
+        ) : (
+          <>
+                      <div className='flex flex-col gap-2 '>
+
+<div className='flex items-center gap-2'>
+                          <label htmlFor="logo"> شعار المركز:</label>
+                          <input
+                            type="file"
+                            id="logo"
+                            accept="image/*"
+                            onChange={handleLogoChange}
+                          />
+                        </div>
+
+                        <div className='flex items-center gap-2'>
+                          <label htmlFor="image"> صورة المركز:</label>
+                          <input
+                            type="file"
+                            id="image"
+                            accept="image/*"
+                           onChange={handleImageChange}
+                          />
+                        </div>
+                        
+
+                        </div>
+          </>
+        )}
+
+      {
+        
+      }
+        
 
         <li className="centerInfo">
           <List>
@@ -765,7 +872,7 @@ updatedData.openingHours =centerOpeningHours;
                   />
                 ) : (
                   <Typography as="a" href={centerData.websiteURL || ''} color="blue-gray" className="font-normal transition-colors hover:text-blue-500 focus:text-blue-500 mr-11">
-                    <span>إضغط هُنا</span>
+                    <span>اضغط هُنا</span>
                   </Typography>
                 )}
               </ul>
@@ -826,7 +933,7 @@ updatedData.openingHours =centerOpeningHours;
         className="mt-3"
         fullWidth={true}
       variant="gradient"
-        style={{ background: "#007BFF", color: "#ffffff" }}
+      style={{ background: "#97B980", color: "#ffffff" }}
       onClick={handleBackButton}
     >
       <span>رجوع</span>

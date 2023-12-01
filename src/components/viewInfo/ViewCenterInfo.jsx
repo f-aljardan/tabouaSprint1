@@ -9,6 +9,7 @@ import { collection , doc ,  onSnapshot  , updateDoc} from 'firebase/firestore';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { storage } from "../../firebase";
 import { getDownloadURL, ref, uploadBytes }  from '@firebase/storage';
+import { useNavigate } from 'react-router-dom';
 
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import {
@@ -30,7 +31,7 @@ import {
 } from "react-icons/hi";
 import { FaRecycle } from 'react-icons/fa';
 import { format, parseISO, set } from 'date-fns';
-import { enUS } from 'date-fns/locale';
+import { enUS, tr } from 'date-fns/locale';
 
 const arabicDays = ['- الجمعة', '- السبت', '- ايام الاسبوع'];
 
@@ -90,27 +91,47 @@ export default function ViewCenterInfo({ open, onClose, DeleteMethod, Changeloca
   const [deleteConfirmation, setDeleteConfirmation] = useState(false);
   const [showCenterLogo, setShowCenterLogo] = useState(true);
   const [editMode, setEditMode] = useState(false);
-  const [selectedWasteTypes, setSelectedWasteTypes] = useState([]);
   const [selectedOptions, setSelectedOptions] = useState([]);
   const [time, setTime] = useState(dayjs('2022-04-17T00:00'));
-
   const [editButtonsVisible, setEditButtonsVisible] = useState(false);
   const [changeLocation, setChangeLocation] = useState(true);
+  const [showOpeningHoursMessage, setShowOpeningHoursMessage] = useState(false);
+  const [backButtonClicked, setBackButtonClicked] = useState(false);
+  const [wasteListTypes, setWasteListTypes] = useState([]);
+  const [showCenterTypesError, setShowCenterTypesError] = useState(false);
 
-
+  
   const handleEdit = () => {
     // Toggle the visibility of the buttons when "تعديل معلومات الحاوية" is clicked
     setEditButtonsVisible(!editButtonsVisible);
   };
 
-  const handleBackButton = () =>{
-    setEditMode(!editMode);
-    handleChangeLocation();
+  const handleBackButton = async() =>{
+  
+  setBackButtonClicked(!backButtonClicked);// handle back button
+    setEditMode(!editMode); // handle editMode
+    handleChangeLocation(); // handle change button
   };
-  const handleChangeLocation = () =>  setChangeLocation(!changeLocation);
 
+  // showing change loation button
+  const handleChangeLocation = () => {
+    setChangeLocation(!changeLocation);
+    setShowOpeningHoursMessage(false);
+    setShowCenterTypesError(false);
 
-
+  } 
+  
+// validate websiteURL
+  const isValidURL = (url) => {
+    try {
+      new URL(url);
+      return true;
+    } catch {
+      return false;
+    }
+  };
+  
+ //CenetrInfo
   const [centerData, setCenterData] = useState({
     name: '',
     description: '',
@@ -125,9 +146,7 @@ export default function ViewCenterInfo({ open, onClose, DeleteMethod, Changeloca
     },
     phoneNo: '',
   });
-
-  const [wasteListTypes, setWasteListTypes] = useState([]);
-
+//Center Edited info
   const [editedCenterData, setEditedCenterData] = useState({ 
     name: '',
     description: '',
@@ -143,8 +162,6 @@ export default function ViewCenterInfo({ open, onClose, DeleteMethod, Changeloca
     phoneNo: '',
    });
 
-   const [editedWasteTypes, setEditedWasteTypes] = useState(center.types || []);
-
    const options = [
     { value: 'بلاستيك', label: 'بلاستيك' },
     { value: 'ورق', label: 'ورق' },
@@ -155,7 +172,7 @@ export default function ViewCenterInfo({ open, onClose, DeleteMethod, Changeloca
     { value: 'أخرى', label: 'أخرى' },
   ];
 
- //Handle Edit image
+ ///////Handle Edit image and logo
 
  // Handle the upload of the center's logo
  const handleLogoChange = (e) => {
@@ -209,13 +226,10 @@ const handleImageUpload = async (file) => {
 };
 
 
-
-
-
+// show the center info that pass from Recyling center map
 useEffect(() => {
   // Make sure that the center object exists and contains the required data
 if (center && center.openingHours ) {
-  
 
 const wasteTypes = center.type || [];
 
@@ -245,9 +259,6 @@ const centerHours = {
     },
  
 };
-
-//setTime(dayjs(centerHours.weekdays.from));
-
 
     setCenterData({
       name: center.name,
@@ -284,69 +295,68 @@ openingHours:centerHours,
   }
 }, [center]);
 
-
+// each time when Edit the cenetr info it will update it automtically
   useEffect(() => {
-    const centerCollection = collection(db, 'recyclingCenters');
-    const unsubscribe = onSnapshot(centerCollection, (snapshot) => {
-      const centerInfo = [];
+      const centerCollection = collection(db, 'recyclingCenters');
+      const unsubscribe = onSnapshot(centerCollection, (snapshot) => {
+        const centerInfo = [];
+    
+        snapshot.forEach((doc) => {
+          const data = doc.data();
+          const id = doc.id;
+          if(centerID ==id ) {
   
-      snapshot.forEach((doc) => {
-        const data = doc.data();
-        const id = doc.id;
-        if(centerID ==id ) {
-
-  const wasteTypes = centerData.types || [];
-
-const types = wasteTypes.map((type, index) => (
-
-<Chip key={index} style={{ background: "#07512D", color: "#ffffff"  }} value={type} />
-
-));
-setWasteListTypes(types);
-        centerInfo.push({
-          name: data.name,
-          description: data.description,
-          types: data.type,
-          imageURL: data.imageURL,
-          logoURL: data.logoURL,
-          websiteURL:data.websiteURL,
-          openingHours:{
-            fri: {
-                from: data.openingHours.fri.isClosed ? '' : data.openingHours.fri.from,
-                to: data.openingHours.fri.isClosed ? '' : data.openingHours.fri.to,
-                isClosed: data.openingHours.fri.isClosed,
-        
+    const wasteTypes = centerData.types || [];
+  
+  const types = wasteTypes.map((type, index) => (
+  
+  <Chip key={index} style={{ background: "#07512D", color: "#ffffff"  }} value={type} />
+  
+  ));
+  setWasteListTypes(types);
+          centerInfo.push({
+            name: data.name,
+            description: data.description,
+            types: data.type,
+            imageURL: data.imageURL,
+            logoURL: data.logoURL,
+            websiteURL:data.websiteURL,
+            openingHours:{
+              fri: {
+                  from: data.openingHours.fri.isClosed ? '' : data.openingHours.fri.from,
+                  to: data.openingHours.fri.isClosed ? '' : data.openingHours.fri.to,
+                  isClosed: data.openingHours.fri.isClosed,
+          
+                },
+             
+              weekdays: {
+                from: data.openingHours.weekdays.from,
+                to: data.openingHours.weekdays.to,
               },
-           
-            weekdays: {
-              from: data.openingHours.weekdays.from,
-              to: data.openingHours.weekdays.to,
+              sat: {
+                  from: data.openingHours.sat.isClosed ? '' : data.openingHours.sat.from,
+                  to: data.openingHours.sat.isClosed ? '' : data.openingHours.sat.to,
+                  isClosed: data.openingHours.sat.isClosed,
+                },
+             
             },
-            sat: {
-                from: data.openingHours.sat.isClosed ? '' : data.openingHours.sat.from,
-                to: data.openingHours.sat.isClosed ? '' : data.openingHours.sat.to,
-                isClosed: data.openingHours.sat.isClosed,
-              },
-           
-          },
-          phoneNo: data.phoneNo,
-
-          });
-        }
+            phoneNo: data.phoneNo,
+  
+            });
+          }
+        });
+    
+        setCenterData(centerInfo);
       });
+    
+      // Return the cleanup function to unsubscribe from the listener
+      
+      return () => {
+        unsubscribe();
+      };
   
-      setCenterData(centerInfo);
-    });
-  
-    // Return the cleanup function to unsubscribe from the listener
-    return () => {
-      unsubscribe();
-    };
-
   }, []);
   
-
-
 
 
   const handleDeleteConfirmation = () => setDeleteConfirmation(!deleteConfirmation);
@@ -368,7 +378,7 @@ setWasteListTypes(types);
 
       name: center.name,
       description: center.description,
-      
+  
       types: center.types,
       imageURL: center.imageURL,
       logoURL: center.logoURL,
@@ -382,12 +392,9 @@ setWasteListTypes(types);
     setEditMode(true);
   };
 
+  // Save new info into firebase
 
- const handleSaveEdit = async () => {
-  // Create a reference to the staff member's document in the database
-
-  
-    handleChangeLocation();
+ const handleSaveEdit = async (e) => {
 
   const centerUpdate = doc(db, 'recyclingCenters', centerID);
   // Prepare the data to be updated
@@ -415,58 +422,73 @@ setWasteListTypes(types);
 
   // Handle the opening hours fields
  
-  if(centerData.openingHours.weekdays.from) {
+  try{
+    if(centerData.openingHours.weekdays.from.toDate().toISOString() && centerData.openingHours.weekdays.to.toDate().toISOString() ){
+         setShowErrorMessage(false);
 
-    console.log(centerData.openingHours.weekdays.from);
+    }
+    
+   
+
+  }catch(error) {
+    setShowOpeningHoursMessage(true);
   }
-   if(time == dayjs('2022-04-17T00:00')) {
-    console.log("ytrfedshjak");
-   }
+  if(!selectedOptions.length) {
+    setShowCenterTypesError(true);
+  }
+  else{
+    setShowCenterTypesError(false);
 
-  const centerOpeningHours = {
-    fri: {
-      from: centerData.openingHours.fri.isClosed ? '' : centerData.openingHours.fri.from.toDate().toISOString(),
-      to: centerData.openingHours.fri.isClosed ? '' : centerData.openingHours.fri.to.toDate().toISOString(),
-      isClosed: centerData.openingHours.fri.isClosed,
 
-      },
-   
-    weekdays: {
-      from: centerData.openingHours.weekdays.from ? centerData.openingHours.weekdays.from.toDate().toISOString() :center.openingHours.weekdays.from,
-      to: centerData.openingHours.weekdays.to ? centerData.openingHours.weekdays.to.toDate().toISOString() : center.openingHours.weekdays.to,
-    },
-    sat: {
-        from: centerData.openingHours.sat.isClosed ? '' : centerData.openingHours.sat.from.toDate().toISOString(),
-        to: centerData.openingHours.sat.isClosed ? '' : centerData.openingHours.sat.to.toDate().toISOString(),
-        isClosed: centerData.openingHours.sat.isClosed,
-      },
-   
-  };
- 
+  }
+  if(!centerData.name  || !centerData.phoneNo || !centerData.description ||(!centerData.websiteURL && !isValidURL(centerData.websiteURL)  )|| !selectedOptions.length) {
   
+  console.log("Empty Fileds");
 
-updatedData.openingHours =centerOpeningHours;
-
-  try {
-    // Update the document with the new data
+  } 
+  else {
+    const centerOpeningHours = {
+      fri: {
+        from: centerData.openingHours.fri.isClosed ? '' : centerData.openingHours.fri.from.toDate().toISOString(),
+        to: centerData.openingHours.fri.isClosed ? '' : centerData.openingHours.fri.to.toDate().toISOString(),
+        isClosed: centerData.openingHours.fri.isClosed,
+  
+        },
+     
+      weekdays: {
+        from: centerData.openingHours.weekdays.from ? centerData.openingHours.weekdays.from.toDate().toISOString() :center.openingHours.weekdays.from,
+        to: centerData.openingHours.weekdays.to ? centerData.openingHours.weekdays.to.toDate().toISOString() : center.openingHours.weekdays.to,
+      },
+      sat: {
+          from: centerData.openingHours.sat.isClosed ? '' : centerData.openingHours.sat.from.toDate().toISOString(),
+          to: centerData.openingHours.sat.isClosed ? '' : centerData.openingHours.sat.to.toDate().toISOString(),
+          isClosed: centerData.openingHours.sat.isClosed,
+        },
+     
+    };
    
+    
+  
+  updatedData.openingHours =centerOpeningHours;
+  
+    try {
+      // Update the document with the new data
+     
+      await updateDoc(centerUpdate, updatedData);
+  
+      // Exit edit mode and clear the edited data
+     setEditMode(false);
+      setCenterData(updatedData)
+      handleChangeLocation();
 
-    await updateDoc(centerUpdate, updatedData);
-
-    // Exit edit mode and clear the edited data
-    setEditMode(false);
-    setCenterData(updatedData)
-
-    // You may also want to update the staffMembers state to reflect the changes.
-    // You can fetch the updated data from the database and update the state if needed.
-  } catch (error) {
-    console.error('Error updating document: ', error);
-    // Handle the error as needed (e.g., show an error message to the user).
+     
+  
+    } catch (error) {
+      console.error('Error updating document: ', error);
+    }
   }
+  
 };
-
-
-  
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -494,10 +516,6 @@ updatedData.openingHours =centerOpeningHours;
       
     }));
 
-  
-    
-
-
   }
 
 
@@ -516,11 +534,6 @@ updatedData.openingHours =centerOpeningHours;
     
   }
   
-
-
-
- 
-
   const handleWasteTypeChange = (selected) => {
     // Extract the values of the selected options
 
@@ -544,7 +557,8 @@ updatedData.openingHours =centerOpeningHours;
     });
     setSelectedOptions(selected);
 
-    console.log(centerData.types);
+
+
   }
  
   
@@ -552,6 +566,16 @@ updatedData.openingHours =centerOpeningHours;
   return (
     <>
       <Drawer placement="right" size={450} open={open} onClose={onClose} className="p-5 font-baloo overflow-y-auto">
+   
+      {!centerData.name && !backButtonClicked && (
+<Typography variant='small' style={{ color:"red" }}>
+              <span style={{ display: 'flex', alignItems: 'center' }}>
+              <span style={{ paddingRight:"0.5%" }} >الرجاء تعبئة اسم المركز  </span>
+              </span>
+              </Typography>
+            
+      )}
+      
         <div className="mb-4 flex items-center justify-between">
         {editMode ? (
 
@@ -564,7 +588,7 @@ updatedData.openingHours =centerOpeningHours;
           />
 
          ) : (
-
+          
          <Typography variant="h5">
 
          <span>{centerData.name || ''}</span>
@@ -572,7 +596,6 @@ updatedData.openingHours =centerOpeningHours;
         </Typography>
 
       )}
-
 
           <IconButton variant="text" color="blue-gray" onClick={onClose}>
             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="h-5 w-5">
@@ -619,8 +642,6 @@ updatedData.openingHours =centerOpeningHours;
           )}
         </div>
 
-
-
 </>
         ) : (
           <>
@@ -650,11 +671,15 @@ updatedData.openingHours =centerOpeningHours;
                         </div>
           </>
         )}
-
-      {
-        
-      }
-        
+ 
+       {!centerData.description && !backButtonClicked && (
+<Typography variant='small' style={{ color:"red" }}>
+              <span style={{ display: 'flex', alignItems: 'center' }}>
+              <span style={{ paddingRight:"0.5%" }} >الرجاء تعبئة وصف المركز  </span>
+              </span>
+              </Typography>
+            
+      )}
 
         <li className="centerInfo">
           <List>
@@ -680,16 +705,14 @@ updatedData.openingHours =centerOpeningHours;
               </ul>
             </ListItem>
 
-
-           
-
-  
-
-
-
-
-   {
-
+            {showOpeningHoursMessage  && (
+<Typography variant='small' style={{ color:"red" }}>
+              <span style={{ display: 'flex', alignItems: 'center' }}>
+              <span style={{ paddingRight:"0.5%" }} >الرجاء تعبئة ساعات العمل  </span>
+              </span>
+              </Typography>
+            
+      )}
 
 <ListItem ripple={false}>
               <ul className="flex flex-col gap-2">
@@ -796,26 +819,18 @@ updatedData.openingHours =centerOpeningHours;
               </ul>
             </ListItem>
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-   }
+{showCenterTypesError&& (
+<Typography variant='small' style={{ color:"red" }}>
+              <span style={{ display: 'flex', alignItems: 'center' }}>
+              <span style={{ paddingRight:"0.5%" }} >الرجاء تحدبد البيانات المستقبلة  </span>
+              </span>
+              </Typography>
+            
+      )}
 
 
          
-            <ListItem ripple={false}>
+   <ListItem ripple={false}>
  
  <ul>
    <ListItemPrefix className="flex pb-2">
@@ -855,8 +870,15 @@ updatedData.openingHours =centerOpeningHours;
    )}
  </ul>
  </ListItem>
+ { (!centerData.websiteURL ||!isValidURL(centerData.websiteURL) )&& !backButtonClicked && (
+<Typography variant='small' style={{ color:"red" }}>
+              <span style={{ display: 'flex', alignItems: 'center' }}>
+              <span style={{ paddingRight:"0.5%" }}>الرجاء إدخال الموقع الإلكتروني</span>
+              </span>
+              </Typography>
+            
+      )}
 
-           
             <ListItem ripple={false}>
               <ul>
                 <ListItemPrefix className="flex pb-2">
@@ -875,9 +897,18 @@ updatedData.openingHours =centerOpeningHours;
                     <span>اضغط هُنا</span>
                   </Typography>
                 )}
+              
               </ul>
             </ListItem>
-
+            
+            {(!centerData.phoneNo|| !(/^\d{10}$/).test(centerData.phoneNo))&& !backButtonClicked && (
+<Typography variant='small' style={{ color:"red" }}>
+              <span style={{ display: 'flex', alignItems: 'center' }}>
+              <span style={{ paddingRight:"0.5%" }}>الرجاء إدخال رقم الهاتف</span>
+              </span>
+              </Typography>
+            
+      )}
             <ListItem ripple={false}>
               <ul className="flex gap-2">
                 <ListItemPrefix className="flex pb-2">
@@ -898,8 +929,6 @@ updatedData.openingHours =centerOpeningHours;
             </ListItem>
           </List>
         </li>
-
-       
 
        
 {editButtonsVisible ? (
@@ -955,8 +984,6 @@ updatedData.openingHours =centerOpeningHours;
           </>
          
         )}
-
-
 
             {changeLocation ? (  <Button
               size="md"

@@ -167,7 +167,7 @@ export default function ViewGarbageInfo({ open, onClose, DeleteMethod, Changeloc
               variant="gradient"
               style={{ background: '#97B980', color: '#ffffff' }}
             >
-              <span>تغيير موقع الحاوية</span>
+              <span>تعديل موقع الحاوية</span>
             </Button> ): null}
         
             <Button // Button to toggle editing
@@ -185,7 +185,7 @@ export default function ViewGarbageInfo({ open, onClose, DeleteMethod, Changeloc
               fullWidth={true}
               onClick={handleEdit}
               variant="gradient"
-              style={{ background: '#97B980', color: '#ffffff' }}
+              style={{ background: '#979797', color: '#ffffff' }}
             >
               <span>رجوع</span>
             </Button>) : null}

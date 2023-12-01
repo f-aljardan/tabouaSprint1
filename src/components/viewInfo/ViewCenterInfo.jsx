@@ -934,14 +934,16 @@ openingHours:centerHours,
 {editButtonsVisible ? (
           <>
            <div className="flex flex-col gap-2">
-         {changeLocation ? ( <Button
+         {changeLocation ? ( 
+         <Button
+              className="mt-3"
               size="md"
               fullWidth={true}
               onClick={() => {Changelocation(centerID); handleEdit();} }
               variant="gradient"
               style={{ background: '#97B980', color: '#ffffff' }}
             >
-              <span>تغيير موقع المركز</span>
+              <span>تعديل موقع المركز</span>
             </Button> ): null}
         
             {editMode ? (
@@ -951,7 +953,7 @@ openingHours:centerHours,
             className="mt-3"
             fullWidth={true}
             variant="gradient"
-            style={{ background: "#97B980", color: "#ffffff" }}
+            style={{ background: "#97B980", color: "#ffffff"  }}
             onClick={handleSaveEdit}
           >
             <span>حفظ</span>
@@ -962,7 +964,7 @@ openingHours:centerHours,
         className="mt-3"
         fullWidth={true}
       variant="gradient"
-      style={{ background: "#97B980", color: "#ffffff" }}
+      style={{ background: "#979797", color: "#ffffff" }}
       onClick={handleBackButton}
     >
       <span>رجوع</span>
@@ -976,7 +978,7 @@ openingHours:centerHours,
             className="mt-3"
             fullWidth={true}
             variant="gradient"
-            style={{ background: '#97B980', color: '#ffffff' }}
+            style={{ background: '#97B980', color: '#ffffff' , marginTop: '0' }}
             onClick={handleEditCenter}
           >
             <span>تعديل معلومات المركز</span>
@@ -990,7 +992,7 @@ openingHours:centerHours,
               fullWidth={true}
               onClick={handleEdit}
               variant="gradient"
-              style={{ background: '#97B980', color: '#ffffff' }}
+              style={{ background: '#979797', color: '#ffffff' }}
             >
               <span>رجوع</span>
             </Button>) : null}

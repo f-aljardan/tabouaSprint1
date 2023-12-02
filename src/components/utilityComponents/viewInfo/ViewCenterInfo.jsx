@@ -7,9 +7,9 @@ import dayjs from 'dayjs';
 import { db } from "/src/firebase";
 import { collection , doc ,  onSnapshot  , updateDoc} from 'firebase/firestore';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
-import { storage } from "../../firebase";
+import { storage } from "../../../firebase";
 import { getDownloadURL, ref, uploadBytes }  from '@firebase/storage';
-import { useNavigate } from 'react-router-dom';
+
 
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import {
@@ -421,16 +421,12 @@ openingHours:centerHours,
  
 
   // Handle the opening hours fields
- 
   try{
     if(centerData.openingHours.weekdays.from.toDate().toISOString() && centerData.openingHours.weekdays.to.toDate().toISOString() ){
          setShowErrorMessage(false);
-
-    }
+ }
     
-   
-
-  }catch(error) {
+   }catch(error) {
     setShowOpeningHoursMessage(true);
   }
   if(!selectedOptions.length) {

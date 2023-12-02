@@ -8,7 +8,7 @@ import { TimePicker } from '@mui/x-date-pickers';
 import dayjs from 'dayjs';
 import SummaryCenterMessage from "../messages/SummaryCenterMessage"
 import { getDownloadURL, ref, uploadBytes }  from '@firebase/storage';
-import { storage } from "../../firebase";
+import { storage } from "../../../firebase";
 
 export default function RecyclingCenterForm({ open, handler, method }) { 
     const animatedComponents = makeAnimated();
@@ -237,7 +237,7 @@ export default function RecyclingCenterForm({ open, handler, method }) {
       };
       
 
- // Helper function to validate a URL
+ //  function to validate a URL
 const isValidURL = (url) => {
   try {
     new URL(url);

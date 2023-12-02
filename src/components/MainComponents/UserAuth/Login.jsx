@@ -4,9 +4,9 @@ import logo from "/src/assets/tabouaNo.png" ;
 import { useState } from 'react';
 import  { getAuth, signInWithEmailAndPassword } from "firebase/auth";
 import { collection, getDocs , } from 'firebase/firestore';
-import { db} from "../firebase";
+import { db} from "../../../firebase";
 import { useNavigate } from 'react-router-dom';
-import Footer from "./utilityComponents/Footer";
+import Footer from "../../utilityComponents/Footer";
 
 const Login = () => {
 

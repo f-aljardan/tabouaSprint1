@@ -5,7 +5,8 @@ import 'dayjs/locale/ar'; // Import the Arabic locale
 
 
 export default function SummaryCenterMessage({ open, handler, formData, addMethod, handleEdit }) {
-    // Perform necessary actions before confirming
+    
+  // Perform necessary actions before confirming
     const handleConfirm = () => {
       addMethod(); // to add center to database from recyclingCenterForm page
       handler(); // handle close dialog

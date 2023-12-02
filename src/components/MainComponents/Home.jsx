@@ -1,7 +1,7 @@
 
 import { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import ProfileMenu from './utilityComponents/ProfileMenu';
+import ProfileMenu from '../utilityComponents/ProfileMenu';
 import logo from '/src/assets/tabouaNo.png';
 import { TrashIcon } from '@heroicons/react/24/solid';
 import { FaRecycle } from 'react-icons/fa';
@@ -24,14 +24,15 @@ export default function Home({ authorized, userData, setShowSidebar, setActiveIt
     setActiveItem(item);
   };
 
-  // to show home page icon
+ 
+
   return (
     <>
       <ProfileMenu userData={userData} />
 
       <div className="flex justify-around items-center">
         <div className="control-panel flex gap-10 flex-col justify-center items-center min-h-screen">
-          {/* Common CSS class for button style */}
+        
           <style>
             {`
               .custom-button {

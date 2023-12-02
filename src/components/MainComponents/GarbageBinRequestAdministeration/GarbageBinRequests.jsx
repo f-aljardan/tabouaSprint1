@@ -2,7 +2,7 @@
 import { useState, useEffect } from "react";
 import { MagnifyingGlassIcon } from "@heroicons/react/24/outline";
 import {Card, Typography, Chip,Input } from "@material-tailwind/react";
-import { db } from "../firebase";
+import { db } from "../../../firebase";
 import {
   collection,
   doc,
@@ -10,7 +10,7 @@ import {
   query,
 } from "firebase/firestore";
 import Select from "react-select"; 
-import ViewRequestInfo from "./viewInfo/ViewRequestInfo"
+import ViewRequestInfo from "../../utilityComponents/viewInfo/ViewRequestInfo"
 
 
 
@@ -28,7 +28,7 @@ export default function GarbageBinRequests() {
   const handleRequestInfo = () =>  setShowRequestInfo(!showRequestInfo);
 
 
-
+  //function to open the request details window
   const handleViewRequestClick = (request) => {
     const requestDoc = doc(db, 'requestedGarbageBin', request.id);
     const unsubscribe = onSnapshot(requestDoc, (requestSnapshot) => {
@@ -47,7 +47,7 @@ export default function GarbageBinRequests() {
 
 
 
-
+  //Fetch all requests
   useEffect(() => {
     const q = query(collection(db, "requestedGarbageBin"));
 
@@ -82,6 +82,8 @@ export default function GarbageBinRequests() {
   }, [searchQuery, requests]);
 
 
+
+//options for the select component
   const statusOptions = [
     { value: "الكل", label: "الكل" },
     { value: "جديد", label: "جديد" },
@@ -90,6 +92,7 @@ export default function GarbageBinRequests() {
     { value: "مرفوض", label: "مرفوض" },
   ];
 
+// styling for the select component
   const reactSelectStyles = {
     container: (provided) => ({
       ...provided,

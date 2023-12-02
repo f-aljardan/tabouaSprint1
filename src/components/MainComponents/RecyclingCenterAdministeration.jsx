@@ -4,13 +4,13 @@ import { useEffect, useState, useRef } from "react";
 import { db } from "/src/firebase";
 import { getDocs, collection, addDoc, GeoPoint, deleteDoc, doc, updateDoc} from "firebase/firestore";
 import {  getDoc } from "firebase/firestore";
-import ViewCenterInfo from "../viewInfo/ViewCenterInfo"
-import RecyclingCenterForm from "../forms/RecyclingCenterForm"
-import Success from "../messages/Success"
-import Confirm from "../messages/Confirm"
-import ErrorAlertMessage from "../messages/ErrorAlertMessage"
-import AlertMessage from "../messages/AlertMessage"
-import AlertMessageCenter from '../messages/AlertMessageCenter';
+import ViewCenterInfo from "../utilityComponents/viewInfo/ViewCenterInfo"
+import RecyclingCenterForm from "../utilityComponents/forms/RecyclingCenterForm"
+import Success from "../utilityComponents/messages/Success"
+import Confirm from "../utilityComponents/messages/Confirm"
+import ErrorAlertMessage from "../utilityComponents/messages/ErrorAlertMessage"
+import AlertMessage from "../utilityComponents/messages/AlertMessage"
+import AlertMessageCenter from '../utilityComponents/messages/AlertMessageCenter';
 import { Button , Tooltip ,Input} from "@material-tailwind/react";
 import Select from 'react-select';
 import makeAnimated from 'react-select/animated';
@@ -18,6 +18,7 @@ import makeAnimated from 'react-select/animated';
 
 const animatedComponents = makeAnimated();
 
+//waste types options for the select component
 const options = [
   { value: '', label: 'جميع أنواع النفايات' },
   { value: 'بلاستيك', label: 'بلاستيك' },
@@ -86,46 +87,18 @@ function RecyclingCentersMap() {
     const handleAlertshowNumberWasteType = () => setShowCenterWasteType(!showCenterWasteType);
     const handleCheckMessage= () => {    handleAlertBuilding(); setCheckMessageVisible(!checkMessageVisible);}
 
- // Define the acceptable zoom level range
- const minZoomLevel = 18;
- const currentZoomLevelRef = useRef(null);
- const mapRef = useRef(null);
 
- useEffect(() => { }, [centerCount]);
 
-    useEffect(() => {
-    
-        // Function to fetch recycling centers from Firestore
-       const fetchRecyclingCenters = async () => {
-         try {
-           const querySnapshot = await getDocs(collection(db, "recyclingCenters"));
-           const centersData = [];
-           querySnapshot.forEach((doc) => {
-             const data = doc.data();
-             const location = data.location || {};
-             const type = data.type;
-             const name = data.name;
-             centersData.push({ id: doc.id, location , type , name });
-             
-           });
-           setRecyclingCenters(centersData);
-           setFilteredRecyclingCenters(centersData);
-         } catch (error) {
-           console.error("Error fetching recycling centers:", error);
-         }
-       };
-         fetchRecyclingCenters();
-       }, []);
-      
 
-      
-  
+
+//all google map initilization related function starts here
 //load the Google Maps JavaScript API 
 const { isLoaded } = useJsApiLoader({
   id: 'google-map-script',
   googleMapsApiKey: "AIzaSyA_uotKtYzbjy44Y2IvoQFds2cCO6VmfMk"
 })
 
+useEffect(() => { }, [centerCount]);
 
 // Callback function when the map loads
 const onLoad = React.useCallback(function callback(map) {
@@ -151,6 +124,60 @@ const onUnmount = React.useCallback(function callback(map) {
   setMap(null)
 }, [])
 
+ // Define the acceptable zoom level range
+ const minZoomLevel = 18;
+ const currentZoomLevelRef = useRef(null);
+ const mapRef = useRef(null);
+
+ 
+   // Function to handle zoom level change
+   const onZoomChanged = () => {
+    if (mapRef.current && mapRef.current.getZoom) {
+      const zoomLevel = mapRef.current.getZoom();
+      currentZoomLevelRef.current = zoomLevel;
+    }
+  };
+  
+// Attach the onZoomChanged event listener
+useEffect(() => {
+  if (mapRef.current) {
+    mapRef.current.addListener('zoom_changed', onZoomChanged);
+  }
+}, []);
+
+ //all google map initilization related function ends here
+ 
+
+
+
+
+
+// Function to fetch recycling centers from database
+    useEffect(() => {
+    
+       const fetchRecyclingCenters = async () => {
+         try {
+           const querySnapshot = await getDocs(collection(db, "recyclingCenters"));
+           const centersData = [];
+           querySnapshot.forEach((doc) => {
+             const data = doc.data();
+             const location = data.location || {};
+             const type = data.type;
+             const name = data.name;
+             centersData.push({ id: doc.id, location , type , name });
+             
+           });
+           setRecyclingCenters(centersData);
+           setFilteredRecyclingCenters(centersData);
+         } catch (error) {
+           console.error("Error fetching recycling centers:", error);
+         }
+       };
+         fetchRecyclingCenters();
+       }, []);
+      
+
+
   // Function to get the user's location
   const handleUserLocation = () => {
     if ('geolocation' in navigator) {
@@ -175,24 +202,10 @@ const onUnmount = React.useCallback(function callback(map) {
   };
 
 
-   // Function to handle zoom level change
-  const onZoomChanged = () => {
-    if (mapRef.current && mapRef.current.getZoom) {
-      const zoomLevel = mapRef.current.getZoom();
-      currentZoomLevelRef.current = zoomLevel;
-    }
-  };
-  
-// Attach the onZoomChanged event listener
-useEffect(() => {
-  if (mapRef.current) {
-    mapRef.current.addListener('zoom_changed', onZoomChanged);
-  }
-}, []);
 
 
 
-
+//function to open the center details window
 const handleMarkerClick = async (recycleCenter) => {
     
   try {
@@ -254,7 +267,7 @@ const onMapChangeLocationClick = async (lat , lng) => {
    
 };
 
-
+    //funcction to handle clicks on map
     const onMapClick = async (event) => {
         // Capture the coordinates 
         const lat = event.latLng.lat();
@@ -275,10 +288,8 @@ const onMapChangeLocationClick = async (lat , lng) => {
     } else {
         // Show an alert message indicating that a recycling center can only be added on a specefic scale.
         handleAlertZoom();
-      }
-        
+      }   
     };
-
 
     const handleOnMapClick = (lat ,lng) =>{
   
@@ -289,6 +300,8 @@ const onMapChangeLocationClick = async (lat , lng) => {
       }
     }
     
+
+  // function to check the location type 
   const checkLocationType = (lat, lng) => {
     return new Promise((resolve, reject) => {
       if (window.google) {
@@ -316,7 +329,7 @@ const onMapChangeLocationClick = async (lat , lng) => {
   };
   
 
-    //  code for adding a new recycling center
+    //  function for adding a new recycling center
     const handleAddRecyclingCenter = async (data) => {
       
         try {
@@ -370,13 +383,14 @@ const onMapChangeLocationClick = async (lat , lng) => {
 
 
 
- 
+ // to handle the deletion of a center
   const handleDeletion = () => {
     
       DeleteRecyclingCenter(selectedLocation.id);
       setSelectedLocation(false); // Close the drawer window after deletion.
   };
 
+// to delete the recycling center doc
 const DeleteRecyclingCenter = async (centerId) => {
     try {
       // Construct a reference to the center document to be deleted
@@ -410,7 +424,7 @@ const DeleteRecyclingCenter = async (centerId) => {
    
         // Create an array to store the filtered recycling centers
         const filteredCenters = [];
-        //const count = 0;
+     
       //check on each center if is receive this waste type 
         recyclingCenters.forEach((center) => {
           center.type.forEach((centerType) => {
@@ -418,18 +432,13 @@ const DeleteRecyclingCenter = async (centerId) => {
             // If the center's type matches the selected type, add it to the filteredCenters array
             filteredCenters.push(center);
              // Set the center count
-
-          }
-       
+            }
         });
       });
-      // setFilteredRecyclingCenters(filteredCenters);
       setRecyclingCenters(filteredCenters);
       const count = filteredCenters.length;
       setCenterCount(count);
-
-
-    }
+ }
   };
   
   
@@ -441,12 +450,13 @@ const DeleteRecyclingCenter = async (centerId) => {
 
   };
 
+
   // return the center the have the same name
   const filterRecyclingCentersBySearch = (query) => {
    
-const filteredCenters = [];
+   const filteredCenters = [];
 
-  recyclingCenters.forEach((center) => {
+   recyclingCenters.forEach((center) => {
     if (
       center.name &&
       center.name.includes(query)
@@ -455,11 +465,9 @@ const filteredCenters = [];
     }
   });
   if(filteredCenters.length>0) {
-    // setFilteredRecyclingCenters(filteredCenters);
     setRecyclingCenters(filteredCenters);
   }
   else{
-    // setFilteredRecyclingCenters(recyclingCenters);
     setRecyclingCenters(filteredRecyclingCenters);
   }
   };
@@ -472,7 +480,6 @@ const filteredCenters = [];
       filterRecyclingCentersBySearch(query);
     }
     else{
-        // setFilteredRecyclingCenters(recyclingCenters); // return all center 
         setRecyclingCenters(filteredRecyclingCenters);
     }
    

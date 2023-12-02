@@ -3,11 +3,11 @@ import { GoogleMap, useJsApiLoader, Marker , InfoWindow } from '@react-google-ma
 import { db } from "/src/firebase";
 import { getDocs, collection, addDoc, GeoPoint, doc , Timestamp,updateDoc } from "firebase/firestore"; // Import the necessary Firestore functions
 import { Button , Typography} from "@material-tailwind/react";
-import Success from "../messages/Success"
-import Confirm from "../messages/Confirm"
-import GarbageBinForm from "../forms/GarbageBinForm"
-import ErrorAlertMessage from "../messages/ErrorAlertMessage"
-import MessageDialog from "../messages/MessageDialog" ;
+import Success from "../../utilityComponents/messages/Success"
+import Confirm from "../../utilityComponents/messages/Confirm"
+import GarbageBinForm from "../../utilityComponents/forms/GarbageBinForm"
+import ErrorAlertMessage from "../../utilityComponents/messages/ErrorAlertMessage"
+import MessageDialog from "../../utilityComponents/messages/MessageDialog" ;
 import { v4 as uuidv4 } from 'uuid';
 import Select from 'react-select';
 import makeAnimated from 'react-select/animated';
@@ -41,14 +41,14 @@ const containerStyle = {
     const [showAlertStreet, setShowAlertStreet] = useState(false);
     const [showAlertZoom, setShowAlertZoom] = useState(false);
     const [showSuccessAlert, setShowSuccessAlert] = useState(false);
-    const[ checkMessageVisible, setCheckMessageVisible] = useState(false);
-const [draggedLocation, setDraggedLocation] = useState(null);
-const animatedComponents = makeAnimated();
-const [selectedOption, setSelectedOption] = useState(null);
-const[acceptMessageVisible, setAcceptMessageVisible] = useState(false); 
-const[ rejectMessageVisible, setRejectMessageVisible] = useState(false); 
-const[ showAlertSuccessReject, setAlertSuccessReject] = useState(false);
-const [address, setAddress] = useState('');
+    const [ checkMessageVisible, setCheckMessageVisible] = useState(false);
+    const [draggedLocation, setDraggedLocation] = useState(null);
+    const animatedComponents = makeAnimated();
+    const [selectedOption, setSelectedOption] = useState(null);
+    const[acceptMessageVisible, setAcceptMessageVisible] = useState(false); 
+    const[ rejectMessageVisible, setRejectMessageVisible] = useState(false); 
+    const[ showAlertSuccessReject, setAlertSuccessReject] = useState(false);
+    const [address, setAddress] = useState('');
 
 
  const handleForm = () => setFormVisible(!formVisible);
@@ -64,13 +64,65 @@ const [address, setAddress] = useState('');
   const handleAcceptMessage= () => {setAcceptMessageVisible(!acceptMessageVisible);}
   
 
-     // Define the acceptable zoom level range
+
+  // all google map initilazation functions start here 
+  // Load Google Maps JavaScript API
+  const { isLoaded } = useJsApiLoader({
+    id: 'google-map-script',
+    googleMapsApiKey: "AIzaSyA_uotKtYzbjy44Y2IvoQFds2cCO6VmfMk"
+  })
+
+   // Define the acceptable zoom level range
  const minZoomLevel = 18;
  const currentZoomLevelRef = useRef(null);
  const mapRef = useRef(null);
 
 
+// Callback function when the map loads
+const onLoad = React.useCallback(function callback(map) {
+  mapRef.current = map; // Store the map object in the ref
+  
+  // Get the initial zoom level and store it in currentZoomLevelRef
+  if (map.getZoom) {
+    const initialZoomLevel = map.getZoom();
+    currentZoomLevelRef.current = initialZoomLevel;
+  }
 
+  // Attach the onZoomChanged event listener
+  if (map.addListener) {
+    map.addListener('zoom_changed', onZoomChanged, { passive: true });
+  }
+}, []);
+
+
+// Callback function when the component unmounts
+const onUnmount = React.useCallback(function callback(map) {
+  mapRef.current = null;
+  setMap(null)
+}, [])
+
+
+// Function to handle zoom level change
+const onZoomChanged = () => {
+  if (mapRef.current && mapRef.current.getZoom) {
+    const zoomLevel = mapRef.current.getZoom();
+    currentZoomLevelRef.current = zoomLevel;
+  }
+};
+
+
+// Attach the onZoomChanged event listener
+useEffect(() => {
+if (mapRef.current) {
+  mapRef.current.addListener('zoom_changed', onZoomChanged, { passive: true });
+}
+}, []);
+
+// all google map initilazation functions ends here 
+
+
+
+ 
 
   // Load the garbage bin data from Firestore that only are near the requested garbage bin location request.location as geopoints
   useEffect(() => {
@@ -134,14 +186,6 @@ const calculateDistance = (lat1, lon1, lat2, lon2) => {
 };
 
 
-
-  // Load Google Maps JavaScript API
-  const { isLoaded } = useJsApiLoader({
-    id: 'google-map-script',
-    googleMapsApiKey: "AIzaSyA_uotKtYzbjy44Y2IvoQFds2cCO6VmfMk"
-  })
-
-
   // Function to fetch the readable address from the provided lat,lng
   const fetchAddress = async (lat, lng) => {
     if (window.google) {
@@ -178,49 +222,7 @@ const calculateDistance = (lat1, lon1, lat2, lon2) => {
   };
   
 
-
-// Callback function when the map loads
-const onLoad = React.useCallback(function callback(map) {
-    mapRef.current = map; // Store the map object in the ref
-    
-    // Get the initial zoom level and store it in currentZoomLevelRef
-    if (map.getZoom) {
-      const initialZoomLevel = map.getZoom();
-      currentZoomLevelRef.current = initialZoomLevel;
-    }
-  
-    // Attach the onZoomChanged event listener
-    if (map.addListener) {
-      map.addListener('zoom_changed', onZoomChanged, { passive: true });
-    }
-  }, []);
-
-
-  // Callback function when the component unmounts
-  const onUnmount = React.useCallback(function callback(map) {
-    mapRef.current = null;
-    setMap(null)
-  }, [])
-
-
-  // Function to handle zoom level change
-  const onZoomChanged = () => {
-    if (mapRef.current && mapRef.current.getZoom) {
-      const zoomLevel = mapRef.current.getZoom();
-      currentZoomLevelRef.current = zoomLevel;
-    }
-  };
-
-  
-// Attach the onZoomChanged event listener
-useEffect(() => {
-  if (mapRef.current) {
-    mapRef.current.addListener('zoom_changed', onZoomChanged, { passive: true });
-  }
-}, []);
-
-
-
+// function to check the condtion and act after that
 const checkLocationCondtion = async (lat ,lng) =>{
  if (currentZoomLevelRef.current >= minZoomLevel) {
       const locationType = await checkLocationType(lat, lng);
@@ -236,13 +238,42 @@ const checkLocationCondtion = async (lat ,lng) =>{
     } 
   }
   
-  
+// function to check the location type called by checkLocationCondtion function
+const checkLocationType = (lat, lng) => {
+
+  return new Promise((resolve, reject) => {
+    if (window.google) {
+      const geocoder = new window.google.maps.Geocoder();
+      const latLng = new window.google.maps.LatLng(lat, lng);
+
+      geocoder.geocode({ location: latLng }, (results, status) => {
+        if (status === 'OK') {
+          const types = results[0]?.address_components.map((component) => component.types[0]);
+
+          // Check if 'types' array contains 'premise' (building)
+          if (types.includes('premise')) {
+            resolve('building');
+          } else {
+            resolve('other'); 
+          }
+        } else {
+          reject('Error checking terrain type');
+        }
+      });
+    } else {
+      reject('Google Maps API not loaded');
+    }
+  });
+};
+
+
+
 const handleOnMapClick =() =>{
      setFormVisible(true); 
   }
 
 
-
+// function to handle the accept request
   const handleAcceptRequest = async (message) => {
     // Update the request status based on the selected option
     const requestRef = doc(db, 'requestedGarbageBin', request.id);
@@ -271,7 +302,7 @@ const handleOnMapClick =() =>{
   
 
 
-
+// function to handle the reject request
   const handleRejectRequest = async (message) => {
 
     // Update the request status based on the selected option
@@ -285,37 +316,9 @@ const handleOnMapClick =() =>{
  };
   
 
-const checkLocationType = (lat, lng) => {
-
-    return new Promise((resolve, reject) => {
-      if (window.google) {
-        const geocoder = new window.google.maps.Geocoder();
-        const latLng = new window.google.maps.LatLng(lat, lng);
-  
-        geocoder.geocode({ location: latLng }, (results, status) => {
-          if (status === 'OK') {
-            const types = results[0]?.address_components.map((component) => component.types[0]);
-  
-            // Check if 'types' array contains 'premise' (building)
-            if (types.includes('premise')) {
-              resolve('building');
-            } else {
-              resolve('other'); 
-            }
-          } else {
-            reject('Error checking terrain type');
-          }
-        });
-      } else {
-        reject('Google Maps API not loaded');
-      }
-    });
-  };
 
   
-
-  
- //  code for adding a new Garbage Bin 
+ //  function for adding a new Garbage Bin 
 const AddGarbageBin = async (data) => {
     try {
       const geoPoint = new GeoPoint(
@@ -339,14 +342,14 @@ const AddGarbageBin = async (data) => {
     }
   };
 
-  // Function to generate a unique serial number
+  // Function to generate a unique serial number for the bin
 function generateSerialNumber() {
     return uuidv4();// Generates a random UUID
   }
 
 
 
-
+ 
   const handleSubmittingRequestProcess = async () => {
     if (selectedOption && selectedOption.value === 'قبول') {
      

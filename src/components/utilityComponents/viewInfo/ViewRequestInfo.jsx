@@ -1,12 +1,12 @@
 import {useState, useEffect} from "react"
 import { Button, Dialog, DialogHeader, DialogBody, Typography,Chip, IconButton} from "@material-tailwind/react";
-import { db } from "../../firebase";
+import { db } from "../../../firebase";
 import {
     doc,
     onSnapshot,
     updateDoc,
   } from "firebase/firestore";
-import RequestGarbageMap from  "../maps/RequestGarbageMap"
+import RequestGarbageMap from  "../../MainComponents/GarbageBinRequestAdministeration/RequestGarbageMap"
 
 
 export default function ViewRequestInfo({ open, handler, requestInfo }) { 
@@ -39,7 +39,6 @@ useEffect(() => {
     unsubscribeRequest = onSnapshot(requestDoc, (requestSnapshot) => {
       if (requestSnapshot.exists()) {
         const requestData = requestSnapshot.data();
-        // You can update the request data if needed
       }
     });
 
@@ -66,7 +65,7 @@ useEffect(() => {
       // Update request status to 'قيد التنفيذ' and store the in-progress date
       await updateDoc(requestRef, {
         status: 'قيد التنفيذ',
-        inprogressDate: new Date(), // Set the current date as the in-progress date
+        inprogressDate: new Date(),
       });
     } catch (error) {
       console.error('Error updating request status:', error);

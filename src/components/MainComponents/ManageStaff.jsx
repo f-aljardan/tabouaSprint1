@@ -1,11 +1,11 @@
 
 import {useState , useEffect} from "react";
-import AddStaff from "./forms/AddStaff.jsx";
-import Confirm from "../components/messages/Confirm"
-import Success from "./messages/Success";
+import AddStaff from "../utilityComponents/forms/AddStaff.jsx";
+import Confirm from "../utilityComponents/messages/Confirm.jsx"
+import Success from "../utilityComponents/messages/Success.jsx";
 import {Button,Card,IconButton,Typography,Tooltip,Input,} from "@material-tailwind/react";
 import { UserPlusIcon } from "@heroicons/react/24/solid"
-import { db} from "../firebase";
+import { db} from "../../firebase.js";
 import { collection,  deleteDoc , doc ,  onSnapshot  , updateDoc} from 'firebase/firestore';
 import { MagnifyingGlassIcon } from "@heroicons/react/24/outline";
 
@@ -126,21 +126,12 @@ export default function ManageStaff(){
         email: '',
       });
   
-      // You may also want to update the staffMembers state to reflect the changes.
-      // You can fetch the updated data from the database and update the state if needed.
     } catch (error) {
       console.error('Error updating document: ', error);
-      // Handle the error as needed (e.g., show an error message to the user).
     }
   };
   
 
-
-
-
-
-
-  
 
 // define trash icon for delete staff
   function TrashIcon() {
@@ -320,9 +311,6 @@ return (
                 onChange={handleEditChange}
               />
 
-
-              
-              {/* You can add input fields for other edited data here */}
             </>
           ) : (
             // Render the staff data when not in edit mode
@@ -339,7 +327,7 @@ return (
                 value={editedStaffData.email}
                 onChange={handleEditChange}
               />
-              {/* You can style and manage other edited fields here */}
+            
             </>
           ) : (
             // Render the staff email when not in edit mode

@@ -2,14 +2,14 @@ import { useState , useEffect} from 'react';
 import {  Route, Routes , useNavigate } from 'react-router-dom';
 import { db, auth,  }  from "/src/firebase";
 import { collection, query, where ,getDocs} from "firebase/firestore";
-import Home from '../Home';
+import Home from '../MainComponents/Home';
 import Sidebar from '../utilityComponents/Sidebar';
-import GarbageBinMap from "../maps/GarbageBinMap"
-import GarbageBinRequests from "../GarbageBinRequests"
-import RecyclingCenterMap from "../maps/RecyclingCentersMap"
-import Complaints from '../Complaints';
-import Heatmap from '../Heatmap';
-import ManageStaff from '../ManageStaff';
+import GarbageBinMap from "../MainComponents/GarbageBinAdministeration"
+import GarbageBinRequests from "../MainComponents/GarbageBinRequestAdministeration/GarbageBinRequests"
+import RecyclingCenterMap from "../MainComponents/RecyclingCenterAdministeration"
+import Complaints from '../MainComponents/Complaints';
+import Heatmap from '../MainComponents/Heatmap';
+import ManageStaff from "../MainComponents/ManageStaff"
 import Footer from "../utilityComponents/Footer"
 
 
@@ -27,14 +27,13 @@ function MainPage() {
     const unsubscribe = auth.onAuthStateChanged(async (user) => {
       if (user) {
         
-          // User is signed in, fetch user profile data from Firestore
+          // User is signed in, fetch user profile data from database
           const userRef = collection(db, 'staff');
           const q = query(userRef, where('uid', '==', user.uid));
     
           try {
             const querySnapshot = await getDocs(q);
             if (!querySnapshot.empty) {
-              // Assuming there's only one user with a matching UID
               const docSnapshot = querySnapshot.docs[0];
               setUserData(docSnapshot.data());
 

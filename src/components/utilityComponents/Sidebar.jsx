@@ -40,7 +40,6 @@ import {
         setActiveItem("") ;
       } else {
         // Keep the sidebar visible for other pages
-       
         setActiveItem(item) ;
       }
     };

@@ -1,34 +1,30 @@
 import React , {useState, useEffect, useRef} from 'react'
 import { GoogleMap, useJsApiLoader, Marker , Circle,  } from '@react-google-maps/api';
 import { db } from "/src/firebase";
-import { getDocs, collection, addDoc, GeoPoint, deleteDoc, doc ,getDoc, Timestamp,updateDoc } from "firebase/firestore"; // Import the necessary Firestore functions
+import { getDocs, collection, addDoc, GeoPoint, deleteDoc, doc ,getDoc, Timestamp,updateDoc } from "firebase/firestore"; 
 import { Button , Tooltip} from "@material-tailwind/react";
-import Success from "../messages/Success"
-import Confirm from "../messages/Confirm"
-import GarbageBinForm from "../forms/GarbageBinForm"
-import ViewGarbageInfo from "../viewInfo/ViewGarbageInfo"
-import ErrorAlertMessage from "../messages/ErrorAlertMessage"
-import AlertMessage from "../messages/AlertMessage"
+import Success from "../utilityComponents/messages/Success"
+import Confirm from "../utilityComponents/messages/Confirm"
+import GarbageBinForm from "../utilityComponents/forms/GarbageBinForm"
+import ViewGarbageInfo from "../utilityComponents/viewInfo/ViewGarbageInfo"
+import ErrorAlertMessage from "../utilityComponents/messages/ErrorAlertMessage"
+import AlertMessage from "../utilityComponents/messages/AlertMessage"
 import { v4 as uuidv4 } from 'uuid';
 import Select from 'react-select';
 import makeAnimated from 'react-select/animated';
-
-
 const animatedComponents = makeAnimated();
 
 
 // Define constants for the Google Map
 const containerStyle = {
-  width: '100%', // Set a width as needed
+  width: '100%', 
     height: '100%'
 };
-// Set the initial center
+// Set the initial center for the  Google Map
 const center = {
   lat: 24.7136,
   lng: 46.6753
 };
-
-
 
 // Define options for garbage bin size selection
 const binSizeOptions = [
@@ -82,14 +78,66 @@ function GarbageBinMap() {
      setCheckMessageVisible(!checkMessageVisible); 
     }
 
- // Define the acceptable zoom level range
- const minZoomLevel = 18;
- const currentZoomLevelRef = useRef(null);
- const mapRef = useRef(null);
+
+ // all google map initilization related function starts here
+  // Load Google Maps JavaScript API
+  const { isLoaded } = useJsApiLoader({
+    id: 'google-map-script',
+    googleMapsApiKey: "AIzaSyA_uotKtYzbjy44Y2IvoQFds2cCO6VmfMk"
+  })
+
+// Define the acceptable zoom level range
+const minZoomLevel = 18;
+const currentZoomLevelRef = useRef(null);
+const mapRef = useRef(null);
+
+// Callback function when the map loads
+  const onLoad = React.useCallback(function callback(map) {
+    mapRef.current = map; // Store the map object in the ref
+    
+    // Get the initial zoom level and store it in currentZoomLevelRef
+    if (map.getZoom) {
+      const initialZoomLevel = map.getZoom();
+      currentZoomLevelRef.current = initialZoomLevel;
+    }
+  
+    // Attach the onZoomChanged event listener
+    if (map.addListener) {
+      map.addListener('zoom_changed', onZoomChanged, { passive: true });
+    }
+  }, []);
+
+
+  // Callback function when the component unmounts
+  const onUnmount = React.useCallback(function callback(map) {
+    mapRef.current = null;
+    setMap(null)
+  }, [])
+
+   // Function to handle zoom level change
+   const onZoomChanged = () => {
+    if (mapRef.current && mapRef.current.getZoom) {
+      const zoomLevel = mapRef.current.getZoom();
+      currentZoomLevelRef.current = zoomLevel;
+    }
+  };
+
+  
+// Attach the onZoomChanged event listener
+useEffect(() => {
+  if (mapRef.current) {
+    mapRef.current.addListener('zoom_changed', onZoomChanged, { passive: true });
+  }
+}, []);
+
+ // all google map initilization related function ends here
 
 
 
-  // Load the garbage bin data from Firestore
+
+
+
+  // Load all garbage bin data from database
   useEffect(() => {
     const fetchGarbageBins = async () => {
       try {
@@ -116,41 +164,6 @@ function GarbageBinMap() {
 
 
 
-
-  // Load Google Maps JavaScript API
-  const { isLoaded } = useJsApiLoader({
-    id: 'google-map-script',
-    googleMapsApiKey: "AIzaSyA_uotKtYzbjy44Y2IvoQFds2cCO6VmfMk"
-  })
-
-
-
-   
-  
-// Callback function when the map loads
-  const onLoad = React.useCallback(function callback(map) {
-    mapRef.current = map; // Store the map object in the ref
-    
-    // Get the initial zoom level and store it in currentZoomLevelRef
-    if (map.getZoom) {
-      const initialZoomLevel = map.getZoom();
-      currentZoomLevelRef.current = initialZoomLevel;
-    }
-  
-    // Attach the onZoomChanged event listener
-    if (map.addListener) {
-      map.addListener('zoom_changed', onZoomChanged, { passive: true });
-    }
-  }, []);
-
-
-  // Callback function when the component unmounts
-  const onUnmount = React.useCallback(function callback(map) {
-    mapRef.current = null;
-    setMap(null)
-  }, [])
-
-
   // Function to filter garbage bins based on type
   const filterGarbageBins = (size) => {
     if (size === '') {
@@ -169,8 +182,6 @@ const handleBinSizeSelect = (selectedOption) => {
   setSelectedBinSize(selectedOption.value);
   filterGarbageBins(selectedOption.value);
 };
-
-
 
 
  
@@ -199,25 +210,9 @@ const handleBinSizeSelect = (selectedOption) => {
   };
   
 
-  // Function to handle zoom level change
-  const onZoomChanged = () => {
-    if (mapRef.current && mapRef.current.getZoom) {
-      const zoomLevel = mapRef.current.getZoom();
-      currentZoomLevelRef.current = zoomLevel;
-    }
-  };
-
-  
-// Attach the onZoomChanged event listener
-useEffect(() => {
-  if (mapRef.current) {
-    mapRef.current.addListener('zoom_changed', onZoomChanged, { passive: true });
-  }
-}, []);
 
 
-
- 
+ //function to handle the view details of the bin
   const handleMarkerClick = async (bin) => {
     try {
       // Fetch data for the selected garbage Bin  using its ID
@@ -240,7 +235,7 @@ useEffect(() => {
   };
 
 
-// Function to change the Marker's location
+// Function to change the bin Marker's location
 const handleChangeMarkerLocation = (binId) => {
   setIsChangingBinLocation(true);
   setShowAlertLocation(true);
@@ -276,7 +271,7 @@ const onMapChangeLocationClick = async (lat , lng) => {
       }
 };
 
-
+//function to handle clicks on the map 
 const onMapClick = async (event) => {
 
     // Capture the coordinates and display a confirmation message
@@ -287,6 +282,8 @@ const onMapClick = async (event) => {
   checkLocationCondtion(lat , lng);
 };
 
+
+//to check if condtions met then act towards it
 const checkLocationCondtion = async (lat ,lng) =>{
   if (currentZoomLevelRef.current >= minZoomLevel) {
     const locationType = await checkLocationType(lat, lng);
@@ -296,7 +293,6 @@ const checkLocationCondtion = async (lat ,lng) =>{
     } else {
       handleOnMapClick(lat,lng);  
   }
-
   } else {
     // Show an alert message indicating that a garbage bin can only be added on a specific scale.
     handleAlertZoom();
@@ -313,7 +309,7 @@ const handleOnMapClick = (lat ,lng) =>{
 }
 
 
-
+// function to check the location type called by checkLocationCondtion function
 const checkLocationType = (lat, lng) => {
 
   return new Promise((resolve, reject) => {
@@ -342,7 +338,7 @@ const checkLocationType = (lat, lng) => {
 };
 
 
- //  code for adding a new Garbage Bin 
+ //  function for adding a new Garbage Bin 
 const AddGarbageBin = async (data) => {
   try {
     const geoPoint = new GeoPoint(
@@ -372,12 +368,13 @@ function generateSerialNumber() {
   return uuidv4();// Generates a random UUID
 }
 
-
+// to handle the deletion of a bin
 const handleDeletion = () => {
   DeleteGarbageBin(selectedLocation.id);
   setSelectedLocation(false);
 };
 
+// to delete the garbage bin doc
 const DeleteGarbageBin = async (garbageBinId) => {
   try {
     // Construct a reference to the garbage bin document to be deleted
@@ -393,7 +390,6 @@ const DeleteGarbageBin = async (garbageBinId) => {
      // Display a success message
      setShowAlertDeletion(true);
    
-    
   } catch (error) {
     console.error("Error deleting garbage bin:", error);
     alert("An error occurred while deleting the garbage bin.");

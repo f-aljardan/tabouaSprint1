@@ -4,8 +4,8 @@ import userIcon from "/src/assets/userIcon.svg";
 import { getAuth, signOut, updatePassword } from "firebase/auth";
 import { useNavigate } from 'react-router-dom';
 import { Dialog, DialogHeader, DialogBody, DialogFooter } from "@material-tailwind/react";
-import Confirm from "../messages/Confirm";
-import Success from "../messages/Success";
+import Confirm from "./messages/Confirm";
+import Success from "./messages/Success";
 
 export default function ProfileMenu({ userData }) {
   const navigate = useNavigate();

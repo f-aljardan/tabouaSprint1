@@ -1002,17 +1002,17 @@ openingHours:centerHours,
 <div className="flex flex-col gap-2">
            <Button
             size="md"
-            fullWidth={true}
+           // fullWidth={true}
             onClick={handleEdit}
             variant="gradient"
-            style={{ background: '#97B980', color: '#ffffff' }}
+            style={{ background: '#97B980', color: '#ffffff'}}
           >
             <span>تعديل  </span>
           </Button>
         <Button
-          size="sm"
+          size="md"
           className="mt-3"
-          fullWidth={true}
+         // fullWidth={true}
           variant="gradient"
           style={{ background: "#FE5500", color: "#ffffff" }}
           onClick={handleDeleteConfirmation}

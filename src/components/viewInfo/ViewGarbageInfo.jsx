@@ -36,6 +36,7 @@ export default function ViewGarbageInfo({ open, onClose, DeleteMethod, Changeloc
     // Parse the input value to a Date
     const newDate = new Date(e.target.value);
     setMaintenanceDate(newDate);
+  
   };
 
   const saveMaintenanceDate = async () => {
@@ -52,6 +53,7 @@ export default function ViewGarbageInfo({ open, onClose, DeleteMethod, Changeloc
 
       // Close the maintenance date editing input
       setEditingMaintenanceDate(false);
+      handleEditMaintenanceDate();
     } catch (error) {
       console.error("Error updating maintenance date:", error);
     }

@@ -25,6 +25,12 @@ export default function ManageStaff(){
     email: '',
   });
 
+const [firstNameError, setFirstNameError] = useState('');
+const [fatherNameError, setFatherNameError] = useState('');
+const [lastNameError, setLastNameError] = useState('');
+const [emailError, setEmailError] = useState('');
+
+
   //change state of add staff form
   const handleAddStaff = () => {
     setShowAddStaffDialog(!showAddStaffDialog);
@@ -91,16 +97,96 @@ export default function ManageStaff(){
 
   }
 
-  const handleEditChange = (e) => {
+  /*const handleEditChange = (e) => {
     const { name, value } = e.target;
     setEditedStaffData((prevData) => ({
       ...prevData,
       [name]: value,
     }));
-  };
+  };*/
 
+  const handleEditChange = (e) => {
+    const { name, value } = e.target;
+  
+    // Clear the error message when the user starts editing a field
+    switch (name) {
+      case 'firstName':
+        setFirstNameError('');
+        break;
+      case 'fatherName':
+        setFatherNameError('');
+        break;
+      case 'lastName':
+        setLastNameError('');
+        break;
+      case 'email':
+        setEmailError('');
+        break;
+      default:
+        break;
+    }
+  
+    setEditedStaffData((prevData) => ({
+      ...prevData,
+      [name]: value,
+    }));
+  };
+  
+
+
+  /*const handleSaveEdit = async () => {
+    // Create a reference to the staff member's document in the database
+    const staffDocRef = doc(db, 'staff', editedStaffData.id);
+  
+    // Prepare the data to be updated
+    const updatedData = {
+      firstName: editedStaffData.firstName,
+      fatherName: editedStaffData.fatherName,
+      lastName: editedStaffData.lastName,
+      email: editedStaffData.email,
+    };
+  
+    try {
+      // Update the document with the new data
+      await updateDoc(staffDocRef, updatedData);
+  
+      // Exit edit mode and clear the edited data
+      setIsEditMode(false);
+      setEditedStaffData({
+        id: null,
+        firstName: '',
+        fatherName: '',
+        lastName: '',
+        email: '',
+      });
+  
+    } catch (error) {
+      console.error('Error updating document: ', error);
+    }
+  };*/
 
   const handleSaveEdit = async () => {
+    // Validate each field
+    if (editedStaffData.firstName.trim() === '') {
+      setFirstNameError('يرجى إدخال الاسم الأول.');
+      return;
+    }
+  
+    if (editedStaffData.fatherName.trim() === '') {
+      setFatherNameError('يرجى إدخال اسم الأب.');
+      return;
+    }
+  
+    if (editedStaffData.lastName.trim() === '') {
+      setLastNameError('يرجى إدخال اسم العائلة.');
+      return;
+    }
+  
+    if (editedStaffData.email.trim() === '') {
+      setEmailError('يرجى إدخال البريد الإلكتروني.');
+      return;
+    }
+  
     // Create a reference to the staff member's document in the database
     const staffDocRef = doc(db, 'staff', editedStaffData.id);
   
@@ -130,6 +216,9 @@ export default function ManageStaff(){
       console.error('Error updating document: ', error);
     }
   };
+
+
+  
   
 
 
@@ -291,25 +380,44 @@ return (
             
 
             <>
+            <div className="mb-2">
+              
+            </div>
               <Input
                 type="text"
                 name="firstName"
                 value={editedStaffData.firstName}
                 onChange={handleEditChange}
+                helperText={firstNameError}   
               />
+              {firstNameError && (
+               <div className="text-red-500 text-sm mt-1">{firstNameError}</div>
+               )}
+
+
                <Input
                 type="text"
                 name="fatherName"
                 value={editedStaffData.fatherName}
                 onChange={handleEditChange}
+                helperText={fatherNameError}  
               />
+              {firstNameError && (
+               <div className="text-red-500 text-sm mt-1">{fatherNameError}</div>
+               )}
+              
 
                <Input
                 type="text"
                 name="lastName"
                 value={editedStaffData.lastName}
                 onChange={handleEditChange}
+                helperText={lastNameError}  
               />
+              {firstNameError && (
+               <div className="text-red-500 text-sm mt-1">{lastNameError}</div>
+               )}
+              
 
             </>
           ) : (
@@ -326,7 +434,11 @@ return (
                 name="email"
                 value={editedStaffData.email}
                 onChange={handleEditChange}
+                helperText={emailError}  
               />
+              {emailError && (
+               <div className="text-red-500 text-sm mt-1">{emailError}</div>
+               )}
             
             </>
           ) : (

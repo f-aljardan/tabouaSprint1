@@ -2,7 +2,7 @@
 import { BrowserRouter as Router, Route, Routes  } from 'react-router-dom';
 import './App.css'
 import Login from "./components/Login"
-import MainPage from "./components/MainPage"
+import MainPage from "./components/routing/MainPage"
 import { LocalizationProvider } from '@mui/x-date-pickers';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs'
 import ForgotPassword from './components/ForgotPassword';

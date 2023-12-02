@@ -593,7 +593,7 @@ const filteredCenters = [];
     <RecyclingCenterForm open={formVisible} handler={handleForm} method={handleAddRecyclingCenter} />
     <Success open={showSuccessAlert} handler={handleSuccessAlert} message=" تم إضافة مركز التدوير بنجاح" />
     <Success open={showAlertSuccessDeletion} handler={handleAlertSuccessDeletion} message=" تم حذف مركز التدوير بنجاح" />
-    <Success open={showAlertSuccessLocation} handler={handleAlertSuccessLocation} message=" تم تغيير موقع حاوية القمامة بنجاح" />
+    <Success open={showAlertSuccessLocation} handler={handleAlertSuccessLocation} message=" تم تغيير موقع مركز التدوير بنجاح" />
     <Confirm open={checkMessageVisible} handler={handleCheckMessage} method={()=>{ handleOnMapClick(newRecyclingCenterLocation.lat,newRecyclingCenterLocation.lng); setCheckMessageVisible(false);}} message="هل انت متأكد من أن الموقع المحدد يقع على مبنى؟" />
    
   </GoogleMap>

@@ -2,15 +2,15 @@ import { useState , useEffect} from 'react';
 import {  Route, Routes , useNavigate } from 'react-router-dom';
 import { db, auth,  }  from "/src/firebase";
 import { collection, query, where ,getDocs} from "firebase/firestore";
-import Home from './Home';
-import Sidebar from './utilityComponents/Sidebar';
-import GarbageBinMap from "./maps/GarbageBinMap"
-import GarbageBinRequests from "./GarbageBinRequests"
-import RecyclingCenterMap from "./maps/RecyclingCentersMap"
-import Complaints from './Complaints';
-import Heatmap from './Heatmap';
-import ManageStaff from './ManageStaff';
-import Footer from "./utilityComponents/Footer"
+import Home from '../Home';
+import Sidebar from '../utilityComponents/Sidebar';
+import GarbageBinMap from "../maps/GarbageBinMap"
+import GarbageBinRequests from "../GarbageBinRequests"
+import RecyclingCenterMap from "../maps/RecyclingCentersMap"
+import Complaints from '../Complaints';
+import Heatmap from '../Heatmap';
+import ManageStaff from '../ManageStaff';
+import Footer from "../utilityComponents/Footer"
 
 
 function MainPage() {

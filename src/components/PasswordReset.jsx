@@ -1,7 +1,6 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { Card, CardBody, CardFooter, Input, Button } from '@material-tailwind/react';
 import { getAuth , updatePassword } from 'firebase/auth'; // Import necessary Firebase Auth functions
-import { doc , updateDoc} from 'firebase/firestore';
 import { useNavigate } from 'react-router-dom';
 
 const PasswordReset = () => {
@@ -132,7 +131,7 @@ const PasswordReset = () => {
           { confirmPasswordError&& <span style={{ color: 'red' }}>{confirmPasswordError}</span>}
 
           
-                <span variant='small' className='mb-5' style={{fontSize: '0.85rem', marginBottom: '0.5%' }}>كلمة المرور يجب أن تكون مكونة من ٨ خانات على الأقل و تشمل حرف كبير ، حرف صغير ، رمز</span>
+                <span variant='small' className='mb-5' style={{fontSize: '0.85rem', marginBottom: '0.5%' }}> كلمة المرور يجب أن تكون مكونة من ٨ خانات على الأقل و تشمل حرف كبير ، حرف صغير ، رمز و رقم</span>
          
        
          <div className="-ml-2.5">

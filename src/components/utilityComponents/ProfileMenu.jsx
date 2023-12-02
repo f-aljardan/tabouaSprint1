@@ -4,8 +4,8 @@ import userIcon from "/src/assets/userIcon.svg";
 import { getAuth, signOut, updatePassword } from "firebase/auth";
 import { useNavigate } from 'react-router-dom';
 import { Dialog, DialogHeader, DialogBody, DialogFooter } from "@material-tailwind/react";
-import Confirm from "../components/messages/Confirm";
-import Success from "./messages/Success";
+import Confirm from "../messages/Confirm";
+import Success from "../messages/Success";
 
 export default function ProfileMenu({ userData }) {
   const navigate = useNavigate();
@@ -193,7 +193,7 @@ export default function ProfileMenu({ userData }) {
           <DialogBody divider className="font-baloo text-right">
             <div className="text-right">
               <Typography variant='small' className='mb-5'>
-                <span>كلمة المرور يجب أن تكون مكونة من ٨ خانات على الأقل و تشمل حرف كبير ، حرف صغير ، رمز</span>
+                <span>كلمة المرور يجب أن تكون مكونة من ٨ خانات على الأقل و تشمل حرف كبير ، حرف صغير ، رمز ورقم</span>
               </Typography>
               <Input
                 type="password"

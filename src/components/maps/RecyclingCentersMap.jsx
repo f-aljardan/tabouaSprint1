@@ -43,7 +43,7 @@ const center = {
 };
 
 
-let customIcon;
+
 
 function RecyclingCentersMap() {
 
@@ -163,10 +163,8 @@ const onUnmount = React.useCallback(function callback(map) {
 
         if (mapRef.current) {
           const map = mapRef.current;
-
           // Set the center of the map to the user's location
           map.setCenter(userPosition);
-
           // Set the zoom level to focus on the user's location
           map.setZoom(18); 
         }
@@ -264,17 +262,9 @@ const onMapChangeLocationClick = async (lat , lng) => {
     
         // Check if the conditions are met
   if (currentZoomLevelRef.current >= minZoomLevel) {
-    const terrainType = await checkTerrainType(lat, lng);
+    const locationType = await checkLocationType(lat, lng);
     setNewRecyclingCenterLocation({ lat, lng });
-    if (terrainType === 'building') {
-
-      // if (isChangingCenterLocation) {
-      //   onMapChangeLocationClick(lat,lng)
-      // }else{
-      //  // Store the new center location temporarily
-      // //  setNewRecyclingCenterLocation({ lat, lng });
-      //  setFormVisible(true);
-      // }
+    if (locationType === 'building') {
 
       handleOnMapClick(lat,lng);
 
@@ -299,7 +289,7 @@ const onMapChangeLocationClick = async (lat , lng) => {
       }
     }
     
-  const checkTerrainType = (lat, lng) => {
+  const checkLocationType = (lat, lng) => {
     return new Promise((resolve, reject) => {
       if (window.google) {
         const geocoder = new window.google.maps.Geocoder();

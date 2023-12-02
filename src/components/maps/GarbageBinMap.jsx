@@ -289,9 +289,9 @@ const onMapClick = async (event) => {
 
 const checkLocationCondtion = async (lat ,lng) =>{
   if (currentZoomLevelRef.current >= minZoomLevel) {
-    const terrainType = await checkTerrainType(lat, lng);
+    const locationType = await checkLocationType(lat, lng);
     setNewGarbageBinLocation({ lat, lng });
-    if (terrainType === 'building') {
+    if (locationType === 'building') {
       setCheckMessageVisible(true);
     } else {
       handleOnMapClick(lat,lng);  
@@ -314,7 +314,7 @@ const handleOnMapClick = (lat ,lng) =>{
 
 
 
-const checkTerrainType = (lat, lng) => {
+const checkLocationType = (lat, lng) => {
 
   return new Promise((resolve, reject) => {
     if (window.google) {
@@ -374,10 +374,8 @@ function generateSerialNumber() {
 
 
 const handleDeletion = () => {
-  // Call the onDeleteGarbageBin function passed as a prop to handle deletion.
   DeleteGarbageBin(selectedLocation.id);
   setSelectedLocation(false);
-
 };
 
 const DeleteGarbageBin = async (garbageBinId) => {

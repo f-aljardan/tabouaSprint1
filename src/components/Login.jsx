@@ -6,7 +6,7 @@ import  { getAuth, signInWithEmailAndPassword } from "firebase/auth";
 import { collection, getDocs , } from 'firebase/firestore';
 import { db} from "../firebase";
 import { useNavigate } from 'react-router-dom';
-import Footer from "./Footer";
+import Footer from "./utilityComponents/Footer";
 
 const Login = () => {
 

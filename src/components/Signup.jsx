@@ -1,12 +1,11 @@
 
 import  { useState } from 'react';
 import { db, auth,  }  from "/src/firebase";
-import { collection, query, where, getDocs, setDoc,} from 'firebase/firestore';
+import { collection, query, where, getDocs, setDoc, updateDoc, deleteField} from 'firebase/firestore';
 import {Card, CardBody, CardFooter, Input, Button,} from "@material-tailwind/react";
 import logo from "/src/assets/tabouaNo.png";
 import {createUserWithEmailAndPassword} from 'firebase/auth';
 import { useNavigate } from 'react-router-dom';
-import { Typography } from "@material-tailwind/react";
 
 function Signup(){
     const [email, setEmail] = useState('');// state to store email
@@ -56,6 +55,12 @@ if (!querySnapshot.empty) {
   const staffDocRef = querySnapshot.docs[0].ref;
   // Set the 'uid' field in the document
   await setDoc(staffDocRef, { uid }, { merge: true });
+
+ // Delete the 'password' field in the document
+ await updateDoc(staffDocRef, {
+  password: deleteField(), 
+});
+
 } else {
   // Handle the case where no document with the email is found
   console.error('No document found with the provided email.');

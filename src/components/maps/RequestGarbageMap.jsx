@@ -223,9 +223,9 @@ useEffect(() => {
 
 const checkLocationCondtion = async (lat ,lng) =>{
  if (currentZoomLevelRef.current >= minZoomLevel) {
-      const terrainType = await checkTerrainType(lat, lng);
+      const locationType = await checkLocationType(lat, lng);
       setNewGarbageBinLocation({ lat, lng });
-      if (terrainType === 'building') {
+      if (locationType === 'building') {
         setCheckMessageVisible(true);
       } else {
         handleOnMapClick(lat,lng);  
@@ -285,7 +285,7 @@ const handleOnMapClick =() =>{
  };
   
 
-const checkTerrainType = (lat, lng) => {
+const checkLocationType = (lat, lng) => {
 
     return new Promise((resolve, reject) => {
       if (window.google) {

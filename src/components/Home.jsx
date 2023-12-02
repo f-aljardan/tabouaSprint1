@@ -1,7 +1,7 @@
 
-import React, { useEffect } from 'react';
+import { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import ProfileMenu from './ProfileMenu';
+import ProfileMenu from './utilityComponents/ProfileMenu';
 import logo from '/src/assets/tabouaNo.png';
 import { TrashIcon } from '@heroicons/react/24/solid';
 import { FaRecycle } from 'react-icons/fa';

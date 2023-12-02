@@ -1,9 +1,10 @@
 
-import { useState , useRef } from 'react';
+import { useState , useRef , useEffect } from 'react';
 import { Button, Dialog, DialogHeader, DialogBody, DialogFooter, Input,} from "@material-tailwind/react";
 import emailjs from 'emailjs-com';
 import { db} from "../../firebase";
 import { collection, addDoc } from 'firebase/firestore';
+import { onSnapshot } from 'firebase/firestore';
 import SummeryStaffInfo from "../messages/SummeryStaffInfo";
 import "@material-tailwind/react"; 
 import Success from "../messages/Success"
@@ -13,7 +14,6 @@ import Success from "../messages/Success"
 export default function AddStaff({open , handler }){
   const [summeryStaffOpen, setSummeryStaffOpen] = useState(false);
   const [showAlert, setShowAlert] = useState(false);
-
 
 // handle show staff summery 
   const handleSummeryStaff = () =>setSummeryStaffOpen(!summeryStaffOpen); 
@@ -28,6 +28,8 @@ export default function AddStaff({open , handler }){
     password: '',
    fatherName: '',
   });
+  const [staffEmails , setStaffEmails] = useState([]);
+
 
   // Save form data , to send email to staff when added
   const formRef = useRef();
@@ -57,6 +59,33 @@ export default function AddStaff({open , handler }){
     });
   };
 
+  //Fetch all staff Emails from firebase
+  useEffect(() => {
+    const staffCollection = collection(db, 'staff');
+    const unsubscribe = onSnapshot(staffCollection, (snapshot) => {
+      const staffData = [];
+  
+      snapshot.forEach((doc) => {
+        const data = doc.data();
+  
+        // Check if the 'isAdmin' field is explicitly set to false
+        if (data.isAdmin === false) {
+          staffData.push({
+            email: data.email,
+            id: doc.id,
+          });
+        }
+      });
+  
+      setStaffEmails(staffData);// store staff information
+    });
+  
+    // Return the cleanup function to unsubscribe from the listener
+    return () => {
+      unsubscribe();
+    };
+
+  }, []);
   // validate form user input 
   const validate = async(e) => {
     e.preventDefault();
@@ -78,7 +107,11 @@ export default function AddStaff({open , handler }){
       newErrors.email = 'البريد الإلكتروني مطلوب';
     } else if (!/^\S+@\S+\.\S+$/.test(formData.email)) {
       newErrors.email = 'صيغة البريد الإلكتروني غير صحيحة';
+    }else if(staffEmails.some((staff) => staff.email === formData.email)) {
+      newErrors.email = 'هذا البريد مضاف في النظام من قبل';
+
     }
+
 
   if (!formData.password.trim()) {
     newErrors.password = 'الرقم السري مطلوب';
@@ -100,9 +133,7 @@ export default function AddStaff({open , handler }){
   const generatePassword = () => {
   formData.password = Math.random().toString(36).slice(-8);
 
-  //Math.random()Generate random number 
-  //.toString(36) Convert to base-36 
-  //.slice(-8);Cut off last 8 characters 
+ 
 
   };
   const handlerForm = () => {

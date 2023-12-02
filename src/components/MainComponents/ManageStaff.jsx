@@ -29,6 +29,7 @@ const [firstNameError, setFirstNameError] = useState('');
 const [fatherNameError, setFatherNameError] = useState('');
 const [lastNameError, setLastNameError] = useState('');
 const [emailError, setEmailError] = useState('');
+const [errors, setErrors] = useState({});
 
 
   //change state of add staff form
@@ -165,27 +166,37 @@ const [emailError, setEmailError] = useState('');
     }
   };*/
 
-  const handleSaveEdit = async () => {
+  /*const handleSaveEdit = async () => {
+    // Initialize error messages for each field
+    setFirstNameError('');
+    setFatherNameError('');
+    setLastNameError('');
+    setEmailError('');
+  
     // Validate each field
     if (editedStaffData.firstName.trim() === '') {
       setFirstNameError('يرجى إدخال الاسم الأول.');
-      return;
     }
   
     if (editedStaffData.fatherName.trim() === '') {
       setFatherNameError('يرجى إدخال اسم الأب.');
-      return;
     }
   
     if (editedStaffData.lastName.trim() === '') {
       setLastNameError('يرجى إدخال اسم العائلة.');
-      return;
     }
   
     if (editedStaffData.email.trim() === '') {
       setEmailError('يرجى إدخال البريد الإلكتروني.');
+    }
+  
+    // Check if any field has an error message
+    if (firstNameError || fatherNameError || lastNameError || emailError) {
+      // At least one field is empty, do not proceed with the update
       return;
     }
+
+   
   
     // Create a reference to the staff member's document in the database
     const staffDocRef = doc(db, 'staff', editedStaffData.id);
@@ -215,7 +226,72 @@ const [emailError, setEmailError] = useState('');
     } catch (error) {
       console.error('Error updating document: ', error);
     }
+  };*/
+
+  const handleSaveEdit = async () => {
+    // Initialize errors object
+    const newErrors = {};
+  
+    // Validate each field
+    if (editedStaffData.firstName.trim() === '') {
+      newErrors.firstName = 'يرجى إدخال الاسم الأول.';
+    }
+  
+    if (editedStaffData.fatherName.trim() === '') {
+      newErrors.fatherName = 'يرجى إدخال اسم الأب.';
+    }
+  
+    if (editedStaffData.lastName.trim() === '') {
+      newErrors.lastName = 'يرجى إدخال اسم العائلة.';
+    }
+  
+    if (editedStaffData.email.trim() === '') {
+      newErrors.email = 'يرجى إدخال البريد الإلكتروني.';
+    }
+  
+    // Update the state with errors using the callback function
+    setErrors(newErrors, () => {
+      // Check if any field has an error message
+      if (Object.values(newErrors).some((error) => error.trim() !== '')) {
+        // At least one field is empty, do not proceed with the update
+        console.log('Update blocked due to errors.');
+        return;
+      }
+  
+      // Continue with the rest of the function...
+  
+      // Create a reference to the staff member's document in the database
+      const staffDocRef = doc(db, 'staff', editedStaffData.id);
+  
+      // Prepare the data to be updated
+      const updatedData = {
+        firstName: editedStaffData.firstName,
+        fatherName: editedStaffData.fatherName,
+        lastName: editedStaffData.lastName,
+        email: editedStaffData.email,
+      };
+  
+      try {
+        // Update the document with the new data
+        updateDoc(staffDocRef, updatedData);
+  
+        // Exit edit mode and clear the edited data
+        setIsEditMode(false);
+        setEditedStaffData({
+          id: null,
+          firstName: '',
+          fatherName: '',
+          lastName: '',
+          email: '',
+        });
+  
+      } catch (error) {
+        console.error('Error updating document: ', error);
+      }
+    });
   };
+  
+  
 
 
   
@@ -388,23 +464,23 @@ return (
                 name="firstName"
                 value={editedStaffData.firstName}
                 onChange={handleEditChange}
-                helperText={firstNameError}   
+                error={errors.firstName}  
               />
-              {firstNameError && (
-               <div className="text-red-500 text-sm mt-1">{firstNameError}</div>
-               )}
-
+              {errors.firstName && (
+  <div className="text-red-500 text-sm mt-1">{errors.firstName}</div>
+)}
 
                <Input
                 type="text"
                 name="fatherName"
                 value={editedStaffData.fatherName}
                 onChange={handleEditChange}
-                helperText={fatherNameError}  
+                error={fatherNameError}  
               />
-              {firstNameError && (
-               <div className="text-red-500 text-sm mt-1">{fatherNameError}</div>
-               )}
+              {errors.fatherName && (
+  <div className="text-red-500 text-sm mt-1">{errors.fatherName}</div>
+)}
+
               
 
                <Input
@@ -412,11 +488,12 @@ return (
                 name="lastName"
                 value={editedStaffData.lastName}
                 onChange={handleEditChange}
-                helperText={lastNameError}  
+                error={lastNameError}  
               />
-              {firstNameError && (
-               <div className="text-red-500 text-sm mt-1">{lastNameError}</div>
-               )}
+              {errors.lastName && (
+  <div className="text-red-500 text-sm mt-1">{errors.lastName}</div>
+)}
+
               
 
             </>
@@ -434,11 +511,12 @@ return (
                 name="email"
                 value={editedStaffData.email}
                 onChange={handleEditChange}
-                helperText={emailError}  
+                error={emailError}  
               />
-              {emailError && (
-               <div className="text-red-500 text-sm mt-1">{emailError}</div>
-               )}
+              {errors.email && (
+  <div className="text-red-500 text-sm mt-1">{errors.email}</div>
+)}
+
             
             </>
           ) : (

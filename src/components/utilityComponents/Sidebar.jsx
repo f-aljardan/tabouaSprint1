@@ -118,7 +118,7 @@ const handleAccordionToggle = (accordionIndex) => {
             <ListItemPrefix>
               <FaRecycle className="h-5 w-5" />
             </ListItemPrefix>
-            <Link to="recycle" onClick={() => handleItemClick('recycle')}> إدارة مراكز إعادةالتدوير  </Link>
+            <Link to="recycle" onClick={() => handleItemClick('recycle')}> إدارة  مراكز   إعادة التدوير      </Link>
           </ListItem>
           <hr />
 

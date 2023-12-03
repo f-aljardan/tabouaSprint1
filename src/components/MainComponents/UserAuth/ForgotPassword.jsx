@@ -7,11 +7,45 @@ const ForgotPassword = () => {
   const [email, setEmail] = useState('');
   const [message, setMessage] = useState('');
   const [error, setError] = useState('');
+  
+
+
+  const handleEmailChange = (e) => {
+    const newEmail = e.target.value;
+    setEmail(newEmail);
+
+    // Check if the email is empty
+  if (!newEmail.trim()) {
+    setError(''); 
+    return;
+  }
+
+ // Check the email format
+    if (!/^\S+@\S+\.\S+$/.test(email)) {
+      setError('صيغة البريد الإلكتروني غير صحيحة');
+      return ;
+    } else {
+      setError('');
+    }
+  };
+
+
 
   const handlePasswordReset = async (e) => {
     e.preventDefault();
 
+    if (!email.trim()) {
+      setError('البريد الإلكتروني مطلوب');
+      return;
+    } else {
+      setError('');
+    }
+
+   
+    
+    
     try {
+
       const authInstance = getAuth();
       const db = getFirestore();
 
@@ -56,9 +90,8 @@ const ForgotPassword = () => {
                 type="email"
                 id="email"
                 value={email}
-                onChange={(e) => setEmail(e.target.value)}
+                onChange={handleEmailChange}
                 autoComplete="username"
-                required
                 size="lg"
               />
               {message && <span style={{ color: 'green' }}>{message}</span>}

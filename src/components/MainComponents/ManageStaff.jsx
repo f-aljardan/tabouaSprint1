@@ -250,7 +250,7 @@ const [errors, setErrors] = useState({});
     }
   
     // Update the state with errors using the callback function
-    setErrors(newErrors, () => {
+    setErrors(newErrors);
       // Check if any field has an error message
       if (Object.values(newErrors).some((error) => error.trim() !== '')) {
         // At least one field is empty, do not proceed with the update
@@ -284,11 +284,16 @@ const [errors, setErrors] = useState({});
           lastName: '',
           email: '',
         });
+
+        ///setErrors(null);
+        //setEmailError(null);
+       // setFatherNameError(null);
+      //  setFirstNameError(null);
+      //  setLastNameError(null);
   
       } catch (error) {
         console.error('Error updating document: ', error);
       }
-    });
   };
   
   
@@ -464,20 +469,22 @@ return (
                 name="firstName"
                 value={editedStaffData.firstName}
                 onChange={handleEditChange}
-                error={errors.firstName}  
               />
-              {errors.firstName && (
+              
+              
+                           {errors.firstName && (
   <div className="text-red-500 text-sm mt-1">{errors.firstName}</div>
 )}
+          
+ 
 
                <Input
                 type="text"
                 name="fatherName"
                 value={editedStaffData.fatherName}
                 onChange={handleEditChange}
-                error={fatherNameError}  
               />
-              {errors.fatherName && (
+              {errors?.fatherName && (
   <div className="text-red-500 text-sm mt-1">{errors.fatherName}</div>
 )}
 
@@ -488,9 +495,8 @@ return (
                 name="lastName"
                 value={editedStaffData.lastName}
                 onChange={handleEditChange}
-                error={lastNameError}  
               />
-              {errors.lastName && (
+              {errors?.lastName && (
   <div className="text-red-500 text-sm mt-1">{errors.lastName}</div>
 )}
 
@@ -511,7 +517,7 @@ return (
                 name="email"
                 value={editedStaffData.email}
                 onChange={handleEditChange}
-                error={emailError}  
+            //    error={emailError}  
               />
               {errors.email && (
   <div className="text-red-500 text-sm mt-1">{errors.email}</div>

@@ -176,8 +176,19 @@ export default function GarbageBinRequests() {
       </td>
     </tr>
       ) : (
-        searchResults.map((request) => {
-          return (
+        searchResults.filter(
+          (request) =>
+            statusFilter === '' ||
+            statusFilter === 'الكل' ||
+            request.status === statusFilter
+        )
+        .sort(
+          (a, b) =>
+            a.requestDate?.toDate() - b.requestDate?.toDate()
+        )
+        .map((request) => (
+          // .map((request) => {
+          // return (
             <tr key={request.id}>
              <td className="p-4 text-right cursor-pointer hover:text-red" onClick={() => handleViewRequestClick(request)}>
               <Typography  color="teal">
@@ -207,45 +218,88 @@ export default function GarbageBinRequests() {
                 </div>
               </td>
             </tr>
-          );
-        })
-      ))
-    : requests.map((request) => {
-        if (statusFilter === '' || statusFilter === 'الكل' || request.status === statusFilter) {
-          return (
-            <tr key={request.id}>
+         
+        )
+      )
+      )) 
+    // : requests.map((request) => {
+    //     if (statusFilter === '' || statusFilter === 'الكل' || request.status === statusFilter) {
+    //       return (
+    //         <tr key={request.id}>
+    //       <td className="p-4 text-right cursor-pointer hover:text-red" onClick={() => handleViewRequestClick(request)}>
+    //           <Typography  color="teal">
+    //              <span>{request.requestNo}</span>
+    //            </Typography>
+    //       </td>
+    //           <td className="p-4 text-right">
+    //             {request.requestDate?.toDate().toLocaleDateString() || 'N/A'}
+    //           </td>
+    //           <td className="p-4 text-center">
+    //             <div className="w-20">
+    //               <Chip
+    //                className="rounded-full text-center"
+    //                 size="sm"
+    //                 variant="ghost"
+    //                 value={request.status}
+    //                 color={
+    //                   request.status === "تم التنفيذ"
+    //                     ? 'green'
+    //                     : request.status === 'مرفوض'
+    //                     ? 'red'
+    //                     : request.status === 'قيد التنفيذ'
+    //                     ? 'amber'
+    //                     : 'teal'
+    //                 }
+    //               />
+    //             </div>
+    //           </td>
+    //         </tr>
+    //       );
+    //     }
+    //     return null;
+    //   })}
+    : requests
+      .filter(
+        (request) =>
+          statusFilter === '' ||
+          statusFilter === 'الكل' ||
+          request.status === statusFilter
+      )
+      .sort(
+        (a, b) =>
+          a.requestDate?.toDate() - b.requestDate?.toDate()
+      )
+      .map((request) => (
+        <tr key={request.id}>
           <td className="p-4 text-right cursor-pointer hover:text-red" onClick={() => handleViewRequestClick(request)}>
-              <Typography  color="teal">
-                 <span>{request.requestNo}</span>
-               </Typography>
+            <Typography  color="teal">
+              <span>{request.requestNo}</span>
+            </Typography>
           </td>
-              <td className="p-4 text-right">
-                {request.requestDate?.toDate().toLocaleDateString() || 'N/A'}
-              </td>
-              <td className="p-4 text-center">
-                <div className="w-20">
-                  <Chip
-                   className="rounded-full text-center"
-                    size="sm"
-                    variant="ghost"
-                    value={request.status}
-                    color={
-                      request.status === "تم التنفيذ"
-                        ? 'green'
-                        : request.status === 'مرفوض'
-                        ? 'red'
-                        : request.status === 'قيد التنفيذ'
-                        ? 'amber'
-                        : 'teal'
-                    }
-                  />
-                </div>
-              </td>
-            </tr>
-          );
-        }
-        return null;
-      })}
+          <td className="p-4 text-right">
+            {request.requestDate?.toDate().toLocaleDateString() || 'N/A'}
+          </td>
+          <td className="p-4 text-center">
+            <div className="w-20">
+              <Chip
+                className="rounded-full text-center"
+                size="sm"
+                variant="ghost"
+                value={request.status}
+                color={
+                  request.status === "تم التنفيذ"
+                    ? 'green'
+                    : request.status === 'مرفوض'
+                    ? 'red'
+                    : request.status === 'قيد التنفيذ'
+                    ? 'amber'
+                    : 'teal'
+                }
+              />
+            </div>
+          </td>
+        </tr>
+      ))}
 </tbody>
 
 

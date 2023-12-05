@@ -1,5 +1,5 @@
 import React , {useState, useEffect, useRef} from 'react'
-import { GoogleMap, useJsApiLoader, Marker , InfoWindow } from '@react-google-maps/api';
+import { GoogleMap, useJsApiLoader, Marker , InfoWindow, Circle  } from '@react-google-maps/api';
 import { db } from "/src/firebase";
 import { getDocs, collection, addDoc, GeoPoint, doc , Timestamp,updateDoc } from "firebase/firestore"; // Import the necessary Firestore functions
 import { Button , Typography} from "@material-tailwind/react";
@@ -49,7 +49,8 @@ const containerStyle = {
     const[ rejectMessageVisible, setRejectMessageVisible] = useState(false); 
     const[ showAlertSuccessReject, setAlertSuccessReject] = useState(false);
     const [address, setAddress] = useState('');
-
+    const [openInfoWindowId, setOpenInfoWindowId] = useState(null);
+   
 
  const handleForm = () => setFormVisible(!formVisible);
  const handleAlertStreet = () => setShowAlertStreet(!showAlertStreet);
@@ -115,19 +116,20 @@ const onZoomChanged = () => {
 useEffect(() => {
 if (mapRef.current) {
   mapRef.current.addListener('zoom_changed', onZoomChanged, { passive: true });
-}
+  }
 }, []);
 
 // all google map initilazation functions ends here 
 
 
 
- 
+
+
 
   // Load the garbage bin data from Firestore that only are near the requested garbage bin location request.location as geopoints
   useEffect(() => {
 
-    if (request ) {
+    if (request) {
         
       const fetchGarbageBins = async () => {
         try {
@@ -157,10 +159,13 @@ if (mapRef.current) {
       setZoom(20);
       center.lat = request.location._lat;
       center.lng = request.location._long;
+
+      if(isLoaded)
       fetchAddress(request.location._lat, request.location._long);
+
       fetchGarbageBins();
     }
-  }, [request]);
+  }, [request, isLoaded]);
   
 
 
@@ -273,6 +278,11 @@ const handleOnMapClick =() =>{
   }
 
 
+  const handleMarkerClick = (binId) => {
+    setOpenInfoWindowId(binId === openInfoWindowId ? null : binId);
+  };
+
+
 // function to handle the accept request
   const handleAcceptRequest = async (message) => {
     // Update the request status based on the selected option
@@ -365,7 +375,34 @@ function generateSerialNumber() {
   
 
 
+    const handleDragEnd = (e) => {
+      const newLocation = {
+        lat: e.latLng.lat(),
+        lng: e.latLng.lng(),
+      };
 
+
+      const distance = calculateDistance(
+        newLocation.lat,
+        newLocation.lng,
+        request.location._lat,
+        request.location._long
+      );
+    
+      if (distance <= 50) {
+        setDraggedLocation(newLocation);
+        fetchAddress(newLocation.lat, newLocation.lng);
+      } else {
+        // Reset the dragged location if it's outside the range
+        const requestLocation={
+          lat:  request.location._lat,
+          lng:   request.location._long,
+        }
+        setDraggedLocation(requestLocation);
+       
+        console.log('Marker dragged outside the allowed range.');
+      }
+    };
 
 
   return isLoaded  ? ( 
@@ -431,7 +468,22 @@ function generateSerialNumber() {
               url: '/trash.png',
               scaledSize: new window.google.maps.Size(45, 45),
             }}
-          >                     
+            onClick={() => handleMarkerClick(bin.id)}
+          >  
+
+          {openInfoWindowId === bin.id && (
+             <InfoWindow
+          position={{ lat: bin.location._lat, lng: bin.location._long }}
+         
+          onCloseClick={() => setOpenInfoWindowId(null)}
+          >
+             
+            <div className="flex flex-col items-center  pr-5">
+              {bin.size}
+            </div>
+                </InfoWindow>   
+                )}     
+
           </Marker>
          
           ))}
@@ -441,21 +493,24 @@ function generateSerialNumber() {
           
  
       {request && (
+        <>
         <Marker
           position={{
             lat: draggedLocation ? draggedLocation.lat : request.location._lat,
             lng: draggedLocation ? draggedLocation.lng : request.location._long,
           }}
           zIndex={1000}
-          draggable={true}
-          onDragEnd={(e) => {
-            const newLocation = {
-              lat: e.latLng.lat(),
-              lng: e.latLng.lng(),
-            };
-            setDraggedLocation(newLocation);
-            fetchAddress(newLocation.lat, newLocation.lng);
-          }}
+          draggable={ request.status == 'قيد التنفيذ' ? true : false}
+          // onDragEnd={(e) => {
+          //   const newLocation = {
+          //     lat: e.latLng.lat(),
+          //     lng: e.latLng.lng(),
+          //   };
+          //   setDraggedLocation(newLocation);
+          //   fetchAddress(newLocation.lat, newLocation.lng);
+          // }}
+          onDragEnd={handleDragEnd}
+          
         >
           <InfoWindow
             position={{
@@ -465,12 +520,29 @@ function generateSerialNumber() {
             options={{ pixelOffset: new window.google.maps.Size(0, -30) }}
           >
             <div className="flex flex-col items-center gap-3 pr-5">
-              {/* <Typography variant="small"> */}
+          
                 <span> {address.political}, {address.route}, {address.postalCode}</span>
-              {/* </Typography> */}
+            
             </div>
           </InfoWindow>
         </Marker>
+
+       {request.status == 'قيد التنفيذ' && (    <Circle
+              center={{
+                lat: request.location._lat,
+                lng: request.location._long,
+              }}
+              radius={50}
+              options={{
+                strokeColor: '#97B980',
+                strokeOpacity: 0.8,
+                strokeWeight: 2,
+                fillColor: '#97B980',
+                fillOpacity: 0.35,
+              }}
+            /> )}
+
+</>
       )}
   
   
@@ -485,7 +557,7 @@ function generateSerialNumber() {
         </GoogleMap>
         {request && request.status == 'قيد التنفيذ' && ( 
         <div className=" z-10 " style={{ position: 'absolute' ,}}>
-    <Typography variant="small"><span>لتعديل موقع الحاوية قم بسحب المؤشر الى الموقع المحدد والالتزام بحدود الطرق</span></Typography>
+    <Typography variant="small"><span>لتعديل موقع الحاوية قم بسحب المؤشر الى الموقع المحدد والالتزام بحدود الطرق ومدار الموقع</span></Typography>
          </div> 
         )}
 

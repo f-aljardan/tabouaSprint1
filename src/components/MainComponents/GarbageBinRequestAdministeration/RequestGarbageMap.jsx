@@ -5,7 +5,7 @@ import { getDocs, collection, addDoc, GeoPoint, doc , Timestamp,updateDoc } from
 import { Button , Typography} from "@material-tailwind/react";
 import Success from "../../utilityComponents/messages/Success"
 import Confirm from "../../utilityComponents/messages/Confirm"
-import GarbageBinForm from "../../utilityComponents/forms/GarbageBinForm"
+import GarbageBinForm from "../../utilityComponents/forms/GarbageBinRequestForm"
 import ErrorAlertMessage from "../../utilityComponents/messages/ErrorAlertMessage"
 import MessageDialog from "../../utilityComponents/messages/MessageDialog" ;
 import { v4 as uuidv4 } from 'uuid';
@@ -30,6 +30,9 @@ const containerStyle = {
      { value: 'رفض', label: 'رفض' },
      
    ];
+
+
+
 
   export default function RequestGarbageMap({request}) {
 
@@ -227,55 +230,8 @@ const calculateDistance = (lat1, lon1, lat2, lon2) => {
   };
   
 
-// function to check the condtion and act after that
-const checkLocationCondtion = async (lat ,lng) =>{
- if (currentZoomLevelRef.current >= minZoomLevel) {
-      const locationType = await checkLocationType(lat, lng);
-      setNewGarbageBinLocation({ lat, lng });
-      if (locationType === 'building') {
-        setCheckMessageVisible(true);
-      } else {
-        handleOnMapClick(lat,lng);  
-    }
- } else {
-      // Show an alert message indicating that a garbage bin can only be added on a specific scale.
-      handleAlertZoom();
-    } 
-  }
-  
-// function to check the location type called by checkLocationCondtion function
-const checkLocationType = (lat, lng) => {
-
-  return new Promise((resolve, reject) => {
-    if (window.google) {
-      const geocoder = new window.google.maps.Geocoder();
-      const latLng = new window.google.maps.LatLng(lat, lng);
-
-      geocoder.geocode({ location: latLng }, (results, status) => {
-        if (status === 'OK') {
-          const types = results[0]?.address_components.map((component) => component.types[0]);
-
-          // Check if 'types' array contains 'premise' (building)
-          if (types.includes('premise')) {
-            resolve('building');
-          } else {
-            resolve('other'); 
-          }
-        } else {
-          reject('Error checking terrain type');
-        }
-      });
-    } else {
-      reject('Google Maps API not loaded');
-    }
-  });
-};
 
 
-
-const handleOnMapClick =() =>{
-     setFormVisible(true); 
-  }
 
 
   const handleMarkerClick = (binId) => {
@@ -345,7 +301,6 @@ const AddGarbageBin = async (data) => {
   
       setGarbageBins([...garbageBins, { id: docRef.id, location: geoPoint }]);
       setFormVisible(false);
-      setAcceptMessageVisible(true);
    
     } catch (error) {
       console.error("Error saving garbage bin coordinates:", error);
@@ -358,29 +313,86 @@ function generateSerialNumber() {
   }
 
 
+ 
+
+// function to check the condtion and act after that
+const checkLocationCondtion = async (lat ,lng) =>{
+
+  if (currentZoomLevelRef.current >= minZoomLevel) {
+
+       const locationType = await checkLocationType(lat, lng);
+       setNewGarbageBinLocation({ lat, lng });
+           if (locationType === 'building') {
+                setCheckMessageVisible(true);
+             } 
+             else {
+              setFormVisible(true);  
+              }
+  } 
+  else {
+       // Show an alert message indicating that a garbage bin can only be added on a specific scale.
+       handleAlertZoom();
+     } 
+
+   }
+   
+
+
+
+ // function to check the location type called by checkLocationCondtion function
+ const checkLocationType = (lat, lng) => {
+ 
+   return new Promise((resolve, reject) => {
+     if (window.google) {
+       const geocoder = new window.google.maps.Geocoder();
+       const latLng = new window.google.maps.LatLng(lat, lng);
+ 
+       geocoder.geocode({ location: latLng }, (results, status) => {
+         if (status === 'OK') {
+           const types = results[0]?.address_components.map((component) => component.types[0]);
+ 
+           // Check if 'types' array contains 'premise' (building)
+           if (types.includes('premise')) {
+             resolve('building');
+           } else {
+             resolve('other'); 
+           }
+         } else {
+           reject('Error checking terrain type');
+         }
+       });
+     } else {
+       reject('Google Maps API not loaded');
+     }
+   });
+ };
+ 
+ 
 
  
   const handleSubmittingRequestProcess = async () => {
     if (selectedOption && selectedOption.value === 'قبول') {
      
           // Check if the conditions are met
-  checkLocationCondtion(draggedLocation ? draggedLocation.lat : request.location._lat , draggedLocation ? draggedLocation.lng : request.location._long);
-
-    }else if (selectedOption && selectedOption.value === 'رفض') {
-        setRejectMessageVisible(true);
-    } else {
-        console.log("no choosed action")
-    }
-    };
+           checkLocationCondtion(draggedLocation ? draggedLocation.lat : request.location._lat , draggedLocation ? draggedLocation.lng : request.location._long);
+       }
+       else if (selectedOption && selectedOption.value === 'رفض') {
+           setRejectMessageVisible(true);
+       }    
+       else {
+           console.log("no choosed action")
+       }
+  };
   
 
 
+//check the dragged distance, and set the address
     const handleDragEnd = (e) => {
+
       const newLocation = {
         lat: e.latLng.lat(),
         lng: e.latLng.lng(),
       };
-
 
       const distance = calculateDistance(
         newLocation.lat,
@@ -399,22 +411,27 @@ function generateSerialNumber() {
           lng:   request.location._long,
         }
         setDraggedLocation(requestLocation);
-       
-        console.log('Marker dragged outside the allowed range.');
       }
     };
+
+
+    const requestProcessedData = {
+      Address: `${address.postalCode} , ${address.political} , ${address.route} `,
+      Request: request,
+    };
+    
 
 
   return isLoaded  ? ( 
     <div className='flex flex-col gap-5'> 
     
 
-<div className='flex items-center justify-around'>
 {request && request.status == 'قيد التنفيذ' && (
-<Typography className="font-baloo text-right text-md font-bold"><span>قم بتحديد الإجراء:</span></Typography>
-)}
-        {/* Display dropdown menu if the request status is not 'جديد' */}
-   {request && request.status == 'قيد التنفيذ' && (
+
+<div className='flex items-center justify-around'>
+
+                      <Typography className="font-baloo text-right text-md font-bold"><span>قم بتحديد الإجراء:</span></Typography>
+
                         <div className="w-64">
                             <Select
                                 options={options}
@@ -426,27 +443,24 @@ function generateSerialNumber() {
                                 }}
                             />
                         </div>
-                    )}
+   
+                              <Button
+                                size="sm"
+                                variant="gradient"
+                                style={{ background: '#97B980', color: '#ffffff' }}
+                                onClick={()=>handleSubmittingRequestProcess()}
+                                className="text-md"
+                               >
+                                 <span>تنفيذ</span>
+                             </Button>
+    
+  </div>
+    )}
 
-                    {request && request.status === 'قيد التنفيذ' && (   
-          <Button
-          size="sm"
-          variant="gradient"
-          style={{ background: '#97B980', color: '#ffffff' }}
-            onClick={()=>handleSubmittingRequestProcess()}
-            className="text-md"
-          >
-            <span>تنفيذ</span>
-          </Button>
-        )}
-        </div>
 
 
 <div style={{ position: 'relative',}}>
-         
-
-  
-        
+   
         <div style={{ position: 'absolute', zIndex: 3000 }}>
           <ErrorAlertMessage open={showAlertZoom} handler={handleAlertZoom} message="كبر الخريطة لتتمكن من إضافة حاوية القمامة " />
         </div>
@@ -501,16 +515,7 @@ function generateSerialNumber() {
           }}
           zIndex={1000}
           draggable={ request.status == 'قيد التنفيذ' ? true : false}
-          // onDragEnd={(e) => {
-          //   const newLocation = {
-          //     lat: e.latLng.lat(),
-          //     lng: e.latLng.lng(),
-          //   };
-          //   setDraggedLocation(newLocation);
-          //   fetchAddress(newLocation.lat, newLocation.lng);
-          // }}
-          onDragEnd={handleDragEnd}
-          
+          onDragEnd={handleDragEnd}  
         >
           <InfoWindow
             position={{
@@ -520,14 +525,17 @@ function generateSerialNumber() {
             options={{ pixelOffset: new window.google.maps.Size(0, -30) }}
           >
             <div className="flex flex-col items-center gap-3 pr-5">
-          
                 <span> {address.political}, {address.route}, {address.postalCode}</span>
-            
             </div>
           </InfoWindow>
+
         </Marker>
 
-       {request.status == 'قيد التنفيذ' && (    <Circle
+
+
+
+       {request.status == 'قيد التنفيذ' && (    
+       <Circle
               center={{
                 lat: request.location._lat,
                 lng: request.location._long,
@@ -540,24 +548,24 @@ function generateSerialNumber() {
                 fillColor: '#97B980',
                 fillOpacity: 0.35,
               }}
-            /> )}
+            />
+             )}
 
 </>
       )}
   
   
-        <GarbageBinForm open={formVisible} handler={handleForm} AddMethod={AddGarbageBin} />
+        <GarbageBinForm open={formVisible} handler={handleForm} AddMethod={AddGarbageBin} Acceptmethod={handleAcceptRequest} requestProcessedData={requestProcessedData} />
         <Success open={showSuccessAlert} handler={handleSuccessAlert} message=" تم إضافة حاوية القمامة بنجاح" />
         <Success open={showAlertSuccessReject} handler={handleAlertSuccessReject} message=" تم الرفض بنجاح" />
-        <Confirm open={checkMessageVisible} handler={handleCheckMessage} method={()=>{ handleOnMapClick(); setCheckMessageVisible(false);}} message="هل انت متأكد من أن الموقع المحدد يقع على شارع؟" />  
-        <MessageDialog open={acceptMessageVisible} handler={handleAcceptMessage} method={handleAcceptRequest} status="accept" />
-        <MessageDialog open={rejectMessageVisible} handler={handleRejectMessage} method={handleRejectRequest}  status="reject" />
+        <Confirm open={checkMessageVisible} handler={handleCheckMessage} method={()=>{ setFormVisible(true);   setCheckMessageVisible(false);}} message="هل انت متأكد من أن الموقع المحدد يقع على شارع؟" />  
+        <MessageDialog open={rejectMessageVisible} handler={handleRejectMessage} method={handleRejectRequest} requestProcessedData={requestProcessedData}/>
         
         
         </GoogleMap>
         {request && request.status == 'قيد التنفيذ' && ( 
         <div className=" z-10 " style={{ position: 'absolute' ,}}>
-    <Typography variant="small"><span>لتعديل موقع الحاوية قم بسحب المؤشر الى الموقع المحدد والالتزام بحدود الطرق ومدار الموقع</span></Typography>
+       <Typography variant="small"><span>لتعديل موقع الحاوية قم بسحب المؤشر الى الموقع المحدد والالتزام بحدود الطرق ومدار الموقع</span></Typography>
          </div> 
         )}
 

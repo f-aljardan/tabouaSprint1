@@ -8,63 +8,72 @@ import {
   Textarea,
   Typography
 } from "@material-tailwind/react";
- 
-export default function MessageDialog({open , handler, method , status }) {
+import SummaryHandleRequest from "./SummaryHandleRequest"
+
+export default function MessageDialog({open , handler, method , requestProcessedData }) {
   
-    const [message, setMessage] = useState(""); // State to store the message
-    const [errorMessage, setErrorMessage] = useState(""); // State to store the error message
+    const [message, setMessage] = useState(""); 
+    const [errorMessage, setErrorMessage] = useState(""); 
+    const [summeryRequestOpen, setSummeryRequestOpen] = useState(false);// State to manage the visibility of the summary center information
+ 
+    const handleSummeryRequest = () =>setSummeryRequestOpen(!summeryRequestOpen); 
+    const handleSummeryRequestClose = () =>{ handler(); setSummeryRequestOpen(false); }
   
     // Function to handle sending the message
     const handleSendMessage = () => {
 
-      if(status==="reject" ){
       if (message.trim() !== "") {
         // Check if the trimmed message is not empty
-        method(message); // Pass the message to the method
-        setMessage(""); // Clear the message input
-        handler(); // Close the dialog
+        handleSummeryRequest();
       } else {
         // Display an error message if the message is empty
         setErrorMessage("   يجب أن تتم تعبئة الرسالة  ");
       }
-    }else if(status==="accept"){
-      method(message); // Pass the message to the method
-      handler(); // Close the dialog
-    }
-
     };
   
+   const sendMessage = () =>{
+      method(message); // Pass the message to the method
+      setMessage(""); // Clear the message input
+    }
 
   return (
     <>
     <Dialog open={open} size="xs" handler={handler}>
-        <div className="flex items-center justify-between">
-          <DialogHeader className="flex flex-col items-start">
-            {" "}
+        
+          <DialogHeader className="flex justify-center font-baloo text-right">
+      
             <Typography className="mb-1" variant="h4">
-            {status=="reject" && (  <span> سبب الرفض </span>)}
-            {status=="accept" && ( <span>  التعليق</span>)}
+           <span> سبب الرفض </span>
             </Typography>
+
           </DialogHeader>
          
-        </div>
+       
 
         <DialogBody>
-          <Typography className="mb-10 -mt-7 " color="gray" variant="lead">
-          {status=="reject" && ( <span> قم بتوضيح سبب الرفض ثم انقر على زر الإرسال.</span>)}
-          {status=="accept" && ( <span>  قم بأضافة تعليق في حال الحاجة أو قم بالتخطي  </span>)}
-          </Typography>
-          <div className="grid gap-6">
+         
+          <Typography className="font-baloo text-right text-md font-bold ">
+          <span>  توضيح سبب الرفض :</span>
+           </Typography>
+          <div className="grid gap-3">
             
             <Textarea
               label="التعليق"
               value={message}
               onChange={(e) => {
-                setMessage(e.target.value);
+                setMessage(e.target.value.slice(0, 100));
                 // Clear the error message when the message is edited
                 setErrorMessage("");
               }}
+              maxLength={100}
             />
+        
+           <div className="text-right">
+            <span>
+              عدد الأحرف المتبقية: {100 - message.length}
+            </span>
+          </div>
+
             {errorMessage && (
               <Typography color="red"  className="font-semibold">
                <span> {errorMessage}</span>
@@ -74,20 +83,21 @@ export default function MessageDialog({open , handler, method , status }) {
           </div>
         </DialogBody>
 
-        <DialogFooter className="space-x-2 flex gap-3">
+        <DialogFooter className="space-x-2 flex justify-center gap-3">
 
-          {status=="reject" && (<Button variant="outlined"   onClick={handler}>
+        <Button variant="outlined"   onClick={()=>{ setMessage(""); setErrorMessage(""); handler();}}>
           <span>  إلغاء</span>
-          </Button> )}
-          {status=="accept" && (<Button variant="outlined"   onClick={()=>{setMessage(""); handleSendMessage();}}>
-          <span>  تخطي </span>
-          </Button> )}
+       </Button>
 
           <Button variant="gradient"  style={{background:"#97B980", color:'#ffffff'}} onClick={handleSendMessage}>
           <span>  إرسال</span>
           </Button>
+
         </DialogFooter>
       </Dialog>
+
+      <SummaryHandleRequest open={summeryRequestOpen} handler={handleSummeryRequest} requestProcessedData={requestProcessedData} method={sendMessage} formInfo={message} status="رفض"  handleEdit={handleSummeryRequestClose}/>
+ 
     </>
   );
 }

@@ -21,6 +21,7 @@ useEffect(() => {
   let unsubscribeRequest;
 
   if (requestInfo && requestInfo.requesterId) {
+
     const fetchUserInfo = async () => {
       try {
         const userDoc = doc(db, 'users', requestInfo.requesterId);
@@ -41,11 +42,9 @@ useEffect(() => {
         const requestData = requestSnapshot.data();
       }
     });
-
     // Call fetchUserInfo and return the cleanup function
     fetchUserInfo();
   }
-
   // Unsubscribe from the snapshots when the component is unmounted
   return () => {
     if (unsubscribeUser) {
@@ -57,6 +56,7 @@ useEffect(() => {
   };
 }, [requestInfo]);
   
+
 
 
   const handleProcessRequest = async (request) => {
@@ -71,6 +71,8 @@ useEffect(() => {
       console.error('Error updating request status:', error);
     }
   };
+
+
     
 
   function calculateAge(dateOfBirth) {
@@ -86,6 +88,7 @@ useEffect(() => {
     return age;
   }
 
+  
 
 return (
     <>
@@ -127,7 +130,8 @@ return (
 <div className="flex justify-between items-start">
 
  <div className="flex flex-col gap-3 ">
- {/* Display user info here: fullName, email */}
+
+ {/* Display user info */}
  {requesterInfo && (
             <div>
                  <Typography className="font-baloo text-right text-lg font-bold">
@@ -141,19 +145,19 @@ return (
       </span>
     </Typography>
     <Typography>
-      <span>
-        <span className="font-bold">رقم الهاتف:</span>{' '}
-        {requesterInfo.phoneNumber}
+      <span >
+        <span  className="font-bold">رقم الهاتف:</span>{' '}
+            <bdi>{requesterInfo.phoneNumber}</bdi> {/*Bidirectional Isolate) designed when text directionality cause unexpected rendering*/}
       </span>
     </Typography>
-                    <Typography> <span><span className="font-bold">البريد الإلكتروني:</span>  {requesterInfo.email}</span> </Typography>
+    <Typography> <span><span className="font-bold">البريد الإلكتروني:</span>  {requesterInfo.email}</span> </Typography>
             </div>
           )}
 
 
-{/* display request info here : requestNo , requestDate , garbageSize, requestReason . if the status is "قيدالتنفيذ" display the inprogressDate. if the status is "تم التنفيذ" or "مرفوض" display the inprogressDate, responseDate, staffComment*/}
+{/* this section display request info. if the status is "قيدالتنفيذ" it display the inprogressDate. if the status is "تم التنفيذ" or "مرفوض" it display the inprogressDate, responseDate*/}
 {requestInfo && (  
-                    <div>
+                  <div>
                         <Typography className="font-baloo text-right text-lg font-bold">
                       تفاصيل الطلب:
                     </Typography>
@@ -168,15 +172,15 @@ return (
                        )}
                        
                        {(requestInfo.status === 'مرفوض' || requestInfo.status ===  'تم التنفيذ' ) && (
-  <>
-    <Typography> <span><span className="font-bold">تاريخ انتهاء التنفيذ : </span>{requestInfo.responseDate?.toDate().toLocaleDateString() || 'N/A'}</span></Typography>
-   
- </>
-)}
+                       <>
+                        <Typography> <span><span className="font-bold">تاريخ انتهاء التنفيذ : </span>{requestInfo.responseDate?.toDate().toLocaleDateString() || 'N/A'}</span></Typography>
+                       </>
+                        )}
                     </div>               
 )}
 
-{/* Display request status here */}
+
+{/*  request status  */}
 {requestInfo && (
 <div className="flex items-center justify-right gap-5">
 <Typography className="font-baloo text-right text-lg font-bold">حالة الطلب: </Typography>
@@ -203,16 +207,18 @@ return (
 </div>     
 
 
+
 <div className="flex flex-col gap-5 ">
 
-      {/*here Display the requested garbage bin location*/}
+      {/*Display the requested garbage bin location*/}
     {  requestInfo  &&( <div > <Typography className="font-baloo text-right text-lg font-bold">
-     معاينة الموقع:
-                    </Typography><RequestGarbageMap request={requestInfo}  /> 
+                               معاينة الموقع:
+                                </Typography> 
+                  <RequestGarbageMap request={requestInfo}  /> 
              
-    </div>)}
+                      </div>)}
 
-{/* display request prosseccing button here , if the request status is new , if not , display a dropdown menu that have the following values (قبول , رفض) */}
+          {/* if new, Display the processing button*/}
         {requestInfo && requestInfo.status === 'جديد' && (
                
                   <Button
@@ -226,7 +232,11 @@ return (
                     <span>معالجة</span>
                   </Button>
                   )}
+
+            
  
+
+  {/* if it processed, Display the staffComment*/}
 {requestInfo && requestInfo.staffComment && (
   <Typography >
     <span className="flex gap-3 items-center">

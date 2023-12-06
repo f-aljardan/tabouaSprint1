@@ -423,39 +423,8 @@ const checkLocationCondtion = async (lat ,lng) =>{
 
 
   return isLoaded  ? ( 
-    <div className='flex flex-col gap-5'> 
+    <div className='flex flex-col gap-2'> 
     
-
-{request && request.status == 'قيد التنفيذ' && (
-
-<div className='flex items-center justify-around'>
-
-                      <Typography className="font-baloo text-right text-md font-bold"><span>قم بتحديد الإجراء:</span></Typography>
-
-                        <div className="w-64">
-                            <Select
-                                options={options}
-                                isSearchable={false}
-                                components={animatedComponents}
-                                placeholder="اختر الإجراء"
-                                onChange={(selectedOption) => {
-                                   setSelectedOption(selectedOption);
-                                }}
-                            />
-                        </div>
-   
-                              <Button
-                                size="sm"
-                                variant="gradient"
-                                style={{ background: '#97B980', color: '#ffffff' }}
-                                onClick={()=>handleSubmittingRequestProcess()}
-                                className="text-md"
-                               >
-                                 <span>تنفيذ</span>
-                             </Button>
-    
-  </div>
-    )}
 
 
 
@@ -516,6 +485,10 @@ const checkLocationCondtion = async (lat ,lng) =>{
           zIndex={1000}
           draggable={ request.status == 'قيد التنفيذ' ? true : false}
           onDragEnd={handleDragEnd}  
+          icon={{
+            url: request.status == 'تم التنفيذ' ?  '/trash.png' : "http://maps.google.com/mapfiles/ms/icons/green-dot.png" ,
+            scaledSize: new window.google.maps.Size(40, 40), // Adjust the size if needed
+          }}
         >
           <InfoWindow
             position={{
@@ -563,14 +536,42 @@ const checkLocationCondtion = async (lat ,lng) =>{
         
         
         </GoogleMap>
-        {request && request.status == 'قيد التنفيذ' && ( 
-        <div className=" z-10 " style={{ position: 'absolute' ,}}>
-       <Typography variant="small"><span>لتعديل موقع الحاوية قم بسحب المؤشر الى الموقع المحدد والالتزام بحدود الطرق ومدار الموقع</span></Typography>
-         </div> 
-        )}
+        
 
 
 </div> 
+
+
+{request && request.status == 'قيد التنفيذ' && (
+
+<div className='flex items-center justify-start gap-5'>
+
+                      <Typography className="font-baloo text-right text-md font-bold"><span>قم بتحديد الإجراء:</span></Typography>
+
+                        <div className="w-64">
+                            <Select
+                                options={options}
+                                isSearchable={false}
+                                components={animatedComponents}
+                                placeholder="اختر الإجراء"
+                                onChange={(selectedOption) => {
+                                   setSelectedOption(selectedOption);
+                                }}
+                            />
+                        </div>
+   
+                              <Button
+                                size="sm"
+                                variant="gradient"
+                                style={{ background: '#97B980', color: '#ffffff' }}
+                                onClick={()=>handleSubmittingRequestProcess()}
+                                className="text-md"
+                               >
+                                 <span>تنفيذ</span>
+                             </Button>
+    
+  </div>
+    )}
 
       </div>
     ) : <></>

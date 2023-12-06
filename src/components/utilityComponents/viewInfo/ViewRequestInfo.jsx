@@ -97,13 +97,13 @@ return (
         size="xl"
         handler={handler}
       >
-        <DialogHeader className="flex justify-between font-baloo text-right ">
+        <DialogHeader className="flex justify-between font-baloo text-right " style={{ backgroundColor: '#97B980' ,  color: '#ffffff' }}>
     
-            <span>معلومات الطلب</span> 
+        {requestInfo && (     <span> معلومات الطلب رقم {requestInfo.requestNo}</span> )}
          
             <IconButton
             variant="text"
-            color="blue-gray"
+            color="white"
             onClick={handler}
           >
             <svg
@@ -127,63 +127,17 @@ return (
      
         <DialogBody>
           
-<div className="flex justify-between items-start">
+<div className="flex justify-between items-center">
 
  <div className="flex flex-col gap-3 ">
 
- {/* Display user info */}
- {requesterInfo && (
-            <div>
-                 <Typography className="font-baloo text-right text-lg font-bold">
-                      معلومات العميل:
-                    </Typography>
-                    <Typography> <span><span className="font-bold">اسم العميل:</span> {requesterInfo.firstName} {requesterInfo.lastName}</span> </Typography>
-                    <Typography>
-      <span>
-        <span className="font-bold">العمر:</span>{' '}
-        {calculateAge(requesterInfo.DateOfBirth)}
-      </span>
-    </Typography>
-    <Typography>
-      <span >
-        <span  className="font-bold">رقم الهاتف:</span>{' '}
-            <bdi>{requesterInfo.phoneNumber}</bdi> {/*Bidirectional Isolate) designed when text directionality cause unexpected rendering*/}
-      </span>
-    </Typography>
-    <Typography> <span><span className="font-bold">البريد الإلكتروني:</span>  {requesterInfo.email}</span> </Typography>
-            </div>
-          )}
+ <div className="flex gap-5">    
 
-
-{/* this section display request info. if the status is "قيدالتنفيذ" it display the inprogressDate. if the status is "تم التنفيذ" or "مرفوض" it display the inprogressDate, responseDate*/}
-{requestInfo && (  
-                  <div>
-                        <Typography className="font-baloo text-right text-lg font-bold">
-                      تفاصيل الطلب:
-                    </Typography>
-                    <Typography> <span><span className="font-bold">رقم الطلب : </span>  {requestInfo.requestNo}</span></Typography>
-                    <Typography>  <span><span className="font-bold">حجم الحاوية :</span> {requestInfo.garbageSize}</span></Typography>
-                    <Typography> <span><span className="font-bold">موقع الطلب : </span>  {requestInfo.localArea}</span></Typography>
-                    <Typography> <span> <span className="font-bold"> سبب الطلب : </span> {requestInfo.requestReason}</span></Typography>
-                    <Typography> <span><span className="font-bold">تاريخ الطلب : </span> {requestInfo.requestDate?.toDate().toLocaleDateString() || 'N/A'}</span></Typography>
-                     
-                       {requestInfo.status !== 'جديد' && (
-                       <Typography> <span><span className="font-bold">تاريخ بدء التنفيذ : </span>{requestInfo.inprogressDate?.toDate().toLocaleDateString() || 'N/A'}</span></Typography>
-                       )}
-                       
-                       {(requestInfo.status === 'مرفوض' || requestInfo.status ===  'تم التنفيذ' ) && (
-                       <>
-                        <Typography> <span><span className="font-bold">تاريخ انتهاء التنفيذ : </span>{requestInfo.responseDate?.toDate().toLocaleDateString() || 'N/A'}</span></Typography>
-                       </>
-                        )}
-                    </div>               
-)}
-
-
+            
 {/*  request status  */}
 {requestInfo && (
 <div className="flex items-center justify-right gap-5">
-<Typography className="font-baloo text-right text-lg font-bold">حالة الطلب: </Typography>
+<Typography className="font-baloo text-right text-lg font-bold text-gray-700">حالة الطلب: </Typography>
 <Chip
                     size="lg"
                     variant="ghost"
@@ -204,53 +158,106 @@ return (
 
 )}
 
-</div>     
-
-
-
-<div className="flex flex-col gap-5 ">
-
-      {/*Display the requested garbage bin location*/}
-    {  requestInfo  &&( <div > <Typography className="font-baloo text-right text-lg font-bold">
-                               معاينة الموقع:
-                                </Typography> 
-                  <RequestGarbageMap request={requestInfo}  /> 
-             
-                      </div>)}
-
-          {/* if new, Display the processing button*/}
-        {requestInfo && requestInfo.status === 'جديد' && (
+{requestInfo && requestInfo.status === 'جديد' && (
                
-                  <Button
-                    size="sm"
-                    fullWidth={true}
-                    variant="gradient"
-                    style={{ background: '#97B980', color: '#ffffff' }}
-                    onClick={() => handleProcessRequest(requestInfo)}
-                    className="text-md font-bold"
-                  >
-                    <span>معالجة</span>
-                  </Button>
-                  )}
+               <Button
+                size="sm"
+                 variant="gradient"
+                 style={{ background: '#97B980', color: '#ffffff' }}
+                 onClick={() => handleProcessRequest(requestInfo)}
+                 className="text-sm "
+               >
+                 <span>معالجة الطلب</span>
+               </Button>
+               )}
 
-            
- 
+</div>
 
-  {/* if it processed, Display the staffComment*/}
+<hr/> 
+
+ {/* Display user info */}
+ {requesterInfo && (
+            <div>
+                 <Typography className="font-baloo text-right text-lg font-bold text-gray-700">
+                      معلومات العميل:
+                    </Typography>
+                    <Typography> <span><span className="font-bold">اسم العميل:</span> {requesterInfo.firstName} {requesterInfo.lastName}</span> </Typography>
+                    <Typography>
+      <span>
+        <span className="font-bold">العمر:</span>{' '}
+        {calculateAge(requesterInfo.DateOfBirth)}
+      </span>
+    </Typography>
+    <Typography>
+      <span >
+        <span  className="font-bold">رقم الهاتف:</span>{' '}
+            <bdi>{requesterInfo.phoneNumber}</bdi> {/*Bidirectional Isolate) designed when text directionality cause unexpected rendering*/}
+      </span>
+    </Typography>
+    <Typography> <span><span className="font-bold">البريد الإلكتروني:</span>  {requesterInfo.email}</span> </Typography>
+            </div>
+          )}
+
+<hr/> 
+{/* this section display request info. if the status is "قيدالتنفيذ" it display the inprogressDate. if the status is "تم التنفيذ" or "مرفوض" it display the inprogressDate, responseDate*/}
+{requestInfo && (  
+                  <div>
+                        <Typography className="font-baloo text-right text-lg font-bold text-gray-700">
+                      تفاصيل الطلب:
+                    </Typography>
+                    {/* <Typography> <span><span className="font-bold">رقم الطلب : </span>  {requestInfo.requestNo}</span></Typography> */}
+                    <Typography>  <span><span className="font-bold">حجم الحاوية :</span> {requestInfo.garbageSize}</span></Typography>
+                    <Typography> <span><span className="font-bold">موقع الطلب : </span>  {requestInfo.localArea}</span></Typography>
+                    <Typography> <span> <span className="font-bold"> سبب الطلب : </span> {requestInfo.requestReason}</span></Typography>
+                    <Typography> <span><span className="font-bold">تاريخ الطلب : </span> {requestInfo.requestDate?.toDate().toLocaleDateString() || 'N/A'}</span></Typography>
+                     
+                       {requestInfo.status !== 'جديد' && (
+                       <Typography> <span><span className="font-bold">تاريخ بدء التنفيذ : </span>{requestInfo.inprogressDate?.toDate().toLocaleDateString() || 'N/A'}</span></Typography>
+                       )}
+                       
+                       {(requestInfo.status === 'مرفوض' || requestInfo.status ===  'تم التنفيذ' ) && (
+                       <>
+                        <Typography> <span><span className="font-bold">تاريخ انتهاء التنفيذ : </span>{requestInfo.responseDate?.toDate().toLocaleDateString() || 'N/A'}</span></Typography>
+                       </>
+                        )}
+                          {/* if it processed, Display the staffComment*/}
 {requestInfo && requestInfo.staffComment && (
   <Typography >
-    <span className="flex gap-3 items-center">
-  
-    {requestInfo.status === 'مرفوض' && ( <span className="font-baloo text-right text-lg font-bold">سبب الرفض :</span>)}
-    {requestInfo.status ==="تم التنفيذ" && ( <span className="font-baloo text-right text-lg font-bold">التعليق:  </span>)}
+    <span >
+    {requestInfo.status === 'مرفوض' && ( <span className="font-bold">سبب الرفض :</span>)}
+    {requestInfo.status ==="تم التنفيذ" && ( <span className="font-bold">التعليق:  </span>)}
     <span>{requestInfo.staffComment}</span>
   
     </span>
   </Typography>
 )}
+                    </div>               
+)}
 
-         
-</div>
+
+</div>     
+
+
+
+
+
+      {/*Display the requested garbage bin location*/}
+    {  requestInfo  &&( <div className="flex flex-col "> 
+
+    <Typography className="font-baloo text-right text-lg font-bold text-gray-700">
+                               معاينة الموقع:
+                                </Typography> 
+
+                  <RequestGarbageMap request={requestInfo}  /> 
+
+                  {requestInfo && requestInfo.status == 'قيد التنفيذ' && ( 
+       <Typography variant="small"><span>لتعديل موقع الحاوية قم بسحب المؤشر الى الموقع المحدد والالتزام بحدود الطرق ومدار الموقع</span></Typography>
+        )}
+                  </div>)}
+
+       
+     
+
 
 
 </div>

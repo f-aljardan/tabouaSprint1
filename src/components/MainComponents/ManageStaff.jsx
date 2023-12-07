@@ -138,7 +138,6 @@ const [errors, setErrors] = useState({});
         return;
       }
   
-      // Continue with the rest of the function...
   
       // Create a reference to the staff member's document in the database
       const staffDocRef = doc(db, 'staff', editedStaffData.id);

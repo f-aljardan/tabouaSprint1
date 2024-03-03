@@ -7,7 +7,8 @@ import Sidebar from '../utilityComponents/Sidebar';
 import GarbageBinMap from "../MainComponents/GarbageBinAdministeration"
 import GarbageBinRequests from "../MainComponents/GarbageBinRequestAdministeration/GarbageBinRequests"
 import RecyclingCenterMap from "../MainComponents/RecyclingCenterAdministeration"
-import Complaints from '../MainComponents/Complaints';
+import Complaints from '../MainComponents/ComplaintsAdministration/Complaints';
+import ComplaintDetails from '../MainComponents/ComplaintsAdministration/ComplaintDetails';
 import Heatmap from '../MainComponents/Heatmap';
 import ManageStaff from "../MainComponents/ManageStaff"
 import Footer from "../utilityComponents/Footer"
@@ -78,6 +79,7 @@ function MainPage() {
           <Route path="/garbagebinrequests" element={<GarbageBinRequests />} />
           <Route path="/recycle" element={<div className='map h-[calc(122vh-2rem)]'><RecyclingCenterMap /></div>} />
           <Route path="/complaints" element={<Complaints />} />
+          <Route path="/complaints/:id" element={<ComplaintDetails />} />
           <Route path="/heatmap" element={<Heatmap />} />
           {userData.isAdmin && <Route path="/manage" element={<ManageStaff />} />}
         </>

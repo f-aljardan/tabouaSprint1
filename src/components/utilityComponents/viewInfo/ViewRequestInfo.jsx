@@ -54,7 +54,7 @@ useEffect(() => {
       unsubscribeRequest();
     }
   };
-}, [requestInfo]);
+}, [requestInfo?.id]);
   
 
 

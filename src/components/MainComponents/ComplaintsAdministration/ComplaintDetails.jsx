@@ -1,0 +1,918 @@
+import { useEffect, useState } from "react";
+import { Link ,useParams , useNavigate} from "react-router-dom";
+import { doc, getDoc , updateDoc, onSnapshot} from "firebase/firestore"; // Import the necessary Firebase functions
+import { db, storage } from "../../../firebase";
+import { Breadcrumbs , Card, Typography, Chip,Button, Textarea} from "@material-tailwind/react";
+import { GoogleMap, useJsApiLoader, Marker } from '@react-google-maps/api';
+import SummaryComplaintResponse from "../../utilityComponents/messages/SummaryComplaintResponse"
+import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
+import Success from "../../utilityComponents/messages/Success"
+import { MdDone } from "react-icons/md";
+
+// Define constants for the Google Map
+const containerStyle = {
+    width: '400px', 
+    height: '20vh', 
+  };
+  
+  // Set the initial center
+  const center = {
+    lat: 24.7136,
+    lng: 46.6753
+  };
+
+export default function ComplaintDetails() {
+  const { id } = useParams();
+  const [zoom, setZoom] = useState(10); // set the initial zoom level
+  const [complaintDetails, setComplaintDetails] = useState(null);
+  const [complainerInfo, setComplainerInfo] = useState(null);
+
+  const [selectedStatus, setSelectedStatus] = useState("");
+  const [message, setMessage] = useState(""); 
+  const [errorMessage, setErrorMessage] = useState(""); 
+  const [errorMessageStatus, setErrorMessageStatus] = useState(""); 
+  const [editMode, setEditMode] = useState(false); // New state variable
+  const [selectedImages, setSelectedImages] = useState([]);
+  const [imageUploadError, setImageUploadError] = useState('');
+  const [imagePreviews, setImagePreviews] = useState([])
+  const [showSuccessProcess, setShowSuccessProcess] = useState(false);
+  const [summeryComplaintOpen, setSummeryComplaintOpen] = useState(false);// State to manage the visibility of the summary center information
+  const [showSuccessResponse, setShowSuccessResponse] = useState(false);
+
+  const handleSummeryComplaint = () =>setSummeryComplaintOpen(!summeryComplaintOpen); 
+  const handleSummeryComplaintClose = () =>{  setSummeryComplaintOpen(false); }
+  const handleSuccessProcess = () => setShowSuccessProcess(!showSuccessProcess);
+  const handleSuccessResponse = () => setShowSuccessResponse(!showSuccessResponse);
+  
+  const navigate = useNavigate();
+  
+  
+  
+ 
+  const responseData = {
+    selectedStatus: selectedStatus,
+    message: message,
+    imagePreviews: imagePreviews,
+  }
+
+ // Fetch complaint details using the ID
+ useEffect(() => {
+    const fetchComplaintDetails = async () => {
+      try {
+        const complaintDoc = doc(db, "complaints", id);
+        
+        // Subscribe to real-time updates for the specific complaint document
+        const unsubscribe = onSnapshot(complaintDoc, (docSnapshot) => {
+          if (docSnapshot.exists()) {
+            const data = docSnapshot.data();
+            setComplaintDetails(data);
+
+            // Update other state as needed
+
+            setZoom(20);
+            center.lat = data.location._lat;
+            center.lng = data.location._long;
+          } else {
+            // Handle case where complaint with the given ID doesn't exist
+            console.log("Complaint not found");
+          }
+        });
+
+        // Cleanup function to unsubscribe when component unmounts
+        return () => unsubscribe();
+      } catch (error) {
+        // Handle error during fetching
+        console.error("Error fetching complaint details:", error);
+      }
+    };
+
+    fetchComplaintDetails();
+  }, [id]);
+
+
+
+
+  useEffect(() => {
+    const fetchUserInfo = async () => {
+      try {
+        // Ensure that complaintDetails is available before accessing complainerId
+        if (!complaintDetails) {
+          return;
+        }
+  
+        const complaintDoc = doc(db, "users", complaintDetails.complainerId);
+        const docSnapshot = await getDoc(complaintDoc);
+  
+        if (docSnapshot.exists()) {
+          const data = docSnapshot.data();
+          setComplainerInfo(data);
+        } else {
+          // Handle case where user with the given ID doesn't exist
+          console.log("User not found");
+        }
+      } catch (error) {
+        // Handle error during fetching
+        console.error("Error fetching user details:", error);
+      }
+    };
+  
+    fetchUserInfo();
+  }, [complaintDetails]);
+
+
+  const handleUpdateComplaint = async()  => {
+    try {
+      console.log("selected in fun:"+ selectedStatus);
+      console.log("msg in fun:"+ message);
+    
+      
+    if(selectedStatus===complaintDetails.status){
+      setErrorMessageStatus("   يجب أن يتم تغيير الحالة  ");
+      return ;
+  }
+
+    setErrorMessageStatus("");
+      
+        if (selectedStatus === 'قيد التنفيذ') {
+          // Update complaint status to 'قيد التنفيذ' and add inprogressDate
+          await handleProcessComplaint();
+          setShowSuccessProcess(true);
+          setMessage(""); 
+          // setEditMode(true);
+        } 
+        // else if (selectedStatus === 'جديد') {
+        //   // Update complaint status to 'جديد' and remove inprogressDate
+        //   await handleNewComplaint();
+        //   setMessage(""); 
+        // }
+         else {
+         
+            if (message.trim() !== ""){
+
+              setSummeryComplaintOpen(true);
+              console.log("here");
+             } 
+             //else if (complaintDetails.staffResponse) {
+            //   console.log("here2");
+            //   await handleComplaint(complaintDetails.staffResponse, status);
+            //   setEditMode(false);
+             
+            // }
+            else {
+                // Display an error message if the message is empty
+                setErrorMessage("   يجب أن تتم تعبئة الرسالة  ");
+              }
+         
+        }
+        
+      } catch (error) {
+        console.error('Error updating complaint status:', error);
+      }
+  }
+  
+  const handleProcessComplaint = async()  => {
+    try {
+      const complaintRef = doc(db, 'complaints', id);
+      // Update request status to 'قيد التنفيذ' and store the in-progress date
+      await updateDoc(complaintRef, {
+        status: 'قيد التنفيذ',
+        inprogressDate: new Date(),
+        // responseDate: deleteField(),
+        // staffResponse: deleteField(),
+        // ImagesOfStaffResponse: deleteField(),
+      });
+    } catch (error) {
+      console.error('Error updating complaint status:', error);
+    }
+  };
+
+  // const handleNewComplaint = async()  => {
+  //   try {
+  //     const complaintRef = doc(db, 'complaints', id);
+  
+  //     await updateDoc(complaintRef, {
+  //       status: 'جديد',
+  //       // inprogressDate: deleteField(),
+  //       // responseDate: deleteField(),
+  //       // staffResponse: deleteField(),
+  //       // ImagesOfStaffResponse: deleteField(),
+  //     });
+  //   } catch (error) {
+  //     console.error('Error updating complaint status:', error);
+  //   }
+  // };
+
+const handleComplaintSubmit = async()=>{
+  await handleComplaint(message, selectedStatus);
+              setMessage(""); 
+              setEditMode(false);
+              setShowSuccessResponse(true);
+}
+
+  const handleComplaint = async(message, status) => {
+
+    const imageUrls = await uploadImagesToFirestore(); // Upload images and get URLs
+    
+        try {
+            const complaintRef = doc(db, 'complaints', id);
+         
+            await updateDoc(complaintRef, {
+              status: status,
+              responseDate: new Date(),
+              staffResponse: message,
+              ImagesOfStaffResponse: imageUrls, // Store image URLs in the complaint document
+            });
+           
+          } catch (error) {
+            console.error('Error updating complaint info:', error);
+          }
+   
+  };
+
+ 
+// Handle image selection
+const handleImageSelection = (event) => {
+  const files = event.target.files;
+  if (files.length > 3) {
+    setImageUploadError('يمكنك إرفاق ما يصل إلى 3 صور فقط.');
+    return;
+  }
+  setImageUploadError('');
+  // setSelectedImages(files);
+  // setSelectedImages([files]);
+  setSelectedImages(Array.from(files)); // Correct way to set files
+
+   // Create image URLs for preview
+   const fileArray = Array.from(files).map((file) =>
+   URL.createObjectURL(file));
+ 
+ //  hold the preview URLs
+ setImagePreviews(fileArray);
+};
+
+// // Make sure to clean up the object URLs when the component unmounts or images change
+// useEffect(() => {
+//   // Cleanup previews
+//   return () => {
+//     imagePreviews.forEach(url => URL.revokeObjectURL(url));
+//   };
+// }, [imagePreviews]);
+
+const deleteImage = (index) => {
+  // Filter out the image preview URL to delete
+  const updatedImagePreviews = imagePreviews.filter((_, i) => i !== index);
+  setImagePreviews(updatedImagePreviews);
+
+  // Filter out the file to delete from the selectedImages
+  const updatedSelectedImages = selectedImages.filter((_, i) => i !== index);
+  setSelectedImages(updatedSelectedImages);
+
+};
+
+// Simplified uploadImagesToFirestore function
+const uploadImagesToFirestore = async () => {
+  const imageUrls = [];
+  for (const image of selectedImages) {
+    const storageRef = ref(storage, `ImagesOfStaffResponse/${image.name}`);
+    const snapshot = await uploadBytes(storageRef, image);
+    const downloadUrl = await getDownloadURL(snapshot.ref);
+    imageUrls.push(downloadUrl);
+  }
+  return imageUrls; // Return URLs of uploaded images
+};
+  
+
+  // all google map initilazation functions start here 
+  // Load Google Maps JavaScript API
+  const { isLoaded } = useJsApiLoader({
+    id: 'google-map-script',
+    googleMapsApiKey: "AIzaSyA_uotKtYzbjy44Y2IvoQFds2cCO6VmfMk"
+  })
+
+
+  function calculateAge(dateOfBirth) {
+    
+    // convert dateOfBirth value into date object
+  var birthDate = new Date(dateOfBirth);
+ 
+ // get difference from current date;
+ var difference=Date.now() - birthDate.getTime(); 
+    
+ var  ageDate = new Date(difference); 
+ var age = Math.abs(ageDate.getUTCFullYear() - 1970);
+   return age;
+ }
+
+
+ const [activeIndex, setActiveIndex] = useState(0);
+ const [activeIndexUser, setActiveIndexUser] = useState(0);
+
+ useEffect(() => {
+  if (!complaintDetails || !complaintDetails.ImagesOfStaffResponse || complaintDetails.ImagesOfStaffResponse.length === 0) {
+    // If there's no data, don't set up the timer
+    return;
+  }
+
+  if (complaintDetails.ImagesOfStaffResponse.length <= 1) return; // Stops the auto-slide if there's only one image
+
+  if(complaintDetails){
+  const timer = setTimeout(() => {
+    setActiveIndex((prevIndex) => (prevIndex + 1) % complaintDetails.ImagesOfStaffResponse.length);
+  }, 3000); // Change slides every 3000 milliseconds (3 seconds)
+
+  return () => clearTimeout(timer);
+}
+}, [activeIndex, complaintDetails?.ImagesOfStaffResponse?.length]); // Safely access images.length
+
+const moveSlide = (step) => {
+  setActiveIndex(prev => (prev + step + complaintDetails.ImagesOfStaffResponse.length) % complaintDetails.ImagesOfStaffResponse.length);
+};
+
+
+
+
+useEffect(() => {
+  if (!complaintDetails || !complaintDetails.ImagesOfUserComplaints || complaintDetails.ImagesOfUserComplaints.length === 0) {
+    // If there's no data, don't set up the timer
+    return;
+  }
+
+  if (complaintDetails.ImagesOfUserComplaints.length <= 1) {
+    console.log("here time"); 
+    return;
+  } // Stops the auto-slide if there's only one image
+
+  if(complaintDetails){
+  const timer = setTimeout(() => {
+    moveSlideUser(1);
+  }, 3000); // Change slides every 3000 milliseconds (3 seconds)
+
+  return () => clearTimeout(timer);
+}
+}, [activeIndexUser, complaintDetails?.ImagesOfUserComplaints?.length]); // Safely access images.length
+
+const moveSlideUser = (step) => {
+  setActiveIndexUser(prev => (prev + step + complaintDetails.ImagesOfUserComplaints.length) % complaintDetails.ImagesOfUserComplaints.length);
+};
+
+
+ return (
+    <>
+      {complaintDetails ? (
+        <div className="m-5">
+         
+          <Breadcrumbs fullWidth className="mb-3">
+                <span className="opacity-80 text-lg font-bold" onClick={() => navigate(-1)}>
+                  البلاغات
+                </span>
+                <span className="text-lg font-bold">
+                  رقم البلاغ{" "}
+                  {complaintDetails ? (
+                    <>{complaintDetails.complaintNo}</>
+                  ) : null}
+                </span>
+              </Breadcrumbs>
+
+            <div style={{ overflowX: "auto", maxHeight: "200vh" }}>
+            <Card className="max-w-4xl m-auto p-8">
+             
+            <Typography className="font-baloo text-right text-xl font-bold text-gray-700">
+                    معلومات البلاغ:
+                  </Typography>
+                      <hr/>
+
+
+              <div className="flex flex-col gap-5">
+
+
+              <div className="timeline-container mt-5">
+  <div className="timeline">
+   
+    <div className="timeline-item" data-status="reported">
+    <Chip
+                    size="sm"
+                    variant="ghost"
+                    className="rounded-full text-sm text-white  font-bold text-center timeline-marker"
+                    value={ complaintDetails.inprogressDate? <MdDone className="h-7 w-7 text-white" /> : <div>جديد</div>}
+                    color={ "teal"}
+                  />
+      <div className="timeline-content">
+      <p>تاريخ إستلام البلاغ</p>
+        <p className="timeline-time">{complaintDetails.complaintDate?.toDate().toLocaleDateString() || 'N/A'}</p>
+       
+       
+      </div>
+    </div>
+
+ 
+    {complaintDetails.inprogressDate && (
+      <div className="timeline-item" data-status="inprogress">
+        <Chip
+                    size="sm"
+                    variant="ghost"
+                    className="rounded-full text-sm text-white font-bold text-center timeline-marker"
+                    value={complaintDetails.responseDate? <MdDone className="h-7 w-7 text-white" /> : <div>قيد التنفيذ</div>}
+                    color={ "amber"}
+                  />
+        <div className="timeline-content">
+        <p>تاريخ بدء التنفيذ</p>
+          <p className="timeline-time">{complaintDetails.inprogressDate?.toDate().toLocaleDateString() || 'N/A'}</p>
+          
+          
+        </div>
+      </div>
+    )}
+
+    
+    {(complaintDetails.status === 'مرفوض' || complaintDetails.status === 'تم التنفيذ') && (
+      <div className="timeline-item" data-status={complaintDetails.status === 'مرفوض' ? "rejected" : "executed"}>
+        <Chip
+                    size="sm"
+                    variant="ghost"
+                    className="rounded-full text-sm text-white font-bold text-center timeline-marker"
+                    value={<div className="flex items-center"> <MdDone className="h-7 w-7 text-white" /> {complaintDetails.status}</div>}
+                    color={
+                      complaintDetails.status === "تم التنفيذ"
+                        ? "green"
+                        : complaintDetails.status === "مرفوض"
+                        ? "red"
+                        : "teal"
+                    }
+                  />
+        <div className="timeline-content">
+        <p>تاريخ انتهاء التنفيذ</p>
+          <p className="timeline-time">{complaintDetails.responseDate?.toDate().toLocaleDateString() || 'N/A'}</p>
+         
+         
+        </div>
+      </div>
+    ) }
+  </div>
+</div> 
+
+
+ 
+
+                {/* <div className="flex items-center justify-right gap-5">
+                  <Typography className="font-baloo text-right text-lg font-bold text-gray-700">
+                    حالة البلاغ:
+                  </Typography>
+                  <Chip
+                    size="lg"
+                    variant="ghost"
+                    className="rounded-full text-md font-bold text-center"
+                    value={complaintDetails.status}
+                    color={
+                      complaintDetails.status === "تم التنفيذ"
+                        ? "green"
+                        : complaintDetails.status === "مرفوض"
+                        ? "red"
+                        : complaintDetails.status === "قيد التنفيذ"
+                        ? "amber"
+                        : "teal"
+                    }
+                  />
+  
+                
+                 <Typography> <span><span className="font-bold">تاريخ البلاغ : </span> {complaintDetails.complaintDate?.toDate().toLocaleDateString() || 'N/A'}</span></Typography>
+                     
+                       {complaintDetails.status !== 'جديد' && (
+                       <Typography> <span><span className="font-bold">تاريخ بدء التنفيذ : </span>{complaintDetails.inprogressDate?.toDate().toLocaleDateString() || 'N/A'}</span></Typography>
+                       )}
+                       
+                       {(complaintDetails.status === 'مرفوض' || complaintDetails.status ===  'تم التنفيذ' ) && (
+                       <>
+                        <Typography> <span><span className="font-bold">تاريخ انتهاء التنفيذ : </span>{complaintDetails.responseDate?.toDate().toLocaleDateString() || 'N/A'}</span></Typography>
+                       </>
+                        )} 
+                </div> */}
+
+                <div className="flex justify-between ">
+                {complainerInfo ? (
+                  <div>
+                    <Typography className="font-baloo text-right text-lg font-bold text-gray-700">
+                      معلومات العميل:
+                    </Typography>
+                    <hr/>
+                    <Typography>
+                      <span>
+                        <span className="font-bold">اسم العميل:</span>{" "}
+                        {complainerInfo.firstName} {complainerInfo.lastName}
+                      </span>
+                    </Typography>
+                    <Typography>
+                      <span>
+                        <span className="font-bold">العمر:</span>{" "}
+                        {calculateAge(complainerInfo.DateOfBirth)}
+                      </span>
+                    </Typography>
+                    <Typography>
+                      <span>
+                        <span className="font-bold">رقم الهاتف:</span>{" "}
+                        <bdi>{complainerInfo.phoneNumber}</bdi>
+                      </span>
+                    </Typography>
+                    <Typography>
+                      <span>
+                        <span className="font-bold">البريد الإلكتروني:</span>{" "}
+                        {complainerInfo.email}
+                      </span>
+                    </Typography>
+                  </div>
+                ) : (
+                  <div>تحميل معلومات العميل...</div>
+                )}
+         
+
+  <div className="flex flex-col "> 
+
+<Typography className="font-baloo text-right text-lg font-bold text-gray-700">
+                           معاينة موقع البلاغ:
+                            </Typography> 
+                            <hr className=" mb-1 "/>
+                <Typography> <span><span className="font-bold">الموقع  : </span>  {complaintDetails.localArea}</span></Typography>
+                   
+              {isLoaded  ? (
+                 <GoogleMap
+                 mapContainerStyle={containerStyle}
+                 center={center}
+                 zoom={zoom}
+                >
+                      <Marker
+            position={{ lat: center.lat, lng: center.lng }}
+                      >  
+                         </Marker>
+                         </GoogleMap>
+
+               ) : null}
+
+              </div>
+                </div>
+
+
+                    <div>
+
+                        <Typography className="font-baloo text-right text-lg font-bold text-gray-700">
+                      تفاصيل البلاغ:
+                    </Typography>
+                    <hr/>
+
+               
+                    <div className="flex flex-col gap-3">
+                    <Typography>  <span><span className="font-bold"> رقم البلاغ :</span>  {complaintDetails.complaintNo}</span></Typography>
+                   
+                    <span className="flex flex-col">
+ <span className="font-bold"> نوع البلاغ :</span> 
+ <span className="w-full max-w-[26rem]">
+  {complaintDetails.complaintType} {complaintDetails.complaintType==="أخرى"? <span>: {complaintDetails.complaintSubject}</span> : null}
+  </span> 
+ </span>
+
+    <span className="flex flex-col">
+    <span className="font-bold"> وصف البلاغ :</span> 
+    <span className="w-full max-w-[26rem]">{complaintDetails.description}</span> 
+    </span>
+
+                    {/* <Typography> <span><span className="font-bold">تاريخ البلاغ : </span> {complaintDetails.complaintDate?.toDate().toLocaleDateString() || 'N/A'}</span></Typography>
+                     
+                       {complaintDetails.status !== 'جديد' && (
+                       <Typography> <span><span className="font-bold">تاريخ بدء التنفيذ : </span>{complaintDetails.inprogressDate?.toDate().toLocaleDateString() || 'N/A'}</span></Typography>
+                       )}
+                       
+                       {(complaintDetails.status === 'مرفوض' || complaintDetails.status ===  'تم التنفيذ' ) && (
+                       <>
+                        <Typography> <span><span className="font-bold">تاريخ انتهاء التنفيذ : </span>{complaintDetails.responseDate?.toDate().toLocaleDateString() || 'N/A'}</span></Typography>
+                       </>
+                        )} */}
+                        </div>
+                        
+                         </div>            
+
+
+                   
+
+<div>
+<Typography className="font-baloo text-right text-lg font-bold text-gray-700">
+                           المرفقات :
+                            </Typography> 
+                            <hr />
+{complaintDetails.ImagesOfUserComplaints && complaintDetails.ImagesOfUserComplaints.length > 0 ? (
+ <div className="carousel mt-3">
+      <div className="carousel-items">
+        {complaintDetails.ImagesOfUserComplaints.map((url, index) => (
+          <div
+            key={url}
+            className={`carousel-item ${index === activeIndexUser ? 'active' : ''}`}
+          >
+            <img src={url} alt={`Slide ${index}`} />
+          </div>
+        ))}
+      </div>
+      {complaintDetails.ImagesOfUserComplaints.length > 1 && ( // Only show controls if there are more than one image
+      <>
+      <a className="carousel-control prev" onClick={() => moveSlideUser(-1)}>&#10095;</a>
+      <a className="carousel-control next" onClick={() => moveSlideUser(1)}>&#10094;</a>
+      </>
+       )} 
+    </div>
+  ) :  
+  <Typography color="red">
+  <span style={{color: "dark-red"}}>لا توجد مرفقات</span>
+  </Typography>
+  }
+
+</div>
+             
+
+
+              </div>
+  
+              
+            </Card>
+          </div>
+
+          <div style={{ overflowX: "auto", maxHeight: "200vh" }} className="mt-5">
+            <Card className="max-w-4xl m-auto p-8">
+
+
+
+            <div>
+       
+        {(complaintDetails.status === "تم التنفيذ" || complaintDetails.status === "مرفوض") ? (
+  
+    <Typography className="font-baloo text-right text-xl font-bold text-gray-700">
+      تفاصيل الرد على البلاغ:
+    </Typography>
+        ) : 
+( <Typography className="font-baloo text-right text-xl font-bold text-gray-700">
+الإجراء :
+</Typography>)}
+        <hr className="mb-3" />
+
+
+
+       
+
+        
+{ ( editMode || complaintDetails.status == 'جديد' || complaintDetails.status == 'قيد التنفيذ') && (
+
+<>
+<Typography className="font-baloo text-right text-md font-bold mt-5 mb-3">
+    <span> تغيير حالة البلاغ:</span>
+</Typography>
+
+
+<select
+  value={selectedStatus || complaintDetails.status }
+  onChange={(e) => {setSelectedStatus(e.target.value); setErrorMessageStatus(""); console.log("select:"+ e.target.value); console.log("selected:"+ selectedStatus);}} 
+  className="p-2 border border-gray-300 rounded mb-5"
+>
+  <option value="جديد" disabled={!complaintDetails || complaintDetails.status == "قيد التنفيذ"}>جديد</option>
+  <option value="قيد التنفيذ">قيد التنفيذ</option>
+  <option value="تم التنفيذ" disabled={!complaintDetails || complaintDetails.status == 'جديد'}> قبول</option>
+  <option value="مرفوض" disabled={!complaintDetails || complaintDetails.status == 'جديد'}> رفض</option>
+</select>
+
+<Typography color="red"  className="font-semibold">
+       <span>  {errorMessageStatus}</span>
+</Typography>
+
+
+
+
+
+        {/* Conditionally render comment input based on selected status */}
+        { (selectedStatus === 'تم التنفيذ' || selectedStatus === 'مرفوض' || complaintDetails.status==='تم التنفيذ' || complaintDetails.status==="مرفوض")&&(selectedStatus != 'قيد التنفيذ') ? (
+<>
+{selectedStatus == "مرفوض" && (
+    <Typography className="font-baloo text-right text-md font-bold ">
+    <span>  توضيح سبب الرفض :</span>
+     </Typography>
+)} 
+     
+     {selectedStatus =='تم التنفيذ'&& (
+    <Typography className="font-baloo text-right text-md font-bold ">
+    <span> التعليق:</span>
+     </Typography>
+
+ )} 
+  
+
+  <div className="grid gap-3">
+    
+    <Textarea
+      label="التعليق"
+      value={message || complaintDetails.staffResponse}
+      onChange={(e) => {
+        setMessage(e.target.value.slice(0, 500));
+        setErrorMessage("");
+      }}
+      maxLength={500}
+    />
+
+   <div className="image-upload-instructions">
+    <span>
+      عدد الأحرف المتبقية: {500 - message.length}
+    </span>
+  </div>
+
+    {errorMessage && (
+      <Typography color="red"  className="font-semibold">
+       <span> {errorMessage}</span>
+      </Typography>
+    )}
+
+  </div>
+
+  {/* Image attachment input */}
+  {/* <div className=" flex flex-col mt-4">
+      <label htmlFor="image-upload" className="font-baloo text-right text-md font-bold mb-2">
+        <span>إرفاق صور:</span>
+      </label>
+      <input
+        type="file"
+        id="image-upload"
+        multiple
+        onChange={handleImageSelection}
+        accept="image/*"
+        className="p-2 border border-gray-300 rounded"
+      />
+      {imageUploadError && (
+        <Typography color="red" className="font-semibold">
+          <span>{imageUploadError}</span>
+        </Typography>
+      )}
+    </div> */}
+
+<div className="upload-images-section">
+  <label htmlFor="image-upload" className="font-baloo text-right text-md font-bold mb-2">
+     إرفاق صور:
+  </label>
+  <input
+    type="file"
+    id="image-upload"
+    multiple
+    onChange={handleImageSelection}
+    accept="image/*"
+    className="p-2 border border-gray-300 rounded mr-2"
+  />
+  <p className="image-upload-instructions">يمكنك إرفاق ما يصل إلى 3 صور.</p>
+  {imageUploadError && (
+    <p className="error-message">{imageUploadError}</p>
+  )}
+</div>
+
+<div className="image-previews">
+      {imagePreviews.map((url, index) => (
+        <div key={index} className="image-preview">
+          <img src={url} alt={`Preview ${index}`} />
+          <button className="delete-btn" onClick={() => deleteImage(index)}>×</button>
+        </div>
+      ))}
+    </div>
+
+{/* <div className="image-previews">
+  {imagePreviews.map((url, index) => (
+    <div key={index} className="image-preview">
+      <img src={url} alt={`Preview ${index + 1}`} />
+    </div>
+  ))}
+</div> */}
+
+
+
+  </> ) 
+  
+  : null}
+
+
+{  message.trim() == "" && selectedStatus==="" ? <span>  يجب أن يتم تغيير الحالة حتى تتمكن من تحديث البلاغ  </span>:
+      <Button
+                    size="sm"
+                    variant="gradient"
+                    style={{ background: '#97B980', color: '#ffffff' }}
+                    onClick={handleUpdateComplaint}
+                    className="text-sm mt-3 mb-3 "
+                  >
+                    <span>تحديث البلاغ</span>
+                  </Button>
+}
+
+
+{/* 
+{complaintDetails.status!="جديد" && (
+ <Button
+ size="sm"
+ variant="gradient"
+ style={{ background: '#97B980', color: '#ffffff' }}
+ onClick={()=> setEditMode(false)}
+ className="text-sm mt-3 mb-3 mr-2"
+>
+<span className="flex items-center"> <span>تراجع </span><IoMdArrowRoundBack></IoMdArrowRoundBack> </span> 
+</Button>
+                  )} */}
+                 
+</>
+              )}
+</div>
+
+
+
+{(complaintDetails.status === "تم التنفيذ" || complaintDetails.status === "مرفوض" ) && (
+  <div className="flex flex-col gap-2">
+   
+   
+    {(complaintDetails.status === "تم التنفيذ" || complaintDetails.status === "مرفوض") && (
+  <>  
+
+
+   
+
+    <Typography className="flex flex-col "> 
+    <span className="font-bold"> التعليق :</span> 
+    <span className="w-full max-w-[48rem]">{complaintDetails.staffResponse}</span> 
+ </Typography>
+    
+
+    {/* Display images */}
+    {/* <Typography>
+  <span className="font-bold"> المرفقات : </span>
+  {complaintDetails.ImagesOfStaffResponse && complaintDetails.ImagesOfStaffResponse.length > 0 ? (
+    <div className="flex gap-10">
+      {complaintDetails.ImagesOfStaffResponse.map((url, index) => (
+        <img src={url} alt={`Attached Image ${index}`} style={{ width: '100px', height: '100px' }} key={url} />
+      ))}
+     </div>
+  ) : (
+    <Typography color="red">
+    <span style={{color: "dark-red"}}>لا توجد مرفقات</span>
+    </Typography>
+  )}
+</Typography> */}
+
+ {/* Display images */}
+   <Typography>
+  <span className="font-bold"> المرفقات : </span> 
+
+  {complaintDetails.ImagesOfStaffResponse && complaintDetails.ImagesOfStaffResponse.length > 0 ? (
+<div className="carousel">
+      <div className="carousel-items">
+        {complaintDetails.ImagesOfStaffResponse.map((url, index) => (
+          <div
+            key={url}
+            className={`carousel-item ${index === activeIndex ? 'active' : ''}`}
+          >
+            <img src={url} alt={`Slide ${index}`} />
+          </div>
+        ))}
+      </div> 
+      {complaintDetails.ImagesOfStaffResponse.length > 1 && ( // Only show controls if there are more than one image
+      <>
+      <a className="carousel-control prev" onClick={() => moveSlide(-1)}>&#10095;</a>
+      <a className="carousel-control next" onClick={() => moveSlide(1)}>&#10094;</a>
+      </>
+      )}
+
+    </div>
+  ) :  
+  <Typography color="red">
+  <span style={{color: "dark-red"}}>لا توجد مرفقات</span>
+  </Typography>
+  }
+ </Typography>
+
+
+</>
+
+
+    )}
+
+  </div>
+ 
+ )}
+
+
+
+            </Card>
+            
+
+        </div>
+
+
+        </div>
+      ) : (
+        <div>تحميل تفاصيل البلاغ...</div>
+      )}
+
+
+
+<Success open={showSuccessProcess} handler={handleSuccessProcess} message=" تم تحديث حالة البلاغ إلى (قيد التنفيذ) بنجاح" />
+<SummaryComplaintResponse  open={summeryComplaintOpen} handler={handleSummeryComplaint} complaintData={complaintDetails} method={handleComplaintSubmit} responseData={responseData} handleEdit={handleSummeryComplaintClose} imagePreviews={imagePreviews}/>
+<Success open={showSuccessResponse} handler={handleSuccessResponse} message=" تم معالجة البلاغ بنجاح" />
+  
+{/* <ComplaintResponse open={acceptVisible} handler={handleAccept} method={handleAcceptComplaint} complaintData={complaintDetails} status="قبول"/> */}
+{/* <ComplaintResponse open={} handler={} method={} complaintData={} status="reject"/> */}
+    </>
+  );
+  
+      }  

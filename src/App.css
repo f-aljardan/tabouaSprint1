@@ -124,3 +124,243 @@ input[type=file]::file-selector-button:hover {
     opacity: 0
   }
 }
+
+
+/* Styles for the upload images section */
+.upload-images-section {
+  margin-top: 20px;
+  text-align: right;
+}
+
+
+
+.image-upload-instructions {
+  font-size: 14px;
+  color: #666; /* Grey text */
+  margin-top: 5px;
+}
+
+.error-message {
+  color: #ff0000; /* Red text */
+  margin-top: 5px;
+}
+
+/* Styles for image previews */
+.image-previews {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  justify-content: right;
+  margin-top: 20px;
+}
+
+.image-preview {
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  padding: 5px;
+  position: relative; /* Needed for absolute positioning of delete button */
+  width: 150px;
+  height: 150px;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-right: 10px; /* Add some spacing between previews */
+}
+
+.image-preview img {
+  max-width: 100%;
+  max-height: 100%;
+}
+
+.delete-btn {
+  position: absolute;
+  top: 0;
+  right: 0;
+  background: rgba(255, 255, 255, 0.8);
+  color: #333;
+  border: none;
+  cursor: pointer;
+  padding: 0 5px;
+  border-bottom-left-radius: 4px;
+}
+
+
+
+.carousel {
+  position: relative;
+ max-width: 300px;
+ max-height: 300px;  
+  /* margin: auto; */
+  overflow: hidden;
+}
+
+.carousel-items .carousel-item {
+  display: none;
+  text-align: center;
+}
+
+.carousel-items .carousel-item.active {
+  display: block;
+}
+
+.carousel-item img {
+  width: 100%; /* Make images responsive */
+}
+
+.carousel-control {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  cursor: pointer;
+  font-size: 24px;
+  color: black;
+  padding: 8px;
+  background-color: rgba(255, 255, 255, 0.58);
+}
+
+.carousel-control.prev {
+  left: 0;
+}
+
+.carousel-control.next {
+  right: 0;
+}
+
+
+
+.timeline-container {
+  padding: 20px;
+}
+
+.timeline {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  align-items: center;
+  position: relative;
+}
+
+.timeline::before {
+  content: '';
+  position: absolute;
+  top: 20px;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background-color: #ddd;
+  z-index: 1;
+}
+
+
+
+
+.timeline-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  position: relative;
+  z-index: 2;
+}
+
+.timeline-marker {
+  height: 40px;
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 10px;
+  position: relative;
+  border: 3px solid #3498db; 
+}
+
+.timeline-content {
+  text-align: center;
+}
+
+.timeline-time {
+  font-weight: bold;
+  margin-bottom: 5px;
+}
+
+
+
+/* ...other styles for coloring based on status... */
+/* 
+ .timeline-container {
+  display: flex;
+  justify-content: center;
+  padding: 20px;
+}
+
+.timeline {
+  position: relative;
+  width: 100%;
+  list-style: none;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+
+}
+
+.timeline::before {
+  content: '';
+  position: absolute;
+  top: 20px;
+  left: 0;
+  height: 3px;
+  width: 100%;
+  background-color: #ddd; 
+  z-index: 1;
+} 
+
+.timeline-item {
+  position: relative;
+  padding: 0 10px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  z-index: 2;
+}
+
+
+.timeline-marker {
+  position: relative;
+ 
+  height: 40px;
+
+  border: 3px solid #3498db; 
+}
+
+.timeline-content {
+  margin-top: 10px;
+}
+
+.timeline-time {
+  margin-bottom: 5px;
+  font-weight: bold;
+}
+
+ */
+
+.timeline-item[data-status="reported"] .timeline-marker {
+  border-color: rgb(0, 154, 154);
+  background-color: rgba(0, 154, 154, 0.543);
+}
+
+.timeline-item[data-status="inprogress"] .timeline-marker {
+  border-color: #FFBF00;
+  background-color:rgba(231, 174, 1, 0.731);
+}
+
+.timeline-item[data-status="rejected"] .timeline-marker {
+  border-color: red;
+  background-color:rgba(255, 0, 0, 0.543);
+}
+
+.timeline-item[data-status="executed"] .timeline-marker {
+  border-color: rgb(151, 185, 128);
+ 
+  background-color: rgba(151, 185, 128, 0.701);
+}   

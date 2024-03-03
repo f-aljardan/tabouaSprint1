@@ -8,7 +8,8 @@ export default withMT({
 
   content: [
     "./index.html",
-    "./src/**/*.{js,ts,jsx,tsx}",
+    "./src/**/*.{html,js,ts,jsx,tsx,mdx}",
+    "./**/@material-tailwind/**/*.{html,js,ts,jsx,tsx,mdx}",
 
   
   ],
@@ -22,3 +23,4 @@ export default withMT({
   ],
 
 });
+

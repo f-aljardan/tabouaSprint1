@@ -88,9 +88,6 @@ function RecyclingCentersMap() {
     const handleCheckMessage= () => {    handleAlertBuilding(); setCheckMessageVisible(!checkMessageVisible);}
 
 
-
-
-
 //all google map initilization related function starts here
 //load the Google Maps JavaScript API 
 const { isLoaded } = useJsApiLoader({

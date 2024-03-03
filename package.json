@@ -16,7 +16,7 @@
     "@emotion/styled": "^11.11.0",
     "@firebase/firestore": "^4.3.0",
     "@heroicons/react": "^2.0.18",
-    "@material-tailwind/react": "^2.1.4",
+    "@material-tailwind/react": "^2.1.9",
     "@mui/material": "^5.14.13",
     "@mui/x-date-pickers": "^6.16.2",
     "@react-google-maps/api": "^2.19.2",

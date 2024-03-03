@@ -24,11 +24,6 @@ export default function ManageStaff(){
     lastName: '',
     email: '',
   });
-
-const [firstNameError, setFirstNameError] = useState('');
-const [fatherNameError, setFatherNameError] = useState('');
-const [lastNameError, setLastNameError] = useState('');
-const [emailError, setEmailError] = useState('');
 const [errors, setErrors] = useState({});
 
 
@@ -98,34 +93,9 @@ const [errors, setErrors] = useState({});
 
   }
 
-  /*const handleEditChange = (e) => {
-    const { name, value } = e.target;
-    setEditedStaffData((prevData) => ({
-      ...prevData,
-      [name]: value,
-    }));
-  };*/
 
   const handleEditChange = (e) => {
     const { name, value } = e.target;
-  
-    // Clear the error message when the user starts editing a field
-    switch (name) {
-      case 'firstName':
-        setFirstNameError('');
-        break;
-      case 'fatherName':
-        setFatherNameError('');
-        break;
-      case 'lastName':
-        setLastNameError('');
-        break;
-      case 'email':
-        setEmailError('');
-        break;
-      default:
-        break;
-    }
   
     setEditedStaffData((prevData) => ({
       ...prevData,
@@ -133,100 +103,6 @@ const [errors, setErrors] = useState({});
     }));
   };
   
-
-
-  /*const handleSaveEdit = async () => {
-    // Create a reference to the staff member's document in the database
-    const staffDocRef = doc(db, 'staff', editedStaffData.id);
-  
-    // Prepare the data to be updated
-    const updatedData = {
-      firstName: editedStaffData.firstName,
-      fatherName: editedStaffData.fatherName,
-      lastName: editedStaffData.lastName,
-      email: editedStaffData.email,
-    };
-  
-    try {
-      // Update the document with the new data
-      await updateDoc(staffDocRef, updatedData);
-  
-      // Exit edit mode and clear the edited data
-      setIsEditMode(false);
-      setEditedStaffData({
-        id: null,
-        firstName: '',
-        fatherName: '',
-        lastName: '',
-        email: '',
-      });
-  
-    } catch (error) {
-      console.error('Error updating document: ', error);
-    }
-  };*/
-
-  /*const handleSaveEdit = async () => {
-    // Initialize error messages for each field
-    setFirstNameError('');
-    setFatherNameError('');
-    setLastNameError('');
-    setEmailError('');
-  
-    // Validate each field
-    if (editedStaffData.firstName.trim() === '') {
-      setFirstNameError('يرجى إدخال الاسم الأول.');
-    }
-  
-    if (editedStaffData.fatherName.trim() === '') {
-      setFatherNameError('يرجى إدخال اسم الأب.');
-    }
-  
-    if (editedStaffData.lastName.trim() === '') {
-      setLastNameError('يرجى إدخال اسم العائلة.');
-    }
-  
-    if (editedStaffData.email.trim() === '') {
-      setEmailError('يرجى إدخال البريد الإلكتروني.');
-    }
-  
-    // Check if any field has an error message
-    if (firstNameError || fatherNameError || lastNameError || emailError) {
-      // At least one field is empty, do not proceed with the update
-      return;
-    }
-
-   
-  
-    // Create a reference to the staff member's document in the database
-    const staffDocRef = doc(db, 'staff', editedStaffData.id);
-  
-    // Prepare the data to be updated
-    const updatedData = {
-      firstName: editedStaffData.firstName,
-      fatherName: editedStaffData.fatherName,
-      lastName: editedStaffData.lastName,
-      email: editedStaffData.email,
-    };
-  
-    try {
-      // Update the document with the new data
-      await updateDoc(staffDocRef, updatedData);
-  
-      // Exit edit mode and clear the edited data
-      setIsEditMode(false);
-      setEditedStaffData({
-        id: null,
-        firstName: '',
-        fatherName: '',
-        lastName: '',
-        email: '',
-      });
-  
-    } catch (error) {
-      console.error('Error updating document: ', error);
-    }
-  };*/
 
   const handleSaveEdit = async () => {
     // Initialize errors object
@@ -248,6 +124,10 @@ const [errors, setErrors] = useState({});
     if (editedStaffData.email.trim() === '') {
       newErrors.email = 'يرجى إدخال البريد الإلكتروني.';
     }
+    else if (!/^\S+@\S+\.\S+$/.test(editedStaffData.email)){
+      newErrors.email = 'صيغة البريد الإلكتروني غير صحيحة.';
+
+    }
   
     // Update the state with errors using the callback function
     setErrors(newErrors);
@@ -258,7 +138,6 @@ const [errors, setErrors] = useState({});
         return;
       }
   
-      // Continue with the rest of the function...
   
       // Create a reference to the staff member's document in the database
       const staffDocRef = doc(db, 'staff', editedStaffData.id);
@@ -285,21 +164,11 @@ const [errors, setErrors] = useState({});
           email: '',
         });
 
-        ///setErrors(null);
-        //setEmailError(null);
-       // setFatherNameError(null);
-      //  setFirstNameError(null);
-      //  setLastNameError(null);
   
       } catch (error) {
         console.error('Error updating document: ', error);
       }
   };
-  
-  
-
-
-  
   
 
 
@@ -517,7 +386,6 @@ return (
                 name="email"
                 value={editedStaffData.email}
                 onChange={handleEditChange}
-            //    error={emailError}  
               />
               {errors.email && (
   <div className="text-red-500 text-sm mt-1">{errors.email}</div>

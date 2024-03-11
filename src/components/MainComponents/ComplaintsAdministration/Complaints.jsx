@@ -99,6 +99,9 @@ const typeOptions = [
   { value: "نظافة الحاوية", label: "نظافة الحاوية" },
   { value: "حاوية ممتلئة", label: "حاوية ممتلئة" },
   { value: 'موقع الحاوية', label: 'موقع الحاوية' },
+  { value: 'مخلفات مهملة', label: 'مخلفات مهملة' },
+  { value: 'مخلفات خطرة', label: 'مخلفات خطرة' },
+  { value: 'وقت تفريغ الحاوية', label: 'وقت تفريغ الحاوية' },
   { value: "أخرى", label: "أخرى" },
 ];
 
@@ -189,7 +192,7 @@ const typeOptions = [
           className="font-normal leading-none opacity-70 text-right"
           component={"span"}
         >
-          <span>الحالة</span>
+          <span>حالة البلاغ</span>
         </Typography>
       </th>
     </tr>

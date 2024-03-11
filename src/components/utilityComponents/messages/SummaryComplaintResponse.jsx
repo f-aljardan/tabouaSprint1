@@ -47,7 +47,7 @@ import {
                   </span>
                 </Typography> */}
       
-                <Typography className="font-baloo text-right text-lg font-bold mt-3">تفاصيل التنفيذ:</Typography>
+                <Typography className="font-baloo text-right text-lg font-bold mt-3">تفاصيل الرد:</Typography>
       <hr/>
                 <Typography>
                   <span>

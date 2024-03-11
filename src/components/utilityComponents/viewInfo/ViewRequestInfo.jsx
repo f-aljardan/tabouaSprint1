@@ -99,7 +99,7 @@ return (
       >
         <DialogHeader className="flex justify-between font-baloo text-right " style={{ backgroundColor: '#97B980' ,  color: '#ffffff' }}>
     
-        {requestInfo && (     <span> معلومات الطلب رقم {requestInfo.requestNo}</span> )}
+        {requestInfo && (     <span> بيانات الطلب رقم {requestInfo.requestNo}</span> )}
          
             <IconButton
             variant="text"
@@ -179,7 +179,7 @@ return (
  {requesterInfo && (
             <div>
                  <Typography className="font-baloo text-right text-lg font-bold text-gray-700">
-                      معلومات العميل:
+                      بيانات العميل:
                     </Typography>
                     <Typography> <span><span className="font-bold">اسم العميل:</span> {requesterInfo.firstName} {requesterInfo.lastName}</span> </Typography>
                     <Typography>
@@ -191,7 +191,7 @@ return (
     <Typography>
       <span >
         <span  className="font-bold">رقم الهاتف:</span>{' '}
-            <bdi>{requesterInfo.phoneNumber}</bdi> {/*Bidirectional Isolate) designed when text directionality cause unexpected rendering*/}
+        <bdi dir="ltr">{requesterInfo.phoneNumber}</bdi> {/*Bidirectional Isolate) designed when text directionality cause unexpected rendering*/}
       </span>
     </Typography>
     <Typography> <span><span className="font-bold">البريد الإلكتروني:</span>  {requesterInfo.email}</span> </Typography>

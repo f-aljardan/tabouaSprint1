@@ -377,7 +377,7 @@ const moveSlideUser = (step) => {
             <Card className="max-w-4xl m-auto p-8">
              
             <Typography className="font-baloo text-right text-xl font-bold text-gray-700">
-                    معلومات البلاغ:
+                    بيانات البلاغ:
                   </Typography>
                       <hr/>
 
@@ -405,7 +405,7 @@ const moveSlideUser = (step) => {
     </div>
 
  
-    {complaintDetails.inprogressDate && (
+    {complaintDetails.inprogressDate? (
       <div className="timeline-item" data-status="inprogress">
         <Chip
                     size="sm"
@@ -421,10 +421,26 @@ const moveSlideUser = (step) => {
           
         </div>
       </div>
+    ):(
+<div className="timeline-item" data-status="waiting">
+        <Chip
+                    size="sm"
+                    variant="ghost"
+                    className="rounded-full text-sm text-white font-bold text-center timeline-marker"
+                    value={<div>قيد التنفيذ</div>}
+                    color={"gray"}
+                  />
+        <div className="timeline-content text-white">
+        <p> .... </p>
+          <p className="timeline-time">...</p>
+          
+          
+        </div>
+      </div>
     )}
 
     
-    {(complaintDetails.status === 'مرفوض' || complaintDetails.status === 'تم التنفيذ') && (
+    {(complaintDetails.status === 'مرفوض' || complaintDetails.status === 'تم التنفيذ') ? (
       <div className="timeline-item" data-status={complaintDetails.status === 'مرفوض' ? "rejected" : "executed"}>
         <Chip
                     size="sm"
@@ -446,7 +462,23 @@ const moveSlideUser = (step) => {
          
         </div>
       </div>
-    ) }
+    ) :(
+      <div className="timeline-item" data-status={"waiting"}>
+        <Chip
+                    size="sm"
+                    variant="ghost"
+                    className="rounded-full text-sm text-white font-bold text-center timeline-marker"
+                    value={<div className="flex items-center"> انتهاء التنفيذ</div>}
+                    color={"gray"}
+                  />
+        <div className="timeline-content text-white">
+        <p>  ...</p>
+          <p className="timeline-time">...</p>
+         
+         
+        </div>
+      </div>
+    )}
   </div>
 </div> 
 
@@ -491,7 +523,7 @@ const moveSlideUser = (step) => {
                 {complainerInfo ? (
                   <div>
                     <Typography className="font-baloo text-right text-lg font-bold text-gray-700">
-                      معلومات العميل:
+                      بيانات العميل:
                     </Typography>
                     <hr/>
                     <Typography>
@@ -509,7 +541,7 @@ const moveSlideUser = (step) => {
                     <Typography>
                       <span>
                         <span className="font-bold">رقم الهاتف:</span>{" "}
-                        <bdi>{complainerInfo.phoneNumber}</bdi>
+                        <bdi dir="ltr">{complainerInfo.phoneNumber}</bdi>
                       </span>
                     </Typography>
                     <Typography>
@@ -527,7 +559,7 @@ const moveSlideUser = (step) => {
   <div className="flex flex-col "> 
 
 <Typography className="font-baloo text-right text-lg font-bold text-gray-700">
-                           معاينة موقع البلاغ:
+                            موقع البلاغ:
                             </Typography> 
                             <hr className=" mb-1 "/>
                 <Typography> <span><span className="font-bold">الموقع  : </span>  {complaintDetails.localArea}</span></Typography>

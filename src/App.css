@@ -349,6 +349,11 @@ input[type=file]::file-selector-button:hover {
   background-color: rgba(0, 154, 154, 0.543);
 }
 
+.timeline-item[data-status="waiting"] .timeline-marker {
+  border-color: rgb(130, 146, 146);
+  background-color: rgba(136, 148, 148, 0.543);
+}
+
 .timeline-item[data-status="inprogress"] .timeline-marker {
   border-color: #FFBF00;
   background-color:rgba(231, 174, 1, 0.731);

@@ -231,25 +231,67 @@ input[type=file]::file-selector-button:hover {
 
 .timeline-container {
   padding: 20px;
+  
 }
 
 .timeline {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  grid-template-columns: repeat(5,1fr);
   align-items: center;
   position: relative;
+ 
+}
+.line {
+  width: 12rem;
+  margin-bottom: 60px;
+  height: 3px;
+  border-radius: 1.5px; /* Adds rounded corners */
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2); /* Adds subtle shadow */
 }
 
-.timeline::before {
+.line[data-status="waiting"] {
+  background-color: rgb(191, 191, 191);
+}
+
+.line[data-status="inprogress"] {
+  background: linear-gradient(to right, rgb(191, 191, 191) 50%, #97B980 50%);
+}
+
+.line[data-status="executed"] {
+  background-color: #889494; /* Slightly adjusted color for better contrast */
+}
+
+
+
+
+/* 
+.line{
+ width: 12rem;
+margin-bottom: 60px;
+height: 3px;
+}
+
+.line[data-status="waiting"]  {
+  background-color: rgb(191, 191, 191);
+}
+.line[data-status="inprogress"]  {
+  background: linear-gradient(to right, rgb(191, 191, 191), #97B980);
+}
+.line[data-status="executed"] {
+  background-color: rgb(136, 148, 148);
+} */
+/* .timeline::before {
   content: '';
   position: absolute;
   top: 20px;
   left: 0;
   right: 0;
   height: 3px;
-  background-color: #ddd;
+  background-color: #c4c2c2;
   z-index: 1;
-}
+  margin-left: 80px;
+  margin-right: 100px;
+} */
 
 
 
@@ -261,6 +303,7 @@ input[type=file]::file-selector-button:hover {
   text-align: center;
   position: relative;
   z-index: 2;
+  
 }
 
 .timeline-marker {
@@ -271,7 +314,7 @@ input[type=file]::file-selector-button:hover {
   justify-content: center;
   margin-bottom: 10px;
   position: relative;
-  border: 3px solid #3498db; 
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2); /* Adds subtle shadow */
 }
 
 .timeline-content {
@@ -344,28 +387,23 @@ input[type=file]::file-selector-button:hover {
 
  */
 
-.timeline-item[data-status="reported"] .timeline-marker {
-  border-color: rgb(0, 154, 154);
-  background-color: rgba(0, 154, 154, 0.543);
-}
+
 
 .timeline-item[data-status="waiting"] .timeline-marker {
-  border-color: rgb(130, 146, 146);
-  background-color: rgba(136, 148, 148, 0.543);
+  background-color: rgb(191, 191, 191);
 }
 
 .timeline-item[data-status="inprogress"] .timeline-marker {
-  border-color: #FFBF00;
-  background-color:rgba(231, 174, 1, 0.731);
+  background-color: #97B980;
 }
-
-.timeline-item[data-status="rejected"] .timeline-marker {
-  border-color: red;
-  background-color:rgba(255, 0, 0, 0.543);
-}
-
 .timeline-item[data-status="executed"] .timeline-marker {
-  border-color: rgb(151, 185, 128);
- 
-  background-color: rgba(151, 185, 128, 0.701);
-}   
+  background-color: rgb(136, 148, 148);
+} 
+.timeline-item[data-status="rejected"] .timeline-marker {
+  background-color: #FE5500;
+}
+
+.timeline-item[data-status="approved"] .timeline-marker {
+  background-color: #97B980;
+}
+  

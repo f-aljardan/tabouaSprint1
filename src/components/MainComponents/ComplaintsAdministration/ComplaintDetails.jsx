@@ -384,18 +384,38 @@ const moveSlideUser = (step) => {
 
               <div className="flex flex-col gap-5">
 
-
               <div className="timeline-container mt-5">
   <div className="timeline">
    
-    <div className="timeline-item" data-status="reported">
+    { complaintDetails.status === 'جديد'? ( <>
+    <div className="timeline-item" data-status="inprogress">
+    <div className="w-28">
     <Chip
                     size="sm"
-                    variant="ghost"
+                  
                     className="rounded-full text-sm text-white  font-bold text-center timeline-marker"
-                    value={ complaintDetails.inprogressDate? <MdDone className="h-7 w-7 text-white" /> : <div>جديد</div>}
+                    value={ <div>جديد</div>}
                     color={ "teal"}
-                  />
+                  /></div>
+      <div className="timeline-content">
+      <p>تاريخ إستلام البلاغ</p>
+        <p className="timeline-time">{complaintDetails.complaintDate?.toDate().toLocaleDateString() || 'N/A'}</p>
+       
+       
+      </div>
+      </div> 
+      <div className="line" data-status="inprogress"></div>
+    </>
+    ) :(<>
+    <div className="timeline-item" data-status="executed">
+    <div className="w-28">
+    <Chip
+                    size="sm"
+                    className="rounded-full text-sm text-white  font-bold text-center timeline-marker"
+                
+                    value={  <div>جديد</div>}
+                    color={ "teal"}
+                  /> </div>
       <div className="timeline-content">
       <p>تاريخ إستلام البلاغ</p>
         <p className="timeline-time">{complaintDetails.complaintDate?.toDate().toLocaleDateString() || 'N/A'}</p>
@@ -403,49 +423,69 @@ const moveSlideUser = (step) => {
        
       </div>
     </div>
+     <div className="line" data-status="executed"></div> </>)
+}
 
- 
-    {complaintDetails.inprogressDate? (
-      <div className="timeline-item" data-status="inprogress">
+    {complaintDetails.status === 'قيد التنفيذ'? (
+     <> <div className="timeline-item" data-status="inprogress">
+       <div className="w-28">
+      <Chip
+                  size="sm"
+                  className="rounded-full text-sm text-white font-bold text-center timeline-marker"
+                  value={<div>قيد التنفيذ</div>}
+                  color={"gray"}
+                /></div>
+       <div className="timeline-content">
+        <p>تاريخ بدء التنفيذ</p>
+          <p className="timeline-time">{complaintDetails.inprogressDate?.toDate().toLocaleDateString() || 'N/A'}</p>
+       
+      </div>
+    </div>  <div className="line" data-status="inprogress"></div> </>
+    ): complaintDetails.status === 'جديد'? (
+    <>  <div className="timeline-item" data-status="waiting">
+       <div className="w-28">
         <Chip
-                    size="sm"
-                    variant="ghost"
+                size="sm"
+                
                     className="rounded-full text-sm text-white font-bold text-center timeline-marker"
-                    value={complaintDetails.responseDate? <MdDone className="h-7 w-7 text-white" /> : <div>قيد التنفيذ</div>}
+                    value={<><div>قيد التنفيذ</div></>}
                     color={ "amber"}
-                  />
+                  /></div>
+        <div className="timeline-content text-white ">
+        <p>  .</p>
+          <p className="timeline-time"> .</p>
+          
+          
+        </div>
+      </div>
+ <div className="line" data-status="waiting"></div> </>
+    ): (<>
+      <div className="timeline-item" data-status="executed">
+      <div className="w-28">
+        <Chip
+                 size="sm"
+                  
+                    className="rounded-full text-sm text-white font-bold text-center timeline-marker"
+                    value={<div>قيد التنفيذ</div>}
+                    color={ "amber"}
+                  /> </div>
         <div className="timeline-content">
         <p>تاريخ بدء التنفيذ</p>
           <p className="timeline-time">{complaintDetails.inprogressDate?.toDate().toLocaleDateString() || 'N/A'}</p>
           
           
         </div>
-      </div>
-    ):(
-<div className="timeline-item" data-status="waiting">
-        <Chip
-                    size="sm"
-                    variant="ghost"
-                    className="rounded-full text-sm text-white font-bold text-center timeline-marker"
-                    value={<div>قيد التنفيذ</div>}
-                    color={"gray"}
-                  />
-        <div className="timeline-content text-white">
-        <p> .... </p>
-          <p className="timeline-time">...</p>
-          
-          
-        </div>
-      </div>
+      </div>  <div className="line" data-status="executed"></div> </>
     )}
 
     
     {(complaintDetails.status === 'مرفوض' || complaintDetails.status === 'تم التنفيذ') ? (
-      <div className="timeline-item" data-status={complaintDetails.status === 'مرفوض' ? "rejected" : "executed"}>
+      <div className="timeline-item" data-status={complaintDetails.status === 'مرفوض' ? "rejected" : "approved"}>
+         <div className="w-28">
         <Chip
-                    size="sm"
-                    variant="ghost"
-                    className="rounded-full text-sm text-white font-bold text-center timeline-marker"
+                  size="sm"
+                   
+                    className="rounded-full text-sm text-white font-bold text-center timeline-marker "
                     value={<div className="flex items-center"> <MdDone className="h-7 w-7 text-white" /> {complaintDetails.status}</div>}
                     color={
                       complaintDetails.status === "تم التنفيذ"
@@ -454,7 +494,7 @@ const moveSlideUser = (step) => {
                         ? "red"
                         : "teal"
                     }
-                  />
+                  /> </div>
         <div className="timeline-content">
         <p>تاريخ انتهاء التنفيذ</p>
           <p className="timeline-time">{complaintDetails.responseDate?.toDate().toLocaleDateString() || 'N/A'}</p>
@@ -464,13 +504,14 @@ const moveSlideUser = (step) => {
       </div>
     ) :(
       <div className="timeline-item" data-status={"waiting"}>
+         <div className="w-28">
         <Chip
-                    size="sm"
-                    variant="ghost"
+               size="sm"
+                  
                     className="rounded-full text-sm text-white font-bold text-center timeline-marker"
                     value={<div className="flex items-center"> انتهاء التنفيذ</div>}
                     color={"gray"}
-                  />
+                  /></div>
         <div className="timeline-content text-white">
         <p>  ...</p>
           <p className="timeline-time">...</p>

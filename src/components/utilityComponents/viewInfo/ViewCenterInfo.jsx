@@ -30,8 +30,8 @@ import {
   HiOutlineGlobeAlt,
 } from "react-icons/hi";
 import { FaRecycle } from 'react-icons/fa';
-import { format, parseISO, set } from 'date-fns';
-import { enUS, tr } from 'date-fns/locale';
+import { format, parseISO } from 'date-fns';
+import { enUS } from 'date-fns/locale';
 
 const arabicDays = ['- الجمعة', '- السبت', '- ايام الاسبوع'];
 
@@ -169,6 +169,7 @@ export default function ViewCenterInfo({ open, onClose, DeleteMethod, Changeloca
     { value: 'كرتون', label: 'كرتون' },
     { value: 'معدن', label: 'معدن' },
     { value: 'إلكترونيات', label: 'إلكترونيات' },
+    { value: 'اقمشه', label: 'اقمشه' },
     { value: 'أخرى', label: 'أخرى' },
   ];
 
@@ -561,7 +562,7 @@ openingHours:centerHours,
 
   return (
     <>
-      <Drawer placement="right" size={450} open={open} onClose={onClose} className="p-5 font-baloo overflow-y-auto">
+      <Drawer placement="right" size={550} open={open} onClose={onClose} className="p-5 font-baloo overflow-y-auto ">
    
       {!centerData.name && !backButtonClicked && (
 <Typography variant='small' style={{ color:"red" }}>
@@ -679,7 +680,7 @@ openingHours:centerHours,
 
         <li className="centerInfo">
           <List>
-            <ListItem ripple={false}>
+            <ListItem ripple={false} >
               <ul>
                 <ListItemPrefix className="flex mt-3 pb-2">
                   <HiOutlineInformationCircle className="h-5 w-5 ml-2" />
@@ -691,15 +692,17 @@ openingHours:centerHours,
                     name="description"
                     value={centerData.description || ''}
                     onChange={handleChange}
-                    className="description font-baloo mr-8"
+                    className="font-baloo "
                   />
                 ) : (
-                  <Typography className="description font-baloo mr-8">
-                    <span>{centerData.description || ''}</span>
-                  </Typography>
+                  <span className=" font-baloo mr-8 ">
+                    <span className="">{centerData.description || ''}</span>
+                  </span>
                 )}
               </ul>
             </ListItem>
+
+    
 
             {showOpeningHoursMessage  && (
 <Typography variant='small' style={{ color:"red" }}>
@@ -818,7 +821,7 @@ openingHours:centerHours,
 {showCenterTypesError&& (
 <Typography variant='small' style={{ color:"red" }}>
               <span style={{ display: 'flex', alignItems: 'center' }}>
-              <span style={{ paddingRight:"0.5%" }} >الرجاء تحدبد البيانات المستقبلة  </span>
+              <span style={{ paddingRight:"0.5%" }} >الرجاء تحديد النفايات المستقبلة  </span>
               </span>
               </Typography>
             
@@ -835,7 +838,7 @@ openingHours:centerHours,
    </ListItemPrefix>
    {editMode ? (
      // Display the Select component in edit mode
-     <>
+     <div className="mr-8" >
      <Select
       placeholder="أنواع النفايات المستقبلة..."
        closeMenuOnSelect={false}
@@ -844,28 +847,24 @@ openingHours:centerHours,
        options={options}
        value={selectedOptions}  
        onChange={handleWasteTypeChange}
-     />
-     <div className="flex wrap gap-2 justify-end mr-8">
+     /> 
+  {/* <div className=" flex wrap gap-2 justify-end "> 
      {selectedOptions.map((option, index) => (
  <span key={index}>{option.label}</span>
 ))}
-   </div>
-     </>
+   </div> */}
+     </div>
      
    ) : (
      // Display the selected waste types when not in edit mode
-     <div className="flex wrap gap-2 justify-end mr-8">{/* div to show design of waste types */}
-     
-
-<div className="flex wrap gap-2 justify-end mr-8">
+<div className="w-full max-w-[6rem] flex wrap gap-1 justify-right mr-8">
        {wasteListTypes}
-     </div>
-
-      
      </div>
    )}
  </ul>
  </ListItem>
+
+
  { (!centerData.websiteURL ||!isValidURL(centerData.websiteURL) )&& !backButtonClicked && (
 <Typography variant='small' style={{ color:"red" }}>
               <span style={{ display: 'flex', alignItems: 'center' }}>
@@ -876,18 +875,20 @@ openingHours:centerHours,
       )}
 
             <ListItem ripple={false}>
-              <ul>
+              <ul className="w-100">
                 <ListItemPrefix className="flex pb-2">
                   <HiOutlineGlobeAlt className="h-5 w-5 ml-2" />
                   <span className="font-medium">رابط الموقع الإلكتروني:</span>
                 </ListItemPrefix>
                 {editMode ? (
+                  <div className="mr-8">
                   <Input
                     name="websiteURL"
                     value={centerData.websiteURL || ''}
                     onChange={handleChange}
-                    className="font-normal transition-colors hover:text-blue-500 focus:text-blue-500 mr-11"
+                    className="font-normal transition-colors hover:text-blue-500 focus:text-blue-500 "
                   />
+                  </div>
                 ) : (
                   <Typography as="a" href={centerData.websiteURL || ''} color="blue-gray" className="font-normal transition-colors hover:text-blue-500 focus:text-blue-500 mr-11">
                     <span>اضغط هُنا</span>
@@ -906,7 +907,7 @@ openingHours:centerHours,
             
       )}
             <ListItem ripple={false}>
-              <ul className="flex gap-2">
+              <ul className="flex gap-2 ">
                 <ListItemPrefix className="flex pb-2">
                   <HiOutlinePhone className="h-5 w-5 ml-2" />
                   <span className="font-medium ">رقم الهاتف:</span>

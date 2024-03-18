@@ -27,6 +27,7 @@ const options = [
   { value: 'كرتون', label: 'كرتون' },
   { value: 'معدن', label: 'معدن' },
   { value: 'إلكترونيات', label: 'إلكترونيات' },
+  { value: 'اقمشه', label: 'اقمشه' },
   { value: 'أخرى', label: 'أخرى' },
 ];
 

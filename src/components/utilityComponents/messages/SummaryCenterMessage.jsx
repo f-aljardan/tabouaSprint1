@@ -28,7 +28,7 @@ export default function SummaryCenterMessage({ open, handler, formData, addMetho
       <>
         <Dialog open={open} size="md" handler={handler}>
           <DialogHeader><span> معلومات المركز</span></DialogHeader>
-          <DialogBody divider className="">
+          <DialogBody divider className="h-[24rem] overflow-y-scroll">
             <div className="flex justify-center">
               <figure className="relative h-28 w-full">
                 <img

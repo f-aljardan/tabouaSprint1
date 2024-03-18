@@ -373,7 +373,7 @@ const moveSlideUser = (step) => {
                 </span>
               </Breadcrumbs>
 
-            <div style={{ overflowX: "auto", maxHeight: "200vh" }}>
+            <div style={{ overflowX: "auto", maxHeight: "220vh" }}>
             <Card className="max-w-4xl m-auto p-8">
              
             <Typography className="font-baloo text-right text-xl font-bold text-gray-700">
@@ -383,8 +383,14 @@ const moveSlideUser = (step) => {
 
 
               <div className="flex flex-col gap-5">
+                <div>
+              <Typography className="font-baloo text-right text-lg font-bold text-gray-700 mt-5">
+                      حالة البلاغ:
+                    </Typography>
+                    <hr/>
+                    </div>
 
-              <div className="timeline-container mt-5">
+              <div className="timeline-container ">
   <div className="timeline">
    
     { complaintDetails.status === 'جديد'? ( <>
@@ -573,12 +579,15 @@ const moveSlideUser = (step) => {
                         {complainerInfo.firstName} {complainerInfo.lastName}
                       </span>
                     </Typography>
-                    <Typography>
-                      <span>
-                        <span className="font-bold">العمر:</span>{" "}
-                        {calculateAge(complainerInfo.DateOfBirth)}
-                      </span>
-                    </Typography>
+{calculateAge(complainerInfo.DateOfBirth)!=0?
+( <Typography>
+  <span>
+    <span className="font-bold">العمر:</span>{" "}
+    {calculateAge(complainerInfo.DateOfBirth)}
+  </span>
+</Typography>) : null}
+                   
+
                     <Typography>
                       <span>
                         <span className="font-bold">رقم الهاتف:</span>{" "}

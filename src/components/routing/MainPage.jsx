@@ -80,7 +80,7 @@ function MainPage() {
           <Route path="/recycle" element={<div className='map h-[calc(122vh-2rem)]'><RecyclingCenterMap /></div>} />
           <Route path="/complaints" element={<Complaints />} />
           <Route path="/complaints/:id" element={<ComplaintDetails />} />
-          <Route path="/heatmap" element={<Heatmap />} />
+          <Route path="/heatmap" element={<div className='map h-[calc(122vh-2rem)]'><Heatmap /></div>} />
           {userData.isAdmin && <Route path="/manage" element={<ManageStaff />} />}
         </>
       )}

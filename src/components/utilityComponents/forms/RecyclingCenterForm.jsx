@@ -21,6 +21,7 @@ export default function RecyclingCenterForm({ open, handler, method }) {
       { value: 'كرتون', label: 'كرتون' },
       { value: 'معدن', label: 'معدن' },
       { value: 'إلكترونيات', label: 'إلكترونيات' },
+      { value: 'اقمشه', label: 'اقمشه' },
       { value: 'أخرى', label: 'أخرى' },
     ];
 
@@ -338,7 +339,7 @@ const isValidURL = (url) => {
               <DialogHeader className="flex justify-center font-baloo text-right">
                 أضف مركز إعادة تدوير جديد
               </DialogHeader>
-              <DialogBody divider className="font-baloo text-right">
+              <DialogBody divider className="font-baloo text-right h-[24rem] overflow-y-scroll">
               <Typography variant='small' style={{ color:"red" }}>
               <span style={{ display: 'flex', alignItems: 'center' }}>
               {alertIcon()}
@@ -346,9 +347,9 @@ const isValidURL = (url) => {
               </span>
               </Typography>
               
-                <div className='flex justify-between'>
+                <div className='flex justify-between '>
                   
-                  <div className='w-100'>
+                  <div className='w-100 flex flex-col gap-3'>
                     <Typography className="font-baloo text-right text-md font-bold">
                       معلومات المركز:
                     </Typography>
@@ -411,7 +412,7 @@ const isValidURL = (url) => {
                         {errors.websiteURL && <Typography color="red" className=' '>{errors.websiteURL}</Typography>}
                       </div>
                     </div>
-                    <div className='flex items-center'></div>
+                    
                   </div>
 
                   <div>

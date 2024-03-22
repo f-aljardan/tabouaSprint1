@@ -6,6 +6,7 @@ import Home from '../MainComponents/Home';
 import Sidebar from '../utilityComponents/Sidebar';
 import GarbageBinMap from "../MainComponents/GarbageBinAdministeration"
 import GarbageBinRequests from "../MainComponents/GarbageBinRequestAdministeration/GarbageBinRequests"
+import GarbageBinRequestDetails from "../MainComponents/GarbageBinRequestAdministeration/GarbageBinRequestDetails"
 import RecyclingCenterMap from "../MainComponents/RecyclingCenterAdministeration"
 import Complaints from '../MainComponents/ComplaintsAdministration/Complaints';
 import ComplaintDetails from '../MainComponents/ComplaintsAdministration/ComplaintDetails';
@@ -77,6 +78,7 @@ function MainPage() {
         <>
           <Route path="/garbage" element={<div className='map h-[calc(122vh-2rem)]'><GarbageBinMap /></div>} />
           <Route path="/garbagebinrequests" element={<GarbageBinRequests />} />
+          <Route path="/garbagebinrequests/:id" element={<GarbageBinRequestDetails />} />
           <Route path="/recycle" element={<div className='map h-[calc(122vh-2rem)]'><RecyclingCenterMap /></div>} />
           <Route path="/complaints" element={<Complaints />} />
           <Route path="/complaints/:id" element={<ComplaintDetails />} />

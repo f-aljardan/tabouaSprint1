@@ -90,7 +90,7 @@ export default function GarbageBinForm({ open, handler, AddMethod , Acceptmethod
             <div className="grid gap-6">
 
             <div> 
-           <div className='flex gap-2'> <Typography className="font-baloo text-right text-md font-bold ">حجم الحاوية المطلوب :</Typography>{requestProcessedData.Request.garbageSize}</div>
+            <div className='flex gap-2'> <Typography className="font-baloo text-right text-md font-bold ">حجم الحاوية المطلوب :</Typography>{requestProcessedData.Request.garbageSize}</div>
               <Select
                placeholder=" أختر نوع الحاوية ..."
                 closeMenuOnSelect={false}

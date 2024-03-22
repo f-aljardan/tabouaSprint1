@@ -11,6 +11,8 @@ import MessageDialog from "../../utilityComponents/messages/MessageDialog" ;
 import { v4 as uuidv4 } from 'uuid';
 import Select from 'react-select';
 import makeAnimated from 'react-select/animated';
+import SummaryHandleRequest from "../../utilityComponents/messages/SummaryHandleRequest"
+import { el } from 'date-fns/locale';
 
 // Define constants for the Google Map
 const containerStyle = {
@@ -18,6 +20,12 @@ const containerStyle = {
     height: '50vh', 
   };
   
+  // Define constants for the Google Map
+const containerStyleRequest = {
+  width: '400px', 
+  height: '30vh', 
+};
+
   // Set the initial center
   const center = {
     lat: 24.7136,
@@ -32,12 +40,13 @@ const containerStyle = {
    ];
 
 
+   const libraries = ["visualization"];
 
 
-  export default function RequestGarbageMap({request}) {
+  export default function RequestGarbageMap({id, request, type, validation, responseData, handleSuccessResponse}) {
 
     const [map, setMap] = useState(null)
-    const [zoom, setZoom] = useState(10); // set the initial zoom level
+    const [zoom, setZoom] = useState(15); // set the initial zoom level
     const [garbageBins, setGarbageBins] = useState([]);
     const [formVisible, setFormVisible] = useState(false);// To control confirmation message visibility
     const [newGarbageBinLocation, setNewGarbageBinLocation] = useState(null);
@@ -46,8 +55,7 @@ const containerStyle = {
     const [showSuccessAlert, setShowSuccessAlert] = useState(false);
     const [ checkMessageVisible, setCheckMessageVisible] = useState(false);
     const [draggedLocation, setDraggedLocation] = useState(null);
-    const animatedComponents = makeAnimated();
-    const [selectedOption, setSelectedOption] = useState(null);
+
     const[acceptMessageVisible, setAcceptMessageVisible] = useState(false); 
     const[ rejectMessageVisible, setRejectMessageVisible] = useState(false); 
     const[ showAlertSuccessReject, setAlertSuccessReject] = useState(false);
@@ -67,13 +75,19 @@ const containerStyle = {
   const handleRejectMessage= () => {setRejectMessageVisible(!rejectMessageVisible);}
   const handleAcceptMessage= () => {setAcceptMessageVisible(!acceptMessageVisible);}
   
+  const [summeryRequestOpen, setSummeryRequestOpen] = useState(false);// State to manage the visibility of the summary center information
+ 
+
+  const handleSummeryRequest = () =>setSummeryRequestOpen(!summeryRequestOpen); 
+  const handleSummeryRequestClose = () =>{  setSummeryRequestOpen(false); }
 
 
   // all google map initilazation functions start here 
   // Load Google Maps JavaScript API
   const { isLoaded } = useJsApiLoader({
     id: 'google-map-script',
-    googleMapsApiKey: "AIzaSyA_uotKtYzbjy44Y2IvoQFds2cCO6VmfMk"
+    googleMapsApiKey: "AIzaSyA_uotKtYzbjy44Y2IvoQFds2cCO6VmfMk",
+    libraries
   })
 
    // Define the acceptable zoom level range
@@ -159,7 +173,7 @@ if (mapRef.current) {
         }
       };
 
-      setZoom(20);
+      setZoom(18);
       center.lat = request.location._lat;
       center.lng = request.location._long;
 
@@ -240,43 +254,47 @@ const calculateDistance = (lat1, lon1, lat2, lon2) => {
 
 
 // function to handle the accept request
-  const handleAcceptRequest = async (message) => {
+  const handleAcceptRequest = async () => {
+    console.log("here"+ id);
     // Update the request status based on the selected option
-    const requestRef = doc(db, 'requestedGarbageBin', request.id);
-  
-    // Create an object with the fields that are always updated
-    const updateFields = {
+    const requestRef = doc(db, 'requestedGarbageBin', id);
+   
+    await updateDoc(requestRef, {
       status: "تم التنفيذ",
       responseDate: Timestamp.fromDate(new Date()),
-    };
-  
-    // Include staffComment if message is provided
-    if (message) {
-      updateFields.staffComment = message;
-    }
-  
-    await updateDoc(requestRef, updateFields);
+      staffComment: responseData.message,
+      SelectedGarbageSize: responseData.selectedBinSize
+     
+    });    
+   
   
     // Update the requested location if a new location is selected
     if (draggedLocation) {
       await updateDoc(requestRef, {
-        location: new GeoPoint(draggedLocation.lat, draggedLocation.lng),
+        newlocation: new GeoPoint(draggedLocation.lat, draggedLocation.lng),
+        newlocalArea:`${address.postalCode} , ${address.political} , ${address.route} `
+      });
+    }else{
+      await updateDoc(requestRef, {
+        newlocation: new GeoPoint(request.location._lat, request.location._long),
+        newlocalArea: request.localArea
       });
     }
-    setShowSuccessAlert(true);
+
+    handleSuccessResponse();
   };
   
 
 
 // function to handle the reject request
-  const handleRejectRequest = async (message) => {
-
+  const handleRejectRequest = async () => {
+console.log("here"+ id);
     // Update the request status based on the selected option
-    const requestRef = doc(db, 'requestedGarbageBin', request.id);
+    const requestRef = doc(db, 'requestedGarbageBin', id);
     await updateDoc(requestRef, {
       status:"مرفوض",
       responseDate: Timestamp.fromDate(new Date()),
-      staffComment:message,
+      staffComment:responseData.message,
     });
     setAlertSuccessReject(true);
  };
@@ -285,22 +303,24 @@ const calculateDistance = (lat1, lon1, lat2, lon2) => {
 
   
  //  function for adding a new Garbage Bin 
-const AddGarbageBin = async (data) => {
+const AddGarbageBin = async () => {
     try {
       const geoPoint = new GeoPoint(
         newGarbageBinLocation.lat,
         newGarbageBinLocation.lng
       );
+      console.log(responseData.selectedBinSize)
       const docRef = await addDoc(collection(db, "garbageBins"), {
         location: geoPoint,
-        size: data.size,
+        size: responseData.selectedBinSize,
         date: Timestamp.fromDate(new Date()),
         maintenanceDate: Timestamp.fromDate(new Date()),
         serialNumber: generateSerialNumber(), 
       });
   
       setGarbageBins([...garbageBins, { id: docRef.id, location: geoPoint }]);
-      setFormVisible(false);
+      handleAcceptRequest();
+      setSummeryRequestOpen(false);
    
     } catch (error) {
       console.error("Error saving garbage bin coordinates:", error);
@@ -326,7 +346,7 @@ const checkLocationCondtion = async (lat ,lng) =>{
                 setCheckMessageVisible(true);
              } 
              else {
-              setFormVisible(true);  
+              setSummeryRequestOpen(true);  
               }
   } 
   else {
@@ -371,17 +391,21 @@ const checkLocationCondtion = async (lat ,lng) =>{
 
  
   const handleSubmittingRequestProcess = async () => {
-    if (selectedOption && selectedOption.value === 'قبول') {
-     
-          // Check if the conditions are met
-           checkLocationCondtion(draggedLocation ? draggedLocation.lat : request.location._lat , draggedLocation ? draggedLocation.lng : request.location._long);
-       }
-       else if (selectedOption && selectedOption.value === 'رفض') {
-           setRejectMessageVisible(true);
-       }    
-       else {
-           console.log("no choosed action")
-       }
+    if(validation()){
+      console.log(validation())
+      console.log("true and iam"+responseData.selectedStatus)
+      if (responseData.selectedStatus=="تم التنفيذ") {
+        console.log("accept")
+        // Check if the conditions are met
+         checkLocationCondtion(draggedLocation ? draggedLocation.lat : request.location._lat , draggedLocation ? draggedLocation.lng : request.location._long);
+     }
+     else if (responseData.selectedStatus=="مرفوض") {
+      console.log("reject")
+         setRejectMessageVisible(true);
+     }  
+    }
+      
+       
   };
   
 
@@ -417,12 +441,13 @@ const checkLocationCondtion = async (lat ,lng) =>{
 
     const requestProcessedData = {
       Address: `${address.postalCode} , ${address.political} , ${address.route} `,
+      responseData: responseData,
       Request: request,
     };
     
 
 
-  return isLoaded  ? ( 
+  return isLoaded ?  ( !type  ? ( 
     <div className='flex flex-col gap-2'> 
     
 
@@ -435,7 +460,7 @@ const checkLocationCondtion = async (lat ,lng) =>{
         </div>
 
         <GoogleMap
-         mapContainerStyle={containerStyle}
+         mapContainerStyle={request.status == 'تم التنفيذ'? containerStyleRequest : containerStyle }
          center={center}
          zoom={zoom}
          onLoad={onLoad}
@@ -478,28 +503,44 @@ const checkLocationCondtion = async (lat ,lng) =>{
       {request && (
         <>
         <Marker
-          position={{
-            lat: draggedLocation ? draggedLocation.lat : request.location._lat,
-            lng: draggedLocation ? draggedLocation.lng : request.location._long,
-          }}
+          position={ 
+            request.status === 'تم التنفيذ'
+              ? {  lat: request.newlocation? request.newlocation._lat  : request.location._lat,
+                lng: request.newlocation?  request.newlocation._long  : request.location._long ,
+               }
+              : {
+                  lat: draggedLocation ? draggedLocation.lat : request.location._lat,
+                  lng: draggedLocation ? draggedLocation.lng : request.location._long,
+                }
+          }
           zIndex={1000}
           draggable={ request.status == 'قيد التنفيذ' ? true : false}
           onDragEnd={handleDragEnd}  
           icon={{
-            url: request.status == 'تم التنفيذ' ?  '/trash.png' : "http://maps.google.com/mapfiles/ms/icons/green-dot.png" ,
+            url: request.status == 'تم التنفيذ' ?  '' : "http://maps.google.com/mapfiles/ms/icons/green-dot.png" ,
             scaledSize: new window.google.maps.Size(40, 40), // Adjust the size if needed
           }}
         >
+
+          
           <InfoWindow
-            position={{
-              lat: draggedLocation ? draggedLocation.lat : request.location._lat,
-              lng: draggedLocation ? draggedLocation.lng : request.location._long,
-            }}
+           position={
+            request.status === 'تم التنفيذ'
+              ? {  lat: request.newlocation? request.newlocation._lat  : request.location._lat,
+                lng: request.newlocation?  request.newlocation._long  : request.location._long ,
+               }
+              : {
+                  lat: draggedLocation ? draggedLocation.lat : request.location._lat,
+                  lng: draggedLocation ? draggedLocation.lng : request.location._long,
+                }
+          }
             options={{ pixelOffset: new window.google.maps.Size(0, -30) }}
           >
             <div className="flex flex-col items-center gap-3 pr-5">
-                <span> {address.political}, {address.route}, {address.postalCode}</span>
-            </div>
+            {request.status === 'تم التنفيذ'? <span>{request.newlocalArea}</span>: 
+            <span> {address.political}, {address.route}, {address.postalCode}</span>
+                       }
+  </div>
           </InfoWindow>
 
         </Marker>
@@ -528,10 +569,10 @@ const checkLocationCondtion = async (lat ,lng) =>{
       )}
   
   
-        <GarbageBinForm open={formVisible} handler={handleForm} AddMethod={AddGarbageBin} Acceptmethod={handleAcceptRequest} requestProcessedData={requestProcessedData} />
-        <Success open={showSuccessAlert} handler={handleSuccessAlert} message=" تم إضافة حاوية القمامة بنجاح" />
+  <SummaryHandleRequest open={summeryRequestOpen} handler={handleSummeryRequest} requestProcessedData={requestProcessedData} method={AddGarbageBin}  status="قبول"  handleEdit={handleSummeryRequestClose}/>
+ <Success open={showSuccessAlert} handler={handleSuccessAlert} message=" تم إضافة حاوية القمامة بنجاح" />
         <Success open={showAlertSuccessReject} handler={handleAlertSuccessReject} message=" تم الرفض بنجاح" />
-        <Confirm open={checkMessageVisible} handler={handleCheckMessage} method={()=>{ setFormVisible(true);   setCheckMessageVisible(false);}} message="هل انت متأكد من أن الموقع المحدد يقع على شارع؟" />  
+        <Confirm open={checkMessageVisible} handler={handleCheckMessage} method={()=>{ setSummeryRequestOpen(true);   setCheckMessageVisible(false);}} message="هل انت متأكد من أن الموقع المحدد يقع على شارع؟" />  
         <MessageDialog open={rejectMessageVisible} handler={handleRejectMessage} method={handleRejectRequest} requestProcessedData={requestProcessedData}/>
         
         
@@ -546,34 +587,116 @@ const checkLocationCondtion = async (lat ,lng) =>{
 
 <div className='flex items-center justify-start gap-5'>
 
-                      <Typography className="font-baloo text-right text-md font-bold"><span>قم بتحديد الإجراء:</span></Typography>
-
-                        <div className="w-64">
-                            <Select
-                                options={options}
-                                isSearchable={false}
-                                components={animatedComponents}
-                                placeholder="اختر الإجراء"
-                                onChange={(selectedOption) => {
-                                   setSelectedOption(selectedOption);
-                                }}
-                            />
-                        </div>
-   
-                              <Button
-                                size="sm"
-                                variant="gradient"
-                                style={{ background: '#97B980', color: '#ffffff' }}
-                                onClick={()=>handleSubmittingRequestProcess()}
-                                className="text-md"
-                               >
-                                 <span>تنفيذ</span>
-                             </Button>
+                      
     
+      <Button
+                    size="sm"
+                    variant="gradient"
+                    style={{ background: '#97B980', color: '#ffffff' }}
+                    onClick={()=>handleSubmittingRequestProcess()}
+                    className="text-sm mt-3 mb-3 "
+                  >
+                    <span>تحديث الطلب</span>
+      </Button>
+
+
   </div>
     )}
 
       </div>
-    ) : <></>
+    ) : ( <div className='flex flex-col gap-2'> 
+    
+
+
+
+    <div style={{ position: 'relative',}}>
+       
+            <div style={{ position: 'absolute', zIndex: 3000 }}>
+              <ErrorAlertMessage open={showAlertZoom} handler={handleAlertZoom} message="كبر الخريطة لتتمكن من إضافة حاوية القمامة " />
+            </div>
+    
+            <GoogleMap
+             mapContainerStyle={containerStyleRequest}
+             center={center}
+             zoom={zoom}
+             onLoad={onLoad}
+             onUnmount={onUnmount}
+             ref={mapRef}
+            >
+      
+              {garbageBins.map((bin) => (
+                <Marker
+                key={bin.id}
+                position={{ lat: bin.location._lat, lng: bin.location._long }}
+                icon={{
+                  url: '/trash.png',
+                  scaledSize: new window.google.maps.Size(45, 45),
+                }}
+                onClick={() => handleMarkerClick(bin.id)}
+              >  
+    
+              {openInfoWindowId === bin.id && (
+                 <InfoWindow
+              position={{ lat: bin.location._lat, lng: bin.location._long }}
+             
+              onCloseClick={() => setOpenInfoWindowId(null)}
+              >
+                 
+                <div className="flex flex-col items-center  pr-5">
+                  {bin.size}
+                </div>
+                    </InfoWindow>   
+                    )}     
+    
+              </Marker>
+             
+              ))}
+          
+        
+      
+              
+     
+          {request && (
+            <>
+            <Marker
+              position={{
+                lat: request.location._lat,
+                lng: request.location._long,
+              }}
+              zIndex={1000}
+              icon={{
+                url:"http://maps.google.com/mapfiles/ms/icons/green-dot.png" ,
+                scaledSize: new window.google.maps.Size(40, 40), // Adjust the size if needed
+              }}
+            >
+              <InfoWindow
+                position={{
+                  lat: draggedLocation ? draggedLocation.lat : request.location._lat,
+                  lng: draggedLocation ? draggedLocation.lng : request.location._long,
+                }}
+                options={{ pixelOffset: new window.google.maps.Size(0, -30) }}
+              >
+                <div className="flex flex-col items-center gap-3 pr-5">
+                    <span> {address.political}, {address.route}, {address.postalCode}</span>
+                </div>
+              </InfoWindow>
+    
+            </Marker>
+    
+    
+    </>
+          )}
+       
+            </GoogleMap>
+            
+    
+    
+    </div> 
+    
+          </div>) 
+          ): 
+    <>
+يتم التحميل
+    </>
   }
   

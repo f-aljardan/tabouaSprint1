@@ -1,5 +1,6 @@
 
 import { useState, useEffect } from "react";
+import { Link , useNavigate} from "react-router-dom";
 import { MagnifyingGlassIcon } from "@heroicons/react/24/outline";
 import {Card, Typography, Chip,Input } from "@material-tailwind/react";
 import { db } from "../../../firebase";
@@ -10,7 +11,6 @@ import {
   query,
 } from "firebase/firestore";
 import Select from "react-select"; 
-import ViewRequestInfo from "../../utilityComponents/viewInfo/ViewRequestInfo"
 
 
 
@@ -19,31 +19,32 @@ import ViewRequestInfo from "../../utilityComponents/viewInfo/ViewRequestInfo"
 export default function GarbageBinRequests() {
  
   const [requests, setRequests] = useState([]);
-  const [selectedRequest, setSelectedRequest] = useState(null);
+  // const [selectedRequest, setSelectedRequest] = useState(null);
   const [statusFilter, setStatusFilter] = useState(""); 
   const [searchQuery, setSearchQuery] = useState('');
   const [searchResults, setSearchResults] = useState([]);
-  const [showRequestInfo, setShowRequestInfo] = useState(false);
+  // const [showRequestInfo, setShowRequestInfo] = useState(false);
 
-  const handleRequestInfo = () =>  setShowRequestInfo(!showRequestInfo);
+
+  // const handleRequestInfo = () =>  setShowRequestInfo(!showRequestInfo);
 
 
   //function to open the request details window
-  const handleViewRequestClick = (request) => {
-    const requestDoc = doc(db, 'requestedGarbageBin', request.id);
-    const unsubscribe = onSnapshot(requestDoc, (requestSnapshot) => {
-      if (requestSnapshot.exists()) {
-        const requestData = requestSnapshot.data();
-        // Update selectedRequest with the latest data from Firebase
-        setSelectedRequest({ ...request, ...requestData });
-        setShowRequestInfo(true);
-      }
-    });
+  // const handleViewRequestClick = (request) => {
+  //   const requestDoc = doc(db, 'requestedGarbageBin', request.id);
+  //   const unsubscribe = onSnapshot(requestDoc, (requestSnapshot) => {
+  //     if (requestSnapshot.exists()) {
+  //       const requestData = requestSnapshot.data();
+  //       // Update selectedRequest with the latest data from Firebase
+  //       setSelectedRequest({ ...request, ...requestData });
+  //       setShowRequestInfo(true);
+  //     }
+  //   });
     
-    return () => {
-      unsubscribe();
-    };
-  };
+  //   return () => {
+  //     unsubscribe();
+  //   };
+  // };
 
 
 
@@ -159,7 +160,7 @@ export default function GarbageBinRequests() {
           className="font-normal leading-none opacity-70 text-right"
           component={"span"}
         >
-          <span>الحالة</span>
+          <span>حالة الطلب</span>
         </Typography>
       </th>
     </tr>
@@ -190,11 +191,21 @@ export default function GarbageBinRequests() {
           // .map((request) => {
           // return (
             <tr key={request.id}>
-             <td className="p-4 text-right cursor-pointer hover:text-red" onClick={() => handleViewRequestClick(request)}>
+             {/* <td className="p-4 text-right cursor-pointer hover:text-red" onClick={() => handleViewRequestClick(request)}>
               <Typography  color="teal">
                  <span>{request.requestNo}</span>
                </Typography>
-</td>
+</td> */}
+<td className="p-4 text-right cursor-pointer hover:text-red"
+                  > 
+                    <Link to={`${request.id}`}>
+                      <Typography color="teal">
+                        <span>{request.requestNo}</span>
+                      </Typography>
+                    </Link>
+                  </td>
+
+
    <td className="p-4 text-right">
                 {request.requestDate?.toDate().toLocaleDateString() || 'N/A'}
               </td>
@@ -236,11 +247,20 @@ export default function GarbageBinRequests() {
       )
       .map((request) => (
         <tr key={request.id}>
-          <td className="p-4 text-right cursor-pointer hover:text-red" onClick={() => handleViewRequestClick(request)}>
+          {/* <td className="p-4 text-right cursor-pointer hover:text-red" onClick={() => handleViewRequestClick(request)}>
             <Typography  color="teal">
               <span>{request.requestNo}</span>
             </Typography>
-          </td>
+          </td> */}
+          <td
+                    className="p-4 text-right cursor-pointer hover:text-red"
+                  > 
+                   <Link to={`${request.id}`}>
+  <Typography color="teal">
+    <span>{request.requestNo}</span>
+  </Typography>
+</Link>
+                  </td>
           <td className="p-4 text-right">
             {request.requestDate?.toDate().toLocaleDateString() || 'N/A'}
           </td>
@@ -275,7 +295,7 @@ export default function GarbageBinRequests() {
       </div>
       </div>
 
-      <ViewRequestInfo  open={showRequestInfo} handler={handleRequestInfo} requestInfo={selectedRequest} />
+      {/* <ViewRequestInfo  open={showRequestInfo} handler={handleRequestInfo} requestInfo={selectedRequest} /> */}
     </>
   );
         }  

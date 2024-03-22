@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Link ,useParams , useNavigate} from "react-router-dom";
+import { useParams , useNavigate} from "react-router-dom";
 import { doc, getDoc , updateDoc, onSnapshot} from "firebase/firestore"; // Import the necessary Firebase functions
 import { db, storage } from "../../../firebase";
 import { Breadcrumbs , Card, Typography, Chip,Button, Textarea} from "@material-tailwind/react";
@@ -7,7 +7,6 @@ import { GoogleMap, useJsApiLoader, Marker } from '@react-google-maps/api';
 import SummaryComplaintResponse from "../../utilityComponents/messages/SummaryComplaintResponse"
 import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
 import Success from "../../utilityComponents/messages/Success"
-import { MdDone } from "react-icons/md";
 
 // Define constants for the Google Map
 const containerStyle = {
@@ -20,6 +19,8 @@ const containerStyle = {
     lat: 24.7136,
     lng: 46.6753
   };
+
+  const googleMapsLibraries = ["visualization"];
 
 export default function ComplaintDetails() {
   const { id } = useParams();
@@ -286,7 +287,8 @@ const uploadImagesToFirestore = async () => {
   // Load Google Maps JavaScript API
   const { isLoaded } = useJsApiLoader({
     id: 'google-map-script',
-    googleMapsApiKey: "AIzaSyA_uotKtYzbjy44Y2IvoQFds2cCO6VmfMk"
+    googleMapsApiKey: "AIzaSyA_uotKtYzbjy44Y2IvoQFds2cCO6VmfMk",
+    libraries: googleMapsLibraries
   })
 
 
@@ -373,22 +375,6 @@ const moveSlideUser = (step) => {
                 </span>
               </Breadcrumbs>
 
-            <div style={{ overflowX: "auto", maxHeight: "220vh" }}>
-            <Card className="max-w-4xl m-auto p-8">
-             
-            <Typography className="font-baloo text-right text-xl font-bold text-gray-700">
-                    بيانات البلاغ:
-                  </Typography>
-                      <hr/>
-
-
-              <div className="flex flex-col gap-5">
-                <div>
-              <Typography className="font-baloo text-right text-lg font-bold text-gray-700 mt-5">
-                      حالة البلاغ:
-                    </Typography>
-                    <hr/>
-                    </div>
 
               <div className="timeline-container ">
   <div className="timeline">
@@ -492,7 +478,7 @@ const moveSlideUser = (step) => {
                   size="sm"
                    
                     className="rounded-full text-sm text-white font-bold text-center timeline-marker "
-                    value={<div className="flex items-center"> <MdDone className="h-7 w-7 text-white" /> {complaintDetails.status}</div>}
+                    value={<div className="flex items-center">  {complaintDetails.status}</div>}
                     color={
                       complaintDetails.status === "تم التنفيذ"
                         ? "green"
@@ -530,42 +516,24 @@ const moveSlideUser = (step) => {
 </div> 
 
 
- 
+            <div style={{ overflowX: "auto", maxHeight: "220vh" }}>
+            <Card className="max-w-4xl m-auto ">
 
-                {/* <div className="flex items-center justify-right gap-5">
-                  <Typography className="font-baloo text-right text-lg font-bold text-gray-700">
-                    حالة البلاغ:
+            <div className=" pr-8 py-2 " style={{backgroundColor:'#07512D', color: "white" , borderRadius: "5px"}}>
+            <Typography className="font-baloo text-right text-xl font-bold ">
+                    بيانات البلاغ
                   </Typography>
-                  <Chip
-                    size="lg"
-                    variant="ghost"
-                    className="rounded-full text-md font-bold text-center"
-                    value={complaintDetails.status}
-                    color={
-                      complaintDetails.status === "تم التنفيذ"
-                        ? "green"
-                        : complaintDetails.status === "مرفوض"
-                        ? "red"
-                        : complaintDetails.status === "قيد التنفيذ"
-                        ? "amber"
-                        : "teal"
-                    }
-                  />
-  
-                
-                 <Typography> <span><span className="font-bold">تاريخ البلاغ : </span> {complaintDetails.complaintDate?.toDate().toLocaleDateString() || 'N/A'}</span></Typography>
-                     
-                       {complaintDetails.status !== 'جديد' && (
-                       <Typography> <span><span className="font-bold">تاريخ بدء التنفيذ : </span>{complaintDetails.inprogressDate?.toDate().toLocaleDateString() || 'N/A'}</span></Typography>
-                       )}
-                       
-                       {(complaintDetails.status === 'مرفوض' || complaintDetails.status ===  'تم التنفيذ' ) && (
-                       <>
-                        <Typography> <span><span className="font-bold">تاريخ انتهاء التنفيذ : </span>{complaintDetails.responseDate?.toDate().toLocaleDateString() || 'N/A'}</span></Typography>
-                       </>
-                        )} 
-                </div> */}
+                  </div>
 
+                      <hr/>
+
+
+              <div className="flex flex-col gap-5 mt-5 p-8">
+               
+
+             
+
+ 
                 <div className="flex justify-between ">
                 {complainerInfo ? (
                   <div>
@@ -612,7 +580,22 @@ const moveSlideUser = (step) => {
                             موقع البلاغ:
                             </Typography> 
                             <hr className=" mb-1 "/>
-                <Typography> <span><span className="font-bold">الموقع  : </span>  {complaintDetails.localArea}</span></Typography>
+                <Typography> 
+                <span className="font-bold">الموقع : </span>
+                <a
+    href={`https://www.google.com/maps/search/?api=1&query=${center.lat},${center.lng}`}
+    target="_blank"
+    rel="noopener noreferrer"
+    style={{
+      color: 'teal', // Text color
+      textDecoration: 'none' // Removes the underline from the link
+    }}
+    onMouseOver={(e) => e.target.style.textDecoration = 'underline'} // Underlines the text on hover
+    onMouseOut={(e) => e.target.style.textDecoration = 'none'} // Removes the underline when not hovering
+  >
+    {complaintDetails.localArea}
+  </a>
+                </Typography>
                    
               {isLoaded  ? (
                  <GoogleMap
@@ -622,6 +605,10 @@ const moveSlideUser = (step) => {
                 >
                       <Marker
             position={{ lat: center.lat, lng: center.lng }}
+            icon={{
+              url:"http://maps.google.com/mapfiles/ms/icons/green-dot.png" ,
+              scaledSize: new window.google.maps.Size(40, 40), // Adjust the size if needed
+            }}
                       >  
                          </Marker>
                          </GoogleMap>
@@ -655,17 +642,7 @@ const moveSlideUser = (step) => {
     <span className="w-full max-w-[26rem]">{complaintDetails.description}</span> 
     </span>
 
-                    {/* <Typography> <span><span className="font-bold">تاريخ البلاغ : </span> {complaintDetails.complaintDate?.toDate().toLocaleDateString() || 'N/A'}</span></Typography>
-                     
-                       {complaintDetails.status !== 'جديد' && (
-                       <Typography> <span><span className="font-bold">تاريخ بدء التنفيذ : </span>{complaintDetails.inprogressDate?.toDate().toLocaleDateString() || 'N/A'}</span></Typography>
-                       )}
-                       
-                       {(complaintDetails.status === 'مرفوض' || complaintDetails.status ===  'تم التنفيذ' ) && (
-                       <>
-                        <Typography> <span><span className="font-bold">تاريخ انتهاء التنفيذ : </span>{complaintDetails.responseDate?.toDate().toLocaleDateString() || 'N/A'}</span></Typography>
-                       </>
-                        )} */}
+                  
                         </div>
                         
                          </div>            
@@ -714,28 +691,44 @@ const moveSlideUser = (step) => {
           </div>
 
           <div style={{ overflowX: "auto", maxHeight: "200vh" }} className="mt-5">
-            <Card className="max-w-4xl m-auto p-8">
+            <Card className="max-w-4xl m-auto ">
 
 
 
-            <div>
-       
+            <div >
         {(complaintDetails.status === "تم التنفيذ" || complaintDetails.status === "مرفوض") ? (
+
+           complaintDetails.status === "تم التنفيذ" ? 
+          (<div className=" pr-8 py-2 " style={{backgroundColor:'#97B980', color: "white", borderRadius: "5px"}}>
   
-    <Typography className="font-baloo text-right text-xl font-bold text-gray-700">
-      تفاصيل الرد على البلاغ:
-    </Typography>
-        ) : 
-( <Typography className="font-baloo text-right text-xl font-bold text-gray-700">
-الإجراء :
-</Typography>)}
-        <hr className="mb-3" />
-
-
-
-       
-
+          <Typography className="font-baloo text-right text-xl font-bold ">
+            تفاصيل تنفيذ البلاغ
+          </Typography>
+          </div>) 
+          : 
+          (<div className=" pr-8 py-2 " style={{backgroundColor:'#FE5500', color: "white", borderRadius: "5px"}}>
+  
+          <Typography className="font-baloo text-right text-xl font-bold ">
+            تفاصيل تنفيذ البلاغ
+          </Typography>
+          </div>)
         
+     
+        ) : 
+( 
+  <div className=" pr-8 py-2 " style={{ borderRadius: "5px"}}>
+<Typography className="font-baloo text-right text-xl font-bold text-gray-700">
+الإجراء :
+</Typography>
+</div>
+)}
+
+
+        <hr  />
+
+
+<div className="px-8 pb-8">
+           
 { ( editMode || complaintDetails.status == 'جديد' || complaintDetails.status == 'قيد التنفيذ') && (
 
 <>
@@ -763,7 +756,7 @@ const moveSlideUser = (step) => {
 
 
 
-        {/* Conditionally render comment input based on selected status */}
+       
         { (selectedStatus === 'تم التنفيذ' || selectedStatus === 'مرفوض' || complaintDetails.status==='تم التنفيذ' || complaintDetails.status==="مرفوض")&&(selectedStatus != 'قيد التنفيذ') ? (
 <>
 {selectedStatus == "مرفوض" && (
@@ -806,25 +799,6 @@ const moveSlideUser = (step) => {
 
   </div>
 
-  {/* Image attachment input */}
-  {/* <div className=" flex flex-col mt-4">
-      <label htmlFor="image-upload" className="font-baloo text-right text-md font-bold mb-2">
-        <span>إرفاق صور:</span>
-      </label>
-      <input
-        type="file"
-        id="image-upload"
-        multiple
-        onChange={handleImageSelection}
-        accept="image/*"
-        className="p-2 border border-gray-300 rounded"
-      />
-      {imageUploadError && (
-        <Typography color="red" className="font-semibold">
-          <span>{imageUploadError}</span>
-        </Typography>
-      )}
-    </div> */}
 
 <div className="upload-images-section">
   <label htmlFor="image-upload" className="font-baloo text-right text-md font-bold mb-2">
@@ -853,13 +827,7 @@ const moveSlideUser = (step) => {
       ))}
     </div>
 
-{/* <div className="image-previews">
-  {imagePreviews.map((url, index) => (
-    <div key={index} className="image-preview">
-      <img src={url} alt={`Preview ${index + 1}`} />
-    </div>
-  ))}
-</div> */}
+
 
 
 
@@ -879,29 +847,16 @@ const moveSlideUser = (step) => {
                     <span>تحديث البلاغ</span>
                   </Button>
 }
-
-
-{/* 
-{complaintDetails.status!="جديد" && (
- <Button
- size="sm"
- variant="gradient"
- style={{ background: '#97B980', color: '#ffffff' }}
- onClick={()=> setEditMode(false)}
- className="text-sm mt-3 mb-3 mr-2"
->
-<span className="flex items-center"> <span>تراجع </span><IoMdArrowRoundBack></IoMdArrowRoundBack> </span> 
-</Button>
-                  )} */}
-                 
+                
 </>
-              )}
+ )}
+ </div>
 </div>
 
 
 
 {(complaintDetails.status === "تم التنفيذ" || complaintDetails.status === "مرفوض" ) && (
-  <div className="flex flex-col gap-2">
+  <div className="flex flex-col gap-2 px-8 pb-8">
    
    
     {(complaintDetails.status === "تم التنفيذ" || complaintDetails.status === "مرفوض") && (
@@ -911,30 +866,22 @@ const moveSlideUser = (step) => {
    
 
     <Typography className="flex flex-col "> 
-    <span className="font-bold"> التعليق :</span> 
+    <Typography className="font-baloo text-right text-lg font-bold text-gray-700">
+    التعليق :
+                    </Typography>
+                    <hr/>
     <span className="w-full max-w-[48rem]">{complaintDetails.staffResponse}</span> 
  </Typography>
     
 
-    {/* Display images */}
-    {/* <Typography>
-  <span className="font-bold"> المرفقات : </span>
-  {complaintDetails.ImagesOfStaffResponse && complaintDetails.ImagesOfStaffResponse.length > 0 ? (
-    <div className="flex gap-10">
-      {complaintDetails.ImagesOfStaffResponse.map((url, index) => (
-        <img src={url} alt={`Attached Image ${index}`} style={{ width: '100px', height: '100px' }} key={url} />
-      ))}
-     </div>
-  ) : (
-    <Typography color="red">
-    <span style={{color: "dark-red"}}>لا توجد مرفقات</span>
-    </Typography>
-  )}
-</Typography> */}
 
  {/* Display images */}
-   <Typography>
-  <span className="font-bold"> المرفقات : </span> 
+   <div>
+  
+  <Typography className="font-baloo text-right text-lg font-bold text-gray-700">
+  المرفقات :
+                    </Typography>
+                    <hr/>
 
   {complaintDetails.ImagesOfStaffResponse && complaintDetails.ImagesOfStaffResponse.length > 0 ? (
 <div className="carousel">
@@ -961,7 +908,7 @@ const moveSlideUser = (step) => {
   <span style={{color: "dark-red"}}>لا توجد مرفقات</span>
   </Typography>
   }
- </Typography>
+ </div>
 
 
 </>
@@ -969,9 +916,10 @@ const moveSlideUser = (step) => {
 
     )}
 
-  </div>
- 
+</div>
+
  )}
+
 
 
 
@@ -992,8 +940,7 @@ const moveSlideUser = (step) => {
 <SummaryComplaintResponse  open={summeryComplaintOpen} handler={handleSummeryComplaint} complaintData={complaintDetails} method={handleComplaintSubmit} responseData={responseData} handleEdit={handleSummeryComplaintClose} imagePreviews={imagePreviews}/>
 <Success open={showSuccessResponse} handler={handleSuccessResponse} message=" تم معالجة البلاغ بنجاح" />
   
-{/* <ComplaintResponse open={acceptVisible} handler={handleAccept} method={handleAcceptComplaint} complaintData={complaintDetails} status="قبول"/> */}
-{/* <ComplaintResponse open={} handler={} method={} complaintData={} status="reject"/> */}
+
     </>
   );
   

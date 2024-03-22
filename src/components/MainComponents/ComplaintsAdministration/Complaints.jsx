@@ -16,17 +16,10 @@ import Select from "react-select";
 export default function Complaints(){
    
   const [complaints, setComplaints] = useState([]);
-  const [selectedComplaints, setSelectedComplaints] = useState(null);
   const [statusFilter, setStatusFilter] = useState(""); 
   const [typeFilter, setTypeFilter] = useState(""); 
   const [searchQuery, setSearchQuery] = useState('');
   const [searchResults, setSearchResults] = useState([]);
-  const [showRequestInfo, setShowRequestInfo] = useState(false);
-  const navigate = useNavigate();
-
-
-  const handleRequestInfo = () =>  setShowRequestInfo(!showRequestInfo);
-
 
 //   //function to open the request details window
 //   const handleViewRequestClick = (request) => {
@@ -47,7 +40,7 @@ export default function Complaints(){
 
 
 
-  //Fetch all requests
+  //Fetching all complaints
   useEffect(() => {
     const q = query(collection(db, "complaints"));
 

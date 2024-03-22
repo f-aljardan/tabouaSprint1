@@ -14,6 +14,7 @@ import Select from 'react-select';
 import makeAnimated from 'react-select/animated';
 const animatedComponents = makeAnimated();
 
+const googleMapsLibraries = ["visualization"];
 
 // Define constants for the Google Map
 const containerStyle = {
@@ -83,7 +84,8 @@ function GarbageBinMap() {
   // Load Google Maps JavaScript API
   const { isLoaded } = useJsApiLoader({
     id: 'google-map-script',
-    googleMapsApiKey: "AIzaSyA_uotKtYzbjy44Y2IvoQFds2cCO6VmfMk"
+    googleMapsApiKey: "AIzaSyA_uotKtYzbjy44Y2IvoQFds2cCO6VmfMk",
+    libraries: googleMapsLibraries
   })
 
 // Define the acceptable zoom level range

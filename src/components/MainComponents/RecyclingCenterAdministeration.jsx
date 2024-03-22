@@ -44,6 +44,7 @@ const center = {
   lng: 46.6753
 };
 
+const googleMapsLibraries = ["visualization"];
 
 
 
@@ -93,7 +94,8 @@ function RecyclingCentersMap() {
 //load the Google Maps JavaScript API 
 const { isLoaded } = useJsApiLoader({
   id: 'google-map-script',
-  googleMapsApiKey: "AIzaSyA_uotKtYzbjy44Y2IvoQFds2cCO6VmfMk"
+  googleMapsApiKey: "AIzaSyA_uotKtYzbjy44Y2IvoQFds2cCO6VmfMk",
+  libraries: googleMapsLibraries
 })
 
 useEffect(() => { }, [centerCount]);

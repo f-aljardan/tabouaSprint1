@@ -8,7 +8,7 @@ import {
   } from "@material-tailwind/react";
 
 
-  export default function SummaryHandleRequest({open, handler , requestProcessedData, method, formInfo, status, handleEdit}){
+  export default function SummaryHandleRequest({open, handler , requestProcessedData, method, status, handleEdit}){
    
     // Perform necessary actions before confirming
     const handleConfirm = () => {
@@ -38,11 +38,11 @@ import {
  تفاصيل التنفيذ:
 </Typography>
 
-<Typography>  <span><span className="font-bold">حجم الحاوية المنفذ:</span> {formInfo.size}</span></Typography>
+<Typography>  <span><span className="font-bold">حجم الحاوية المنفذ:</span> {requestProcessedData.responseData.selectedBinSize}</span></Typography>
 <Typography> <span><span className="font-bold">الموقع المنفذ: </span>  {requestProcessedData.Address}</span></Typography>
-{requestProcessedData.Request.staffComment && (
-    <Typography> <span><span className="font-bold">  التعليق: </span>  {formInfo.message}</span></Typography>
-)}
+
+    <Typography> <span><span className="font-bold">  التعليق: </span>  {requestProcessedData.responseData.message}</span></Typography>
+
 </>
     )}
 
@@ -59,7 +59,7 @@ import {
 <Typography className="font-baloo text-right text-lg font-bold mt-3">
  تفاصيل التنفيذ:
 </Typography>
-<Typography> <span><span className="font-bold">  سبب الرفض: </span>  {formInfo}</span></Typography>
+<Typography> <span><span className="font-bold">  سبب الرفض: </span>  {requestProcessedData.responseData.message}</span></Typography>
     </>
     )}
     </div>

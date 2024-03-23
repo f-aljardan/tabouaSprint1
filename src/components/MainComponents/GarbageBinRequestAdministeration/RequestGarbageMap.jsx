@@ -75,11 +75,13 @@ const containerStyleRequest = {
   const handleRejectMessage= () => {setRejectMessageVisible(!rejectMessageVisible);}
   const handleAcceptMessage= () => {setAcceptMessageVisible(!acceptMessageVisible);}
   
-  const [summeryRequestOpen, setSummeryRequestOpen] = useState(false);// State to manage the visibility of the summary center information
- 
+  const [acceptSummeryRequestOpen, setAcceptSummeryRequestOpen] = useState(false);// State to manage the visibility of the summary center information
+  const handleAcceptSummeryRequest = () =>setAcceptSummeryRequestOpen(!acceptSummeryRequestOpen); 
+  const handleAcceptSummeryRequestClose = () =>{  setAcceptSummeryRequestOpen(false); }
 
-  const handleSummeryRequest = () =>setSummeryRequestOpen(!summeryRequestOpen); 
-  const handleSummeryRequestClose = () =>{  setSummeryRequestOpen(false); }
+  const [rejectSummeryRequestOpen, setRejectSummeryRequestOpen] = useState(false);// State to manage the visibility of the summary center information
+  const handleRejectSummeryRequest = () =>setRejectSummeryRequestOpen(!rejectSummeryRequestOpen); 
+  const handleRejectSummeryRequestClose = () =>{  setRejectSummeryRequestOpen(false); }
 
 
   // all google map initilazation functions start here 
@@ -253,9 +255,11 @@ const calculateDistance = (lat1, lon1, lat2, lon2) => {
   };
 
 
+
+
 // function to handle the accept request
   const handleAcceptRequest = async () => {
-    console.log("here"+ id);
+
     // Update the request status based on the selected option
     const requestRef = doc(db, 'requestedGarbageBin', id);
    
@@ -288,15 +292,14 @@ const calculateDistance = (lat1, lon1, lat2, lon2) => {
 
 // function to handle the reject request
   const handleRejectRequest = async () => {
-console.log("here"+ id);
-    // Update the request status based on the selected option
+
     const requestRef = doc(db, 'requestedGarbageBin', id);
     await updateDoc(requestRef, {
       status:"مرفوض",
       responseDate: Timestamp.fromDate(new Date()),
       staffComment:responseData.message,
     });
-    setAlertSuccessReject(true);
+    handleSuccessResponse();
  };
   
 
@@ -320,7 +323,7 @@ const AddGarbageBin = async () => {
   
       setGarbageBins([...garbageBins, { id: docRef.id, location: geoPoint }]);
       handleAcceptRequest();
-      setSummeryRequestOpen(false);
+      setAcceptSummeryRequestOpen(false);
    
     } catch (error) {
       console.error("Error saving garbage bin coordinates:", error);
@@ -346,7 +349,7 @@ const checkLocationCondtion = async (lat ,lng) =>{
                 setCheckMessageVisible(true);
              } 
              else {
-              setSummeryRequestOpen(true);  
+              setAcceptSummeryRequestOpen(true);  
               }
   } 
   else {
@@ -393,15 +396,15 @@ const checkLocationCondtion = async (lat ,lng) =>{
   const handleSubmittingRequestProcess = async () => {
     if(validation()){
       console.log(validation())
-      console.log("true and iam"+responseData.selectedStatus)
+     
       if (responseData.selectedStatus=="تم التنفيذ") {
-        console.log("accept")
+      
         // Check if the conditions are met
          checkLocationCondtion(draggedLocation ? draggedLocation.lat : request.location._lat , draggedLocation ? draggedLocation.lng : request.location._long);
      }
      else if (responseData.selectedStatus=="مرفوض") {
-      console.log("reject")
-         setRejectMessageVisible(true);
+     console.log("heream")
+      setRejectSummeryRequestOpen(true);  
      }  
     }
       
@@ -447,7 +450,7 @@ const checkLocationCondtion = async (lat ,lng) =>{
     
 
 
-  return isLoaded ?  ( !type  ? ( 
+  return isLoaded ?  ( type==="accept"  ? ( 
     <div className='flex flex-col gap-2'> 
     
 
@@ -569,17 +572,11 @@ const checkLocationCondtion = async (lat ,lng) =>{
       )}
   
   
-  <SummaryHandleRequest open={summeryRequestOpen} handler={handleSummeryRequest} requestProcessedData={requestProcessedData} method={AddGarbageBin}  status="قبول"  handleEdit={handleSummeryRequestClose}/>
- <Success open={showSuccessAlert} handler={handleSuccessAlert} message=" تم إضافة حاوية القمامة بنجاح" />
-        <Success open={showAlertSuccessReject} handler={handleAlertSuccessReject} message=" تم الرفض بنجاح" />
-        <Confirm open={checkMessageVisible} handler={handleCheckMessage} method={()=>{ setSummeryRequestOpen(true);   setCheckMessageVisible(false);}} message="هل انت متأكد من أن الموقع المحدد يقع على شارع؟" />  
-        <MessageDialog open={rejectMessageVisible} handler={handleRejectMessage} method={handleRejectRequest} requestProcessedData={requestProcessedData}/>
-        
+<SummaryHandleRequest open={acceptSummeryRequestOpen} handler={handleAcceptSummeryRequest} requestProcessedData={requestProcessedData} method={AddGarbageBin}  status="قبول"  handleEdit={handleAcceptSummeryRequestClose}/>
+<Confirm open={checkMessageVisible} handler={handleCheckMessage} method={()=>{ setAcceptSummeryRequestOpen(true);   setCheckMessageVisible(false);}} message="هل انت متأكد من أن الموقع المحدد يقع على شارع؟" />  
         
         </GoogleMap>
-        
-
-
+      
 </div> 
 
 
@@ -604,7 +601,7 @@ const checkLocationCondtion = async (lat ,lng) =>{
     )}
 
       </div>
-    ) : ( <div className='flex flex-col gap-2'> 
+    ) : type==="show"? ( <div className='flex flex-col gap-2'> 
     
 
 
@@ -693,7 +690,20 @@ const checkLocationCondtion = async (lat ,lng) =>{
     
     </div> 
     
-          </div>) 
+          </div>) : 
+          (<>
+            <Button
+            size="sm"
+            variant="gradient"
+            style={{ background: '#97B980', color: '#ffffff' }}
+            onClick={()=>handleSubmittingRequestProcess()}
+            className="text-sm mt-3 mb-3 "
+          >
+            <span>تحديث الطلب</span>
+           </Button>
+           <SummaryHandleRequest open={rejectSummeryRequestOpen} handler={handleRejectSummeryRequest} requestProcessedData={requestProcessedData} method={handleRejectRequest}  status="رفض"  handleEdit={handleRejectSummeryRequestClose}/>
+</>
+          )
           ): 
     <>
 يتم التحميل

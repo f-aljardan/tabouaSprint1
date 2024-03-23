@@ -452,22 +452,10 @@ export default function GarbageBinRequestDetails() {
   </a>
                 </Typography>
                    
-                <RequestGarbageMap id={id} request={requestDetails} type={true} validation={handleUpdateRequest}  responseData={responseData} handleSuccessResponse={handleSuccessResponse} /> 
+                <RequestGarbageMap id={id} request={requestDetails} type={"show"} validation={handleUpdateRequest}  responseData={responseData} handleSuccessResponse={handleSuccessResponse} /> 
 
-              {/* {isLoaded  ? (
-                 <GoogleMap
-                 mapContainerStyle={containerStyle}
-                 center={center}
-                 zoom={zoom}
-                >
-                      <Marker
-            position={{ lat: center.lat, lng: center.lng }}
-                      >  
-                         </Marker>
-                         </GoogleMap>
-
-               ) : null} */}
-
+              
+             
               </div>
                 </div>
 
@@ -650,12 +638,14 @@ export default function GarbageBinRequestDetails() {
        </Typography>
        <Typography variant="small"><span>لتعديل موقع الحاوية قم بسحب المؤشر الى الموقع المحدد والالتزام بحدود الطرق ومدار الموقع</span></Typography>
       
-  <RequestGarbageMap id={id} request={requestDetails} type={false} validation={handleUpdateRequest} responseData={responseData} handleSuccessResponse={handleSuccessResponse}/> 
+  <RequestGarbageMap id={id} request={requestDetails} type={"accept"} validation={handleUpdateRequest} responseData={responseData} handleSuccessResponse={handleSuccessResponse}/> 
   </div>
   ) : null }
 
 
-
+{(selectedStatus==="مرفوض") && (
+    <RequestGarbageMap id={id} request={requestDetails} type={"reject"} validation={handleUpdateRequest} responseData={responseData} handleSuccessResponse={handleSuccessResponse}/> 
+)}
 
 { selectedStatus==="" ? 
 <span>  يجب أن يتم تغيير الحالة حتى تتمكن من تحديث الطلب  </span>
@@ -745,7 +735,7 @@ selectedStatus==="قيد التنفيذ" ||selectedStatus==="جديد"  ? (
     <Typography className="flex flex-col "> 
     <Typography className="font-baloo text-right text-lg font-bold text-gray-700">
     التعليق :
-                    </Typography>
+    </Typography>
                     <hr/>
     <span className="w-full max-w-[48rem]">{requestDetails.staffComment}</span> 
  </Typography>

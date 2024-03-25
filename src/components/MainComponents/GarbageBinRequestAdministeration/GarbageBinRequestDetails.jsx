@@ -718,7 +718,7 @@ selectedStatus==="قيد التنفيذ" ||selectedStatus==="جديد"  ? (
   </a>
                 </Typography>
 
-  <RequestGarbageMap  id={id} request={requestDetails} type={false} validation={handleUpdateRequest} responseData={responseData} handleSuccessResponse={handleSuccessResponse}/> 
+  <RequestGarbageMap  id={id} request={requestDetails} type={"accept"} validation={handleUpdateRequest} responseData={responseData} handleSuccessResponse={handleSuccessResponse}/> 
   
   </div>
 

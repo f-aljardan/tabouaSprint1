@@ -690,7 +690,7 @@ const checkLocationCondtion = async (lat ,lng) =>{
     
     </div> 
     
-          </div>) : 
+          </div>) : type==="reject"?
           (<>
             <Button
             size="sm"
@@ -703,7 +703,7 @@ const checkLocationCondtion = async (lat ,lng) =>{
            </Button>
            <SummaryHandleRequest open={rejectSummeryRequestOpen} handler={handleRejectSummeryRequest} requestProcessedData={requestProcessedData} method={handleRejectRequest}  status="رفض"  handleEdit={handleRejectSummeryRequestClose}/>
 </>
-          )
+          ): (null)
           ): 
     <>
 يتم التحميل

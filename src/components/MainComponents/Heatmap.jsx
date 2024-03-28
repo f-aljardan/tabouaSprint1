@@ -12,12 +12,18 @@ import {
     Colors
   } from 'chart.js';
   
+  import { Bar } from 'react-chartjs-2';
+
+import { CategoryScale, LinearScale, BarElement, Title } from 'chart.js';
+
+ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend);
+
   // Register the components you will use
   ChartJS.register(ArcElement, Tooltip, Legend, Colors);
 
 import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
-
+import ErrorAlertMessage from "../utilityComponents/messages/ErrorAlertMessageFilter"
 import Select from 'react-select';
 import makeAnimated from 'react-select/animated';
 const animatedComponents = makeAnimated();
@@ -47,6 +53,13 @@ const typeOptions = [
     { value: "أخرى", label: "أخرى" },
   ];
   
+  const statusOptions = [
+    { value: "الكل", label: "الكل" },
+    { value: "جديد", label: "جديد" },
+    { value: "قيد التنفيذ", label: "قيد التنفيذ" },
+    { value: 'تم التنفيذ', label: 'تم التنفيذ' },
+    { value: "مرفوض", label: "مرفوض" },
+  ];
 
 
 export default function Heatmap(){
@@ -60,10 +73,13 @@ export default function Heatmap(){
     const [showUserLocation, setShowUserLocation] = useState(false);
     const [userLocationRange, setUserLocationRange] = useState(null);
     const mapRef = useRef(null);
-    const [startDate, setStartDate] = useState(new Date());
-    const [endDate, setEndDate] = useState(new Date());
+    const [selectedStatus, setSelectedStatus] = useState("");
+
     // const [binId , setBinId] = useState();
-   
+ 
+    const [showAlertStreet, setShowAlertStreet] = useState(false);
+    const handleAlertStreet = () => setShowAlertStreet(!showAlertStreet);
+    
 
  // all google map initilization related function starts here
   // Load Google Maps JavaScript API
@@ -101,7 +117,7 @@ export default function Heatmap(){
         querySnapshot.forEach((doc) => {
           const data = doc.data();
           const location = data.location || {}; // Ensure location is an object
-          complaintData.push({ id: doc.id, location, type: data.complaintType, date: data.complaintDate.toDate() });
+          complaintData.push({ id: doc.id, location, type: data.complaintType, status: data.status ,complaintDate: data.complaintDate, responseDate: data.responseDate });
         });
 
         // Initially, set all garbage bins
@@ -109,6 +125,10 @@ export default function Heatmap(){
 
         // Store the bin data for filtering
         SetComplaintData(complaintData);
+
+        
+    
+
       } catch (error) {
         console.error('Error fetching garbage bins:', error);
       }
@@ -117,13 +137,35 @@ export default function Heatmap(){
     fetchComplaints();
   }, []);
 
+  const [averageResolutionTime, setAverageResolutionTime] = useState(0);
+  
+  useEffect(()=>{
+    const { averageResolutionTime } = calculateResolutionTimes(complaints);
+      setAverageResolutionTime(averageResolutionTime);
+  }, [complaints])
 
-  const complaintTypes = complaintData.reduce((acc, complaint) => {
+
+  const [typeData, setTypeData] = useState({});
+  const [statusData, setStatusData] = useState({});
+  const statusColors = {
+    "جديد": "teal",
+    "قيد التنفيذ": "#F5DA4A",
+    "تم التنفيذ": "#97B980",
+    "مرفوض":  "#FE5500",
+    // Add more status colors as needed
+  };
+  
+
+  useEffect(() => {
+
+  
+
+  const complaintTypes = complaints.reduce((acc, complaint) => {
     acc[complaint.type] = (acc[complaint.type] || 0) + 1;
     return acc;
   }, {});
 
-  const data = {
+setTypeData ({
     labels: Object.keys(complaintTypes),
     datasets: [
       {
@@ -136,92 +178,142 @@ export default function Heatmap(){
           '#FE5500', // red
           '#FE9B00', // orange
           '#97B980', // Light green
-          '#07512D' // dark green
-     
+          '#07512D', // dark green
+         
           // Make sure to adjust these colors so each complaint type has a unique color.
         ],
         hoverOffset: 7
       }
     ]
+  });
+
+  
+  let statusCounts = complaints.reduce((acc, complaint) => {
+    // Assuming each complaint has a 'status' property
+    acc[complaint.status] = (acc[complaint.status] || 0) + 1;
+    return acc;
+  }, {});
+  
+  setStatusData({
+    labels: Object.keys(statusCounts), // ["New", "In Progress", "Resolved"]
+    datasets: [{
+      label: 'توزيع الحالات',
+      data: Object.values(statusCounts), 
+      backgroundColor: Object.keys(statusCounts).map(status => statusColors[status] || '#999'),
+      borderColor: Object.keys(statusCounts).map(status => statusColors[status] || '#999'),
+      borderWidth: 1,
+    }]
+  });
+}, [complaints]);
+
+
+  const options = {
+    scales: {
+      y: {
+        beginAtZero: true
+      }
+    },
+    
   };
+  
 
-  // Function to filter garbage bins based on type
-//   const filterComplaints = (type) => {
-//     if (type === 'الكل') {
-//       // If no type is selected, show all bins
-//       setComplaints(complaintData);
-//     } else {
-//       // Filter bins based on the selected type
-//       const filteredComplaints = complaintData.filter((comp) => comp.type === type);
-//       setComplaints(filteredComplaints);
-//     }
-//   };
-// Call filterComplaints function whenever selectedComplaintType, startDate or endDate changes
 
+
+ 
+  // const calculateResolutionTimes = (complaints) => {
+  //   const resolutionTimes = complaints.map(complaint => {
+  //     const createdAt = new Date(complaint.complaintDate).getTime();
+  //     const resolvedAt = new Date(complaint.responseDate).getTime();
+  //     return resolvedAt - createdAt;
+  //   });
+    
+  //   const averageResolutionTime = resolutionTimes.reduce((a, b) => a + b, 0) / resolutionTimes.length;
+    
+  //   return {
+  //     resolutionTimes,
+  //     averageResolutionTime
+  //   };
+  // };
+  const calculateResolutionTimes = (complaints) => {
+    console.log("here")
+    // Filter complaints to ensure both dates are present
+    const validComplaints = complaints.filter(complaint => complaint.complaintDate && complaint.responseDate);
+    console.log("here7")
+    console.log(validComplaints)
+    const resolutionTimes = validComplaints.map(complaint => {
+    
+      const createdAt = complaint.complaintDate.toDate().getTime();
+      const resolvedAt = complaint.responseDate.toDate().getTime();
+      // Return time in hours
+      const resolutionTime = (resolvedAt - createdAt) / (1000 * 60 * 60);
+      console.log(`createdAt: ${createdAt}, resolvedAt: ${resolvedAt}, resolutionTime: ${resolutionTime} hours`);
+      return resolutionTime;
+    });
+
+    
+    // Avoid division by zero by ensuring the array length is not zero
+    const averageResolutionTime = resolutionTimes.length > 0
+      ? resolutionTimes.reduce((a, b) => a + b, 0) / resolutionTimes.length
+      : 0;
+    
+    return {
+      resolutionTimes,
+      averageResolutionTime // This is now in hours
+    };
+  };
+  
+  
+
+// const filterComplaints = (types) => {
+//   // Check if "الكل" is among the selected types or if the array is empty
+//   if (types.includes('الكل') || types.length === 0) {
+//     // If "الكل" is selected or no types are selected, show all complaints
+//     setComplaints(complaintData);
+//   } else {
+//     // Filter complaints to include only those with a type in the selected types
+//     const filteredComplaints = complaintData.filter((comp) => types.includes(comp.type));
+//     setComplaints(filteredComplaints);
+//   }
+// };
+
+useEffect(() => {
+  filterComplaints();
+}, [selectedStatus, selectedComplaintType]); // Re-run filter when these dependencies change
 
 
 const filterComplaints = () => {
-    let updatedComplaints = complaintData;
+  let filteredComplaints = complaintData;
+
+  // Filter by selected complaint types (if applicable)
+  if (selectedComplaintType.length > 0 && !selectedComplaintType.includes("الكل")) {
+    filteredComplaints = filteredComplaints.filter(comp => selectedComplaintType.includes(comp.type));
+  }
+
+  // Filter by selected status (if not 'all')
+  if (selectedStatus !== "الكل") {
+    filteredComplaints = filteredComplaints.filter(comp => comp.status === selectedStatus);
+  }
+ 
+  setComplaints(filteredComplaints);
   
-    // Filter by complaint type if necessary
-    if (selectedComplaintType.length > 0 && !selectedComplaintType.includes("الكل")) {
-      updatedComplaints = updatedComplaints.filter(comp => selectedComplaintType.includes(comp.type));
-    }
-  
-    // Filter by date range
-    updatedComplaints = updatedComplaints.filter(comp => {
-      const complaintDate = comp.date; // Assuming `date` is a JavaScript Date object
-      return (!startDate || complaintDate >= startDate) && (!endDate || complaintDate <= endDate);
-    });
-  
-    setComplaints(updatedComplaints);
-  };
+};
 
 
-// const filterComplaints = (types) => {
-//     if (types.length === 0 || types.includes("الكل")) {
-//       // If no types are selected or "الكل" is selected, show all complaints
-//       setComplaints(complaintData);
-//     } else {
-//       // Filter complaints to include only those with a type in the selected types
-//       const filteredComplaints = complaintData.filter(comp => types.includes(comp.type));
-//       setComplaints(filteredComplaints);
-//     }
-//   };
-  
-// Function to handle the selection of a bin size
 // const handleComplaintTypeSelect = (selectedOption) => {
 //   setSelectedComplaintType(selectedOption.value);
 //   filterComplaints(selectedOption.value);
 // };
 
-// When user selects a different type, apply filters
+// Handle selection changes for complaint type
 const handleComplaintTypeSelect = (selectedOptions) => {
-    // Map selected options to their values
-    const selectedTypes = selectedOptions.map(option => option.value);
-    setSelectedComplaintType(selectedTypes);
-  
-    // Here you call filterComplaints to apply both type and date filters
-    filterComplaints();
-  };
-  
-  // When user selects a different date range, apply filters
-  const handleDateChange = (dates) => {
-    const [start, end] = dates;
-    setStartDate(start);
-    setEndDate(end);
-    
-    // Apply filter with the new date range
-    filterComplaints();
-  };
+  const selectedTypes = selectedOptions ? selectedOptions.map(option => option.value) : [];
 
-// const handleComplaintTypeSelect = (selectedOptions) => {
-//     // Map selected options to their values
-//     const selectedTypes = selectedOptions.map(option => option.value);
-//     setSelectedComplaintType(selectedTypes);
-//     filterComplaints(selectedTypes);
-//   };
-  
+  setSelectedComplaintType(selectedTypes);
+  filterComplaints();
+  // No need to pass selectedTypes since filterComplaints accesses state directly
+};
+
+
 
 
 
@@ -259,7 +351,8 @@ return isLoaded ? (
  
 
         <div className="flex gap-5 p-4 mr-12 z-10" style={{ position: 'absolute' }}>
-    
+          <div className='flex-col'>
+    <div className='flex gap-5'>
         <Button
           style={{ background: '#FE9B00', color: '#ffffff' }}
           size="sm"
@@ -268,13 +361,13 @@ return isLoaded ? (
         </Button>
 
         
-        <DatePicker
+        {/* <DatePicker
   selectsRange={true}
   startDate={startDate}
   endDate={endDate}
   onChange={handleDateChange}
   isClearable={true}
-/>
+/> */}
 
           {/* <Select
             placeholder="تصفية حسب حجم الحاوية..."
@@ -292,10 +385,33 @@ return isLoaded ? (
   closeMenuOnSelect={false}
   components={animatedComponents}
   options={typeOptions}
-  value={typeOptions.filter(option => selectedComplaintType.includes(option.value))}
-  onChange={(selectedOptions) => handleComplaintTypeSelect(selectedOptions)}
-  required
+  value={selectedComplaintType ? typeOptions.filter(option => selectedComplaintType.includes(option.value)) : []}
+  // onChange={handleComplaintTypeSelect}
+  onChange={handleComplaintTypeSelect}
+  
 />
+
+<Select
+   placeholder="تصفية حسب حالة البلاغ..."
+   closeMenuOnSelect={false}
+   components={animatedComponents}
+  options={statusOptions}
+  value={statusOptions.find(option => option.value === selectedStatus)}
+  onChange={option => {
+    setSelectedStatus(option.value);
+    filterComplaints();
+  }}
+ 
+/>
+</div>
+
+{complaints.length==0?(     
+   <div style={{  marginTop:10,  width: '100%', height: '100%'}}>
+        <ErrorAlertMessage open={true} handler={handleAlertStreet}
+         message="لا يوجد بيانات بهذا التصنيف" /> </div>
+         ): null} 
+  </div>
+
 
         </div>
       
@@ -333,11 +449,33 @@ return isLoaded ? (
       
   
            </GoogleMap>
-
-<div className='flex ' style={{ width: '100%', maxWidth: '300px', height: 'auto', aspectRatio: '1' }}>
+{/* 
+<div className='flex' style={{ width: '100%', maxWidth: '300px', height: 'auto', aspectRatio: '1' }}>
 <Doughnut data={data} options={{ maintainAspectRatio: true }}/>
+<Bar data={statusData} options={options} />
+ </div> */}
 
- </div>
+{complaints.length==0? null:(
+  <div className='flex' style={{ width: '100%', justifyContent: 'space-around' }}>
+  
+  <div style={{ width: '300px', height: '300px' }}>
+    <Doughnut data={typeData} options={{ maintainAspectRatio: false }}/>
+  </div>
+  <div style={{ width: '300px', height: '300px' }}>
+    <Bar data={statusData} options={{ ...options, maintainAspectRatio: false }} />
+  </div>
+
+  {(selectedStatus==="تم التنفيذ" || selectedStatus==="مرفوض") && (
+    <div>
+    <h2>متوسط مدة حل البلاغ:</h2>
+    <p> {averageResolutionTime.toFixed(2)} ساعة</p>
+  </div>
+  )}
+    
+    
+</div>
+) }
+
 
       </div>
     ) : <></>

@@ -35,9 +35,6 @@ const binSizeOptions = [
 ];
 
 
-
-
-
 function GarbageBinMap() {
   
   const [map, setMap] = React.useState(null)

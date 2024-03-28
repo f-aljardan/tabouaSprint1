@@ -709,7 +709,7 @@ const moveSlideUser = (step) => {
           (<div className=" pr-8 py-2 " style={{backgroundColor:'#FE5500', color: "white", borderRadius: "5px"}}>
   
           <Typography className="font-baloo text-right text-xl font-bold ">
-            تفاصيل تنفيذ البلاغ
+            تفاصيل رفض البلاغ
           </Typography>
           </div>)
         

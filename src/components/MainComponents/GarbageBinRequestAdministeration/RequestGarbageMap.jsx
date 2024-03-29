@@ -32,12 +32,7 @@ const containerStyleRequest = {
     lng: 46.6753
   };
  
-  // Define the available options for waste types
-   const options = [
-     { value: 'قبول', label: 'قبول' },
-     { value: 'رفض', label: 'رفض' },
-     
-   ];
+
 
 
    const libraries = ["visualization"];

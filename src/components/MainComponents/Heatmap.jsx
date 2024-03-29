@@ -2,24 +2,28 @@ import React , {useState, useEffect, useRef} from 'react'
 import { GoogleMap, useJsApiLoader, Marker , Circle, HeatmapLayer } from '@react-google-maps/api';
 import { db } from "/src/firebase";
 import { getDocs, collection, addDoc, GeoPoint, deleteDoc, doc ,getDoc, Timestamp,updateDoc } from "firebase/firestore"; 
-import { Button} from "@material-tailwind/react";
-import { Doughnut } from 'react-chartjs-2';
+import { Button, Card, Typography} from "@material-tailwind/react";
 import {
     Chart as ChartJS,
     ArcElement,
     Tooltip,
     Legend,
-    Colors
+    Colors,
+    CategoryScale,
+    LinearScale,
+    PointElement,
+    LineElement,
+    Title,
+    BarElement,
+
   } from 'chart.js';
-  
-  import { Bar } from 'react-chartjs-2';
+  import { Bar , Line, Doughnut} from 'react-chartjs-2';
 
-import { CategoryScale, LinearScale, BarElement, Title } from 'chart.js';
 
-ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend);
 
-  // Register the components you will use
-  ChartJS.register(ArcElement, Tooltip, Legend, Colors);
+ChartJS.register( PointElement, LineElement, CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend,Colors,ArcElement);
+
+
 
 import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
@@ -74,7 +78,9 @@ export default function Heatmap(){
     const [userLocationRange, setUserLocationRange] = useState(null);
     const mapRef = useRef(null);
     const [selectedStatus, setSelectedStatus] = useState("");
-
+    const [todaysComplaintsCount, setTodaysComplaintsCount] = useState(0);
+    const [thisMonthsComplaintsCount, setThisMonthsComplaintsCount] = useState(0);
+    const [thisWeeksComplaintsCount, setThisWeeksComplaintsCount] = useState(0);
     // const [binId , setBinId] = useState();
  
     const [showAlertStreet, setShowAlertStreet] = useState(false);
@@ -117,7 +123,7 @@ export default function Heatmap(){
         querySnapshot.forEach((doc) => {
           const data = doc.data();
           const location = data.location || {}; // Ensure location is an object
-          complaintData.push({ id: doc.id, location, type: data.complaintType, status: data.status ,complaintDate: data.complaintDate, responseDate: data.responseDate });
+          complaintData.push({ id: doc.id, location, type: data.complaintType, status: data.status ,complaintDate: data.complaintDate, responseDate: data.responseDate, localArea: data.localArea });
         });
 
         // Initially, set all garbage bins
@@ -314,6 +320,245 @@ const handleComplaintTypeSelect = (selectedOptions) => {
 };
 
 
+// const calculateTodaysComplaints = () => {
+//   const today = new Date();
+//   today.setHours(0, 0, 0, 0); // Reset time to start of the day
+
+//   const todaysComplaints = complaints.filter(complaint => {
+//     const complaintDate = new Date(complaint.complaintDate.seconds * 1000); // Assuming `complaintDate` is a Timestamp object
+//     complaintDate.setHours(0, 0, 0, 0); // Reset time to start of the day for comparison
+
+//     return complaintDate.getTime() === today.getTime();
+//   });
+
+//   return todaysComplaints.length;
+// };
+
+
+// const todaysComplaintsCount = calculateTodaysComplaints();
+
+useEffect(() => {
+  const today = new Date();
+  const startOfMonth = new Date(today.getFullYear(), today.getMonth(), 1);
+  const startOfWeek = new Date(today.setDate(today.getDate() - today.getDay()));
+  
+  const todaysCount = complaints.filter(complaint => {
+    const complaintDate = new Date(complaint.complaintDate.seconds * 1000);
+    return complaintDate.toDateString() === today.toDateString();
+  }).length;
+
+  const monthsCount = complaints.filter(complaint => {
+    const complaintDate = new Date(complaint.complaintDate.seconds * 1000);
+    return complaintDate >= startOfMonth;
+  }).length;
+
+  const weeksCount = complaints.filter(complaint => {
+    const complaintDate = new Date(complaint.complaintDate.seconds * 1000);
+    return complaintDate >= startOfWeek;
+  }).length;
+
+  // Calculate average resolution time here and update setAverageResolutionTime
+
+  setTodaysComplaintsCount(todaysCount);
+  setThisMonthsComplaintsCount(monthsCount);
+  setThisWeeksComplaintsCount(weeksCount);
+}, [complaints]);
+
+
+
+
+const complaintsOverTimeByMonth = () => {
+  const complaintCounts = {}; // Object to hold month-year: count pairs
+
+  complaints.forEach(complaint => {
+    const complaintDate = new Date(complaint.complaintDate.seconds * 1000);
+    // Format date as "Month Year" string
+    const monthString = complaintDate.toLocaleString('ar-EG', { month: 'long' });
+    const year = complaintDate.getFullYear();
+    const dateString = `${monthString} ${year}`;
+
+    complaintCounts[dateString] = (complaintCounts[dateString] || 0) + 1;
+  });
+
+  // Split the object into arrays of month-year strings and counts
+  const dates = Object.keys(complaintCounts).sort((a, b) => new Date(a) - new Date(b));
+  const counts = dates.map(date => complaintCounts[date]);
+
+  return { dates, counts };
+};
+
+const { dates, counts } = complaintsOverTimeByMonth();
+
+const lineChartDataForMonth = {
+  labels: dates,
+  datasets: [
+    {
+      label: 'عدد البلاغات بالشهر',
+      data: counts,
+      fill: false,
+      backgroundColor: 'rgb(54, 162, 235)',
+      borderColor: 'rgba(54, 162, 235, 0.2)',
+    },
+  ],
+};
+
+const lineChartOptionsForMonth = {
+  scales: {
+    x: {
+      title: {
+        display: true,
+        text: 'الشهر',
+      },
+    },
+    y: {
+      title: {
+        display: true,
+        text: 'عدد البلاغات',
+      },
+      beginAtZero: true,
+    },
+  },
+};
+
+
+
+
+const getWeekNumber = (date) => {
+  const firstDayOfYear = new Date(date.getFullYear(), 0, 1);
+  const pastDaysOfYear = (date - firstDayOfYear) / 86400000;
+  return Math.ceil((pastDaysOfYear + firstDayOfYear.getDay() + 1) / 7);
+};
+
+const complaintsOverTimeByWeek = () => {
+  const complaintCounts = {}; // Object to hold year-week: count pairs
+
+  complaints.forEach(complaint => {
+    const complaintDate = new Date(complaint.complaintDate.seconds * 1000);
+    const year = complaintDate.getFullYear();
+    const weekNumber = getWeekNumber(complaintDate);
+    const weekYearString = `اسبوع ${weekNumber}, ${year}`;
+
+    complaintCounts[weekYearString] = (complaintCounts[weekYearString] || 0) + 1;
+  });
+
+  // Split the object into arrays of week-year strings and counts
+  const weeks = Object.keys(complaintCounts).sort();
+  const countss = weeks.map(week => complaintCounts[week]);
+
+  return { weeks, countss };
+};
+
+const { weeks, countss } = complaintsOverTimeByWeek();
+
+const lineChartDataForWeeks = {
+  labels: weeks,
+  datasets: [
+    {
+      label: 'عدد البلاغات بالأسبوع',
+      data: countss,
+      fill: false,
+      backgroundColor: 'rgb(255, 99, 132)',
+      borderColor: 'rgba(255, 99, 132, 0.2)',
+    },
+  ],
+};
+
+const lineChartOptionsForWeeks = {
+  scales: {
+    x: {
+      
+      title: {
+        display: true,
+        text: 'الاسبوع',
+      },
+    },
+    y: {
+      title: {
+        display: true,
+        text: 'عدد البلاغات',
+      },
+      beginAtZero: true,
+    },
+  },
+};
+
+
+
+const extractNeighborhood = (localArea) => {
+  // Check if localArea starts with a postal code (sequence of digits followed by a comma)
+  const postalCodeRegex = /^\d+\s*,\s*/;
+  if (postalCodeRegex.test(localArea)) {
+    // Extract the part after the postal code and comma
+    return localArea.replace(postalCodeRegex, '').trim();
+  } else {
+    // Assume the first part before any comma is the neighborhood name
+    return localArea.split(',')[0].trim();
+  }
+};
+
+const aggregateComplaintsByNeighborhood = (complaints) => {
+  const complaintsByNeighborhood = {};
+
+  complaints.forEach(complaint => {
+    const neighborhood = extractNeighborhood(complaint.localArea);
+    complaintsByNeighborhood[neighborhood] = (complaintsByNeighborhood[neighborhood] || 0) + 1;
+  });
+
+  return complaintsByNeighborhood;
+};
+
+
+const { labels, data } = Object.entries(aggregateComplaintsByNeighborhood(complaints))
+  .sort((a, b) => b[1] - a[1])
+  .reduce((acc, [neighborhood, count]) => {
+    acc.labels.push(neighborhood);
+    acc.data.push(count);
+    return acc;
+  }, { labels: [], data: [] });
+
+
+  const NeighborhoodComplaintsChart = ({ labels, data }) => {
+    const chartData = {
+      labels,
+      datasets: [
+        {
+          label: 'عدد البلاغات',
+          data,
+          backgroundColor: 'rgba(54, 162, 235, 0.5)',
+          borderColor: 'rgba(54, 162, 235, 1)',
+          borderWidth: 1,
+        },
+      ],
+    };
+  
+    const options = {
+      indexAxis: 'y', // Horizontal bar chart
+      elements: {
+        bar: {
+          borderWidth: 2,
+        },
+      },
+      responsive: true,
+      plugins: {
+        legend: {
+          position: 'right',
+        },
+        // title: {
+        //   display: true,
+        //   text: 'أكثر الأحياء تقديمًا للبلاغات',
+        // },
+      },
+    };
+    return <Bar data={chartData} options={options} />;
+  }
+const complaintsByNeighborhood = aggregateComplaintsByNeighborhood(complaints);
+
+const sortedNeighborhoods = Object.entries(complaintsByNeighborhood)
+  .sort((a, b) => b[1] - a[1]);
+
+
+
+
 
 
 
@@ -403,18 +648,28 @@ return isLoaded ? (
   }}
  
 />
+
+<div className="flex items-center justify-center py-2 px-2 bg-white rounded-lg shadow">
+      <span className="text-xs font-medium ml-2">اكثر</span>
+      <div className="w-32 h-4 rounded-full bg-gradient-to-r from-green-300 via-yellow-300 to-red-500"></div>
+      <span className="text-xs font-medium mr-2">اقل</span>
+    </div>
+
 </div>
 
 {complaints.length==0?(     
    <div style={{  marginTop:10,  width: '100%', height: '100%'}}>
         <ErrorAlertMessage open={true} handler={handleAlertStreet}
          message="لا يوجد بيانات بهذا التصنيف" /> </div>
-         ): null} 
+         ): null
+         } 
+
   </div>
 
+  
 
         </div>
-      
+       
 
         <GoogleMap
           mapContainerStyle={containerStyle}
@@ -422,7 +677,14 @@ return isLoaded ? (
          zoom={zoom}
          onLoad={onLoad}
           ref={mapRef}
-          onUnmount={onUnmount} // Callback function that gets executed when the component unmounts.
+          onUnmount={onUnmount} 
+          options={{
+            streetViewControl: false,
+            mapTypeControl: false, // This hides the map/satellite view control
+            
+          
+          }}
+     
         //   onClick={onMapClick}
         >
   
@@ -446,34 +708,122 @@ return isLoaded ? (
             </Marker>
           )}
   
-      
-  
            </GoogleMap>
-{/* 
-<div className='flex' style={{ width: '100%', maxWidth: '300px', height: 'auto', aspectRatio: '1' }}>
-<Doughnut data={data} options={{ maintainAspectRatio: true }}/>
-<Bar data={statusData} options={options} />
- </div> */}
+
 
 {complaints.length==0? null:(
-  <div className='flex' style={{ width: '100%', justifyContent: 'space-around' }}>
-  
-  <div style={{ width: '300px', height: '300px' }}>
-    <Doughnut data={typeData} options={{ maintainAspectRatio: false }}/>
-  </div>
-  <div style={{ width: '300px', height: '300px' }}>
-    <Bar data={statusData} options={{ ...options, maintainAspectRatio: false }} />
-  </div>
 
-  {(selectedStatus==="تم التنفيذ" || selectedStatus==="مرفوض") && (
-    <div>
-    <h2>متوسط مدة حل البلاغ:</h2>
-    <p> {averageResolutionTime.toFixed(2)} ساعة</p>
-  </div>
-  )}
+
+<div className='flex-col'>
+
+<div style={{ overflowX: "auto", maxHeight: "280vh", marginTop:"10px" }}>
+            <Card className="max-w-4xl m-auto mb-10">
+
+            <div className=" pr-8 py-2 " style={{backgroundColor:'#07512D', color: "white" , borderRadius: "5px"}}>
+            <Typography className="font-baloo text-right text-xl font-bold ">
+                   تحليل  البلاغات 
+                  </Typography>
+                  </div>
+                      <hr/>
+                      <div className="flex flex-col gap-5  p-8">
+
+                      <div className='flex justify-around'>
+
+  <Card variant="filled" color="blue-grey" className=" p-4 shadow-lg">
+  <Typography className=" font-baloo font-bold"> إجمالي البلاغات:</Typography>
+                 <Typography> <span className="font-baloo text-right text-lg font-bold text-gray-700">{complaints.length} بلاغ</span></Typography>   
+          
+        </Card>
+
+        {(selectedStatus!="جديد" && selectedStatus!="قيد التنفيذ") && (
+        <Card variant="filled" color="blue-grey" className=" p-4 shadow-lg">
+          <Typography className=" font-baloo font-bold">
+        متوسط مدة حل البلاغ الواحد:
+                    </Typography>
+                    
+                    <Typography> <span className="font-baloo text-right text-lg font-bold text-gray-700">{averageResolutionTime.toFixed(2)} ساعة</span></Typography>   
+        </Card>
+ )}
+
+<Card variant="filled" color="blue-grey" className=' p-4 shadow-lg flex'>
+
+<Typography className="font-baloo font-bold"><span>عدد البلاغات:</span></Typography>
+
+        <div className='flex justify-around gap-5'>
+
+          <div className='flex items-center gap-2'>
+          <Typography className="text-lg font-semibold"><span>اليوم:</span></Typography>
+          <Typography> <span className="font-baloo text-right text-lg font-bold text-gray-700">{todaysComplaintsCount} بلاغ</span></Typography>
+          </div>
+
+          <div className='flex items-center gap-2'>
+          <Typography className="text-lg font-semibold"> <span>الأسبوع:</span></Typography>
+          <Typography> <span className="font-baloo text-right text-lg font-bold text-gray-700">{thisWeeksComplaintsCount} بلاغ</span></Typography>
+          </div>
+
+          <div className='flex items-center gap-2'>
+          <Typography className="text-lg font-semibold"><span>الشهر:</span></Typography>
+          <Typography> <span className="font-baloo text-right text-lg font-bold text-gray-700">{thisMonthsComplaintsCount} بلاغ</span></Typography>
+          </div>
+
+          </div>
     
-    
+  </Card>
 </div>
+
+
+<div className='flex  justify-around'>
+  <Card className='p-4 shadow-lg '>
+  <Typography className=" font-baloo font-bold"> انواع البلاغ :</Typography>
+  <div style={{ width: '100%', height: '300px' }}>
+    <Doughnut data={typeData} options={{ maintainAspectRatio: false }}/>
+    {/* options={{ maintainAspectRatio: false }} */}
+  </div>
+  </Card>
+
+  <Card className='p-4 shadow-lg '>
+  <Typography className=" font-baloo font-bold"> حالات البلاغ :</Typography>
+  <div style={{ width: '100%', height: '300px' }}>
+    <Bar data={statusData} options={{ ...options, maintainAspectRatio: false }}  />
+    {/* options={{ ...options, maintainAspectRatio: false }} */}
+  </div>
+  </Card>
+    </div>
+
+
+
+    <div className="flex justify-around">
+   <Card className=' p-4 shadow-lg' >
+   <Typography className=" font-baloo font-bold"> عدد البلاغات في الشهر:</Typography>
+    <div style={{width: '100%', height: '200px' }}>
+      <Line data={lineChartDataForMonth} options={{...lineChartOptionsForMonth, maintainAspectRatio: false}} />
+      </div>
+      </Card>
+      <Card className='p-4 shadow-lg' >
+      <Typography className=" font-baloo font-bold"> عدد البلاغات في الاسبوع:</Typography>
+      <div style={{width: '100%', height: '200px' }}>
+      <Line data={lineChartDataForWeeks} options={{...lineChartOptionsForWeeks, maintainAspectRatio: false}} />
+      </div>
+      </Card>
+    </div>
+
+
+    <Card className='p-4 shadow-lg'>
+    <Typography className=" font-baloo font-bold"> اكثرالاحياء تقديمًا للبلاغات:</Typography>
+   <div>
+  <NeighborhoodComplaintsChart labels={labels} data={data} />
+  </div>
+  </Card>
+
+     </div>
+
+  </Card>
+</div>
+
+
+</div>
+
+
 ) }
 
 

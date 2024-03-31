@@ -2,11 +2,11 @@ import React , {useState, useEffect, useRef} from 'react'
 import { GoogleMap, useJsApiLoader, Marker , Circle, HeatmapLayer } from '@react-google-maps/api';
 import { db } from "/src/firebase";
 import { getDocs, collection, addDoc, GeoPoint, deleteDoc, doc ,getDoc, Timestamp,updateDoc } from "firebase/firestore"; 
-import { Button, Card, Typography} from "@material-tailwind/react";
+import { Button, Card, Typography, Tooltip,  } from "@material-tailwind/react";
 import {
     Chart as ChartJS,
     ArcElement,
-    Tooltip,
+    Tooltip as TooltipChart,
     Legend,
     Colors,
     CategoryScale,
@@ -21,7 +21,7 @@ import {
 
 
 
-ChartJS.register( PointElement, LineElement, CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend,Colors,ArcElement);
+ChartJS.register( PointElement, LineElement, CategoryScale, LinearScale, BarElement, Title, TooltipChart, Legend,Colors,ArcElement);
 
 
 
@@ -203,7 +203,7 @@ setTypeData ({
   setStatusData({
     labels: Object.keys(statusCounts), // ["New", "In Progress", "Resolved"]
     datasets: [{
-      label: 'توزيع الحالات',
+      label: 'عدد البلاغات',
       data: Object.values(statusCounts), 
       backgroundColor: Object.keys(statusCounts).map(status => statusColors[status] || '#999'),
       borderColor: Object.keys(statusCounts).map(status => statusColors[status] || '#999'),
@@ -341,24 +341,26 @@ useEffect(() => {
   const today = new Date();
   const startOfMonth = new Date(today.getFullYear(), today.getMonth(), 1);
   const startOfWeek = new Date(today.setDate(today.getDate() - today.getDay()));
-  
+  console.log("today " +today )
+  console.log("startOfMonth " +startOfMonth )
+  console.log("startOfWeek " +startOfWeek )
   const todaysCount = complaints.filter(complaint => {
-    const complaintDate = new Date(complaint.complaintDate.seconds * 1000);
+    const  complaintDate = new Date(complaint.complaintDate.seconds * 1000);
     return complaintDate.toDateString() === today.toDateString();
   }).length;
 
+  console.log("todaysCount "+todaysCount)
   const monthsCount = complaints.filter(complaint => {
     const complaintDate = new Date(complaint.complaintDate.seconds * 1000);
     return complaintDate >= startOfMonth;
   }).length;
-
+  console.log("monthsCount "+ monthsCount)
   const weeksCount = complaints.filter(complaint => {
     const complaintDate = new Date(complaint.complaintDate.seconds * 1000);
     return complaintDate >= startOfWeek;
   }).length;
 
-  // Calculate average resolution time here and update setAverageResolutionTime
-
+  console.log("weeksCount "+weeksCount)
   setTodaysComplaintsCount(todaysCount);
   setThisMonthsComplaintsCount(monthsCount);
   setThisWeeksComplaintsCount(weeksCount);
@@ -423,30 +425,88 @@ const lineChartOptionsForMonth = {
 
 
 
+// const getWeekNumber = (date) => {
+//   const firstDayOfYear = new Date(date.getFullYear(), 0, 1);
+//   const pastDaysOfYear = (date - firstDayOfYear) / 86400000;
+//   return Math.ceil((pastDaysOfYear + firstDayOfYear.getDay() + 1) / 7);
+// };
+
+// const complaintsOverTimeByWeek = () => {
+//   const complaintCounts = {}; // Object to hold year-week: count pairs
+
+//   complaints.forEach(complaint => {
+//     const complaintDate = new Date(complaint.complaintDate.seconds * 1000);
+//     const year = complaintDate.getFullYear();
+//     const weekNumber = getWeekNumber(complaintDate);
+//     const weekYearString = `اسبوع ${weekNumber}, ${year}`;
+
+//     complaintCounts[weekYearString] = (complaintCounts[weekYearString] || 0) + 1;
+//   });
+
+//   // Split the object into arrays of week-year strings and counts
+//   const weeks = Object.keys(complaintCounts).sort();
+//   const countss = weeks.map(week => complaintCounts[week]);
+
+//   return { weeks, countss };
+// };
+
+// Helper function to get the week number
 const getWeekNumber = (date) => {
   const firstDayOfYear = new Date(date.getFullYear(), 0, 1);
-  const pastDaysOfYear = (date - firstDayOfYear) / 86400000;
-  return Math.ceil((pastDaysOfYear + firstDayOfYear.getDay() + 1) / 7);
+  // const pastDaysOfYear = (date - firstDayOfYear) / 86400000;
+  // return Math.ceil((pastDaysOfYear + firstDayOfYear.getDay() + 1) / 7);
+
+  const januaryFirst = 
+        new Date(date.getFullYear(), 0, 1);
+    const daysToNextMonday = 
+        (januaryFirst.getDay() === 1) ? 0 : 
+        (7 - januaryFirst.getDay()) % 7;
+    const nextMonday = 
+        new Date(date.getFullYear(), 0, 
+        januaryFirst.getDate() + daysToNextMonday);
+ 
+    return (date < nextMonday) ? 52 : 
+    (date > nextMonday ? Math.ceil(
+    (date - nextMonday) / (24 * 3600 * 1000) / 7) : 1);
+
 };
+
 
 const complaintsOverTimeByWeek = () => {
   const complaintCounts = {}; // Object to hold year-week: count pairs
 
   complaints.forEach(complaint => {
-    const complaintDate = new Date(complaint.complaintDate.seconds * 1000);
-    const year = complaintDate.getFullYear();
-    const weekNumber = getWeekNumber(complaintDate);
-    const weekYearString = `اسبوع ${weekNumber}, ${year}`;
+        const complaintDate = complaint.complaintDate.toDate(); // Convert Firestore Timestamp to JavaScript Date
+        const weekNumber = getWeekNumber(complaintDate);
+        const year = complaintDate.getFullYear();
+        const weekYearString = `اسبوع ${weekNumber}, ${year}`;
 
-    complaintCounts[weekYearString] = (complaintCounts[weekYearString] || 0) + 1;
+        complaintCounts[weekYearString] = (complaintCounts[weekYearString] || 0) + 1;
   });
 
-  // Split the object into arrays of week-year strings and counts
-  const weeks = Object.keys(complaintCounts).sort();
+  const weeks = Object.keys(complaintCounts).sort((a, b) => {
+    const weekYearA = a.split(', ');
+    const weekYearB = b.split(', ');
+  
+    const yearA = parseInt(weekYearA[1], 10);
+    const yearB = parseInt(weekYearB[1], 10);
+    
+    if (yearA !== yearB) {
+      return yearA - yearB;
+    }
+    
+    const weekA = parseInt(weekYearA[0].replace('اسبوع ', ''), 10);
+    const weekB = parseInt(weekYearB[0].replace('اسبوع ', ''), 10);
+  
+    return weekA - weekB;
+  });
+  
+
   const countss = weeks.map(week => complaintCounts[week]);
 
   return { weeks, countss };
 };
+
 
 const { weeks, countss } = complaintsOverTimeByWeek();
 
@@ -462,6 +522,7 @@ const lineChartDataForWeeks = {
     },
   ],
 };
+
 
 const lineChartOptionsForWeeks = {
   scales: {
@@ -729,52 +790,352 @@ return isLoaded ? (
 
                       <div className='flex justify-around'>
 
-  <Card variant="filled" color="blue-grey" className=" p-4 shadow-lg">
-  <Typography className=" font-baloo font-bold"> إجمالي البلاغات:</Typography>
-                 <Typography> <span className="font-baloo text-right text-lg font-bold text-gray-700">{complaints.length} بلاغ</span></Typography>   
-          
-        </Card>
+  <Card variant="filled"  className=" flex flex-col items-center p-4 shadow-lg">
+    <div>
+       
+    <Typography className="font-baloo  text-xs font-bold mb-2"> إجمالي البلاغات</Typography>
+  <hr/>
+  </div>
+ <Typography className='flex items-center justify-center gap-1'> <span className="font-baloo text-lg font-bold text-gray-700 mt-2">{complaints.length} بلاغ</span> 
+  <Tooltip  className="bg-white shadow-lg " content={
+        <div className="w-80">
+         <Typography color="black" className="font-medium ">
+        <span>   إجمالي البلاغات</span>
+          </Typography>
+          <Typography
+            variant="small"
+            color="black"
+            className="font-normal opacity-80"
+          >
+          <span> يشير هذا العدد إلى إجمالي البلاغات التي تم تقديمها واستلامها حتى الآن. يعكس هذا الرقم مدى تفاعل المواطنين واهتمامهم بمحيطهم الحضري وجودة الخدمات المقدمة. </span> </Typography>
+        </div>
+      }>
+        <svg
+      xmlns="http://www.w3.org/2000/svg"
+      fill="none"
+      viewBox="0 0 24 24"
+      stroke="currentColor"
+      strokeWidth={2}
+      className="h-3 w-3 cursor-pointer text-blue-gray-500 mt-1"
+    >
+      <path
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        d="M11.25 11.25l.041-.02a.75.75 0 011.063.852l-.708 2.836a.75.75 0 001.063.853l.041-.021M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-9-3.75h.008v.008H12V8.25z"
+      />
+    </svg>
+      </Tooltip></Typography>  
+
+  
+    </Card>
 
         {(selectedStatus!="جديد" && selectedStatus!="قيد التنفيذ") && (
-        <Card variant="filled" color="blue-grey" className=" p-4 shadow-lg">
-          <Typography className=" font-baloo font-bold">
-        متوسط مدة حل البلاغ الواحد:
-                    </Typography>
-                    
-                    <Typography> <span className="font-baloo text-right text-lg font-bold text-gray-700">{averageResolutionTime.toFixed(2)} ساعة</span></Typography>   
+        <Card variant="filled"  className=" flex flex-col items-center p-4 shadow-lg">
+          <div>
+          <Typography className=" font-baloo text-xs font-bold mb-2"> متوسط مدة حل البلاغ الواحد </Typography>
+          <hr/>
+  </div>     
+    <Typography className='flex items-center justify-center gap-1'> <span className="font-baloo text-lg font-bold text-gray-700 mt-2">{averageResolutionTime.toFixed(2)} ساعة</span>
+    <Tooltip  className="bg-white shadow-lg " content={
+        <div className="w-80">
+          <Typography color="black" className="font-medium font-baloo">
+          متوسط مدة حل البلاغ الواحد 
+          </Typography>
+          <Typography
+            variant="small"
+            color="black"
+            className="font-normal font-baloo opacity-80"
+          >
+         يعبر هذا الرقم عن المدة الزمنية المتوسطة التي تستغرقها الشكاوى من لحظة استلامها حتى إغلاقها أو حلها نهائيًا. يُستخدم هذا المتوسط لتقييم فعالية وسرعة استجابة الفريق المعني بمعالجة البلاغات.
+          </Typography>
+        </div>
+      }>
+        <svg
+      xmlns="http://www.w3.org/2000/svg"
+      fill="none"
+      viewBox="0 0 24 24"
+      stroke="currentColor"
+      strokeWidth={2}
+      className="h-3 w-3 cursor-pointer text-blue-gray-500 mt-1"
+    >
+      <path
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        d="M11.25 11.25l.041-.02a.75.75 0 011.063.852l-.708 2.836a.75.75 0 001.063.853l.041-.021M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-9-3.75h.008v.008H12V8.25z"
+      />
+    </svg>
+      </Tooltip></Typography>   
         </Card>
  )}
 
-<Card variant="filled" color="blue-grey" className=' p-4 shadow-lg flex'>
 
-<Typography className="font-baloo font-bold"><span>عدد البلاغات:</span></Typography>
+<Card variant="filled"  className=" flex flex-col items-center p-4 shadow-lg">
+          <div>
+          <Typography className=" font-baloo text-xs font-bold mb-2"> اليوم</Typography>
+          <hr/>
+  </div>     
+  <Typography className='flex items-center justify-center gap-1'> <span className="font-baloo text-right text-lg font-bold text-gray-700">{todaysComplaintsCount} بلاغ</span>
+          <Tooltip  className="bg-white shadow-lg " content={
+        <div className="w-80">
+          <Typography color="black" className="font-medium font-baloo">
+          عدد البلاغات هذا اليوم
+          </Typography>
+          <Typography
+            variant="small"
+            color="black"
+            className="font-normal opacity-80 font-baloo"
+          >
+        يعبر هذا الرقم عن عدد البلاغات التي تم تقديمها اليوم. هذا المؤشر يُساعد في مراقبة الأنشطة اليومية.
+    </Typography>
+        </div>
+      }>
+        <svg
+      xmlns="http://www.w3.org/2000/svg"
+      fill="none"
+      viewBox="0 0 24 24"
+      stroke="currentColor"
+      strokeWidth={2}
+      className="h-3 w-3 cursor-pointer text-blue-gray-500 mt-1"
+    >
+      <path
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        d="M11.25 11.25l.041-.02a.75.75 0 011.063.852l-.708 2.836a.75.75 0 001.063.853l.041-.021M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-9-3.75h.008v.008H12V8.25z"
+      />
+    </svg>
+      </Tooltip> </Typography> 
+        </Card>
 
+        <Card variant="filled"  className=" flex flex-col items-center p-4 shadow-lg">
+          <div>
+          <Typography className=" font-baloo text-xs font-bold mb-2"> الاسبوع</Typography>
+          <hr/>
+  </div>     
+  <Typography className='flex items-center justify-center gap-1'> <span className="font-baloo text-right text-lg font-bold text-gray-700">{thisWeeksComplaintsCount} بلاغ</span>
+          <Tooltip  className="bg-white shadow-lg " content={
+        <div className="w-80">
+          <Typography color="black" className="font-medium font-baloo ">
+          عدد البلاغات هذا الاسبوع
+          </Typography>
+          <Typography
+            variant="small"
+            color="black"
+            className="font-normal opacity-80 font-baloo"
+          >
+يعبر هذا الرقم عن العدد الإجمالي للبلاغات التي تم استقبالها خلال الأسبوع الحالي. هذا الرقم مهم لتقييم الأداء الأسبوعي.
+
+          </Typography>
+        </div>
+      }>
+        <svg
+      xmlns="http://www.w3.org/2000/svg"
+      fill="none"
+      viewBox="0 0 24 24"
+      stroke="currentColor"
+      strokeWidth={2}
+      className="h-3 w-3 cursor-pointer text-blue-gray-500 mt-1"
+    >
+      <path
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        d="M11.25 11.25l.041-.02a.75.75 0 011.063.852l-.708 2.836a.75.75 0 001.063.853l.041-.021M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-9-3.75h.008v.008H12V8.25z"
+      />
+    </svg>
+      </Tooltip></Typography>
+        </Card>
+
+
+        <Card variant="filled"  className=" flex flex-col items-center p-4 shadow-lg">
+          <div>
+          <Typography className=" font-baloo text-xs font-bold mb-2"> الشهر</Typography>
+          <hr/>
+  </div>     
+  <Typography className='flex items-center justify-center gap-1'> <span className="font-baloo text-right text-lg font-bold text-gray-700">{thisMonthsComplaintsCount} بلاغ</span>
+          <Tooltip  className="bg-white shadow-lg " content={
+        <div className="w-80">
+          <Typography color="black" className="font-medium font-baloo">
+          عدد البلاغات هذا الشهر
+          </Typography>
+          <Typography
+            variant="small"
+            color="black"
+            className="font-normal opacity-80 font-baloo"
+          >
+يعبر هذا الرقم عن العدد الإجمالي للبلاغات التي تم استقبالها خلال الشهر الحالي. هذا الرقم مهم لتقييم الأداء الشهري.
+          </Typography>
+        </div>
+      }>
+        <svg
+      xmlns="http://www.w3.org/2000/svg"
+      fill="none"
+      viewBox="0 0 24 24"
+      stroke="currentColor"
+      strokeWidth={2}
+      className="h-3 w-3 cursor-pointer text-blue-gray-500 mt-1"
+    >
+      <path
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        d="M11.25 11.25l.041-.02a.75.75 0 011.063.852l-.708 2.836a.75.75 0 001.063.853l.041-.021M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-9-3.75h.008v.008H12V8.25z"
+      />
+    </svg>
+      </Tooltip></Typography>
+        </Card>
+{/* 
+<Card variant="filled"  className=' flex flex-col items-center p-4 shadow-lg '>
+<div>
+<Typography className="font-baloo  text-xs font-bold mb-2"><span>عدد البلاغات</span></Typography>
+<hr/>
+  </div> 
         <div className='flex justify-around gap-5'>
 
-          <div className='flex items-center gap-2'>
+          <div className='flex flex-col items-center'>
+            
           <Typography className="text-lg font-semibold"><span>اليوم:</span></Typography>
-          <Typography> <span className="font-baloo text-right text-lg font-bold text-gray-700">{todaysComplaintsCount} بلاغ</span></Typography>
+        <div>  <Typography className='flex items-center justify-center gap-1'> <span className="font-baloo text-right text-lg font-bold text-gray-700">{todaysComplaintsCount} بلاغ</span>
+          <Tooltip  className="bg-white shadow-lg " content={
+        <div className="w-80">
+          <Typography color="black" className="font-medium font-baloo">
+          عدد البلاغات هذا اليوم
+          </Typography>
+          <Typography
+            variant="small"
+            color="black"
+            className="font-normal opacity-80 font-baloo"
+          >
+        يعبر هذا الرقم عن عدد البلاغات التي تم تقديمها اليوم. هذا المؤشر يُساعد في مراقبة الأنشطة اليومية.
+    </Typography>
+        </div>
+      }>
+        <svg
+      xmlns="http://www.w3.org/2000/svg"
+      fill="none"
+      viewBox="0 0 24 24"
+      stroke="currentColor"
+      strokeWidth={2}
+      className="h-3 w-3 cursor-pointer text-blue-gray-500 mt-1"
+    >
+      <path
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        d="M11.25 11.25l.041-.02a.75.75 0 011.063.852l-.708 2.836a.75.75 0 001.063.853l.041-.021M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-9-3.75h.008v.008H12V8.25z"
+      />
+    </svg>
+      </Tooltip> </Typography></div>
           </div>
 
           <div className='flex items-center gap-2'>
           <Typography className="text-lg font-semibold"> <span>الأسبوع:</span></Typography>
-          <Typography> <span className="font-baloo text-right text-lg font-bold text-gray-700">{thisWeeksComplaintsCount} بلاغ</span></Typography>
+          <Typography className='flex items-center justify-center gap-1'> <span className="font-baloo text-right text-lg font-bold text-gray-700">{thisWeeksComplaintsCount} بلاغ</span>
+          <Tooltip  className="bg-white shadow-lg " content={
+        <div className="w-80">
+          <Typography color="black" className="font-medium font-baloo ">
+          عدد البلاغات هذا الاسبوع
+          </Typography>
+          <Typography
+            variant="small"
+            color="black"
+            className="font-normal opacity-80 font-baloo"
+          >
+يعبر هذا الرقم عن العدد الإجمالي للبلاغات التي تم استقبالها خلال الأسبوع الحالي. هذا الرقم مهم لتقييم الأداء الأسبوعي.
+
+          </Typography>
+        </div>
+      }>
+        <svg
+      xmlns="http://www.w3.org/2000/svg"
+      fill="none"
+      viewBox="0 0 24 24"
+      stroke="currentColor"
+      strokeWidth={2}
+      className="h-3 w-3 cursor-pointer text-blue-gray-500 mt-1"
+    >
+      <path
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        d="M11.25 11.25l.041-.02a.75.75 0 011.063.852l-.708 2.836a.75.75 0 001.063.853l.041-.021M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-9-3.75h.008v.008H12V8.25z"
+      />
+    </svg>
+      </Tooltip></Typography>
           </div>
 
           <div className='flex items-center gap-2'>
           <Typography className="text-lg font-semibold"><span>الشهر:</span></Typography>
-          <Typography> <span className="font-baloo text-right text-lg font-bold text-gray-700">{thisMonthsComplaintsCount} بلاغ</span></Typography>
+          <Typography className='flex items-center justify-center gap-1'> <span className="font-baloo text-right text-lg font-bold text-gray-700">{thisMonthsComplaintsCount} بلاغ</span>
+          <Tooltip  className="bg-white shadow-lg " content={
+        <div className="w-80">
+          <Typography color="black" className="font-medium font-baloo">
+          عدد البلاغات هذا الشهر
+          </Typography>
+          <Typography
+            variant="small"
+            color="black"
+            className="font-normal opacity-80 font-baloo"
+          >
+يعبر هذا الرقم عن العدد الإجمالي للبلاغات التي تم استقبالها خلال الشهر الحالي. هذا الرقم مهم لتقييم الأداء الشهري.
+          </Typography>
+        </div>
+      }>
+        <svg
+      xmlns="http://www.w3.org/2000/svg"
+      fill="none"
+      viewBox="0 0 24 24"
+      stroke="currentColor"
+      strokeWidth={2}
+      className="h-3 w-3 cursor-pointer text-blue-gray-500 mt-1"
+    >
+      <path
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        d="M11.25 11.25l.041-.02a.75.75 0 011.063.852l-.708 2.836a.75.75 0 001.063.853l.041-.021M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-9-3.75h.008v.008H12V8.25z"
+      />
+    </svg>
+      </Tooltip></Typography>
           </div>
 
           </div>
     
-  </Card>
+  </Card> */}
+
+
+
+
 </div>
 
 
 <div className='flex  justify-around'>
   <Card className='p-4 shadow-lg '>
-  <Typography className=" font-baloo font-bold"> انواع البلاغ :</Typography>
+  <Typography className='font-baloo  text-xs font-bold mb-2 flex items-center justify-center gap-1 '> <span>عدد البلاغات لكل نوع</span>
+  <Tooltip  className="bg-white shadow-lg " content={
+        <div className="w-80">
+          <Typography color="black" className="font-medium font-baloo ">
+        عدد البلاغات لكل نوع
+          </Typography>
+          <Typography
+            variant="small"
+            color="black"
+            className="font-normal opacity-80 font-baloo"
+          >
+            توضح هذه الدائرة النسبية لأنواع الشكاوى المختلفة. كل لون يمثل نوعًا محددًا من البلاغات، مما يسهل على المسؤولين تحديد الأنواع الأكثر شيوعًا والتركيز على تحسين الخدمات ذات الصلة.
+          </Typography>
+        </div>
+      }>
+        <svg
+      xmlns="http://www.w3.org/2000/svg"
+      fill="none"
+      viewBox="0 0 24 24"
+      stroke="currentColor"
+      strokeWidth={2}
+      className="h-3 w-3 cursor-pointer text-blue-gray-500 "
+    >
+      <path
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        d="M11.25 11.25l.041-.02a.75.75 0 011.063.852l-.708 2.836a.75.75 0 001.063.853l.041-.021M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-9-3.75h.008v.008H12V8.25z"
+      />
+    </svg>
+      </Tooltip></Typography>
+  <hr/>
   <div style={{ width: '100%', height: '300px' }}>
     <Doughnut data={typeData} options={{ maintainAspectRatio: false }}/>
     {/* options={{ maintainAspectRatio: false }} */}
@@ -782,7 +1143,38 @@ return isLoaded ? (
   </Card>
 
   <Card className='p-4 shadow-lg '>
-  <Typography className=" font-baloo font-bold"> حالات البلاغ :</Typography>
+  <Typography className='font-baloo  text-xs font-bold mb-2 flex items-center justify-center gap-1 '> <span>توزيع البلاغات بحسب الحالة </span>
+  <Tooltip  className="bg-white shadow-lg "
+   content={
+        <div className="w-80">
+          <Typography color="black" className="font-medium font-baloo">
+        توزيع البلاغات بحسب الحالة 
+          </Typography>
+          <Typography
+            variant="small"
+            color="black"
+            className="font-normal opacity-80 font-baloo "
+          >
+يعرض هذا الرسم البياني بالأعمدة توزيع البلاغات بحسب حالتها، مما يوفر رؤية واضحة لفعالية استجابة الخدمة.
+          </Typography>
+        </div>
+      }>
+        <svg
+      xmlns="http://www.w3.org/2000/svg"
+      fill="none"
+      viewBox="0 0 24 24"
+      stroke="currentColor"
+      strokeWidth={2}
+      className="h-3 w-3 cursor-pointer text-blue-gray-500 "
+    >
+      <path
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        d="M11.25 11.25l.041-.02a.75.75 0 011.063.852l-.708 2.836a.75.75 0 001.063.853l.041-.021M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-9-3.75h.008v.008H12V8.25z"
+      />
+    </svg>
+      </Tooltip></Typography>
+  <hr/>
   <div style={{ width: '100%', height: '300px' }}>
     <Bar data={statusData} options={{ ...options, maintainAspectRatio: false }}  />
     {/* options={{ ...options, maintainAspectRatio: false }} */}
@@ -794,13 +1186,76 @@ return isLoaded ? (
 
     <div className="flex justify-around">
    <Card className=' p-4 shadow-lg' >
-   <Typography className=" font-baloo font-bold"> عدد البلاغات في الشهر:</Typography>
+   <Typography  className='font-baloo  text-xs font-bold mb-2 flex items-center justify-center gap-1 '><span>عدد البلاغات خلال الاشهر</span> 
+   <Tooltip  className="bg-white shadow-lg "
+   content={
+        <div className="w-80">
+          <Typography color="black" className="font-medium font-baloo">
+          <span>عدد البلاغات خلال الاشهر</span>
+          </Typography>
+          <Typography
+            variant="small"
+            color="black"
+            className="font-normal opacity-80 font-baloo"
+          >
+يوضح هذا الرسم البياني الخطي عدد البلاغات خلال كل شهر، ويظهر كيف تتغير أعداد البلاغات من شهر لآخر، مما يساعد في التخطيط والاستجابة المستقبلية.
+          </Typography>
+        </div>
+      }>
+        <svg
+      xmlns="http://www.w3.org/2000/svg"
+      fill="none"
+      viewBox="0 0 24 24"
+      stroke="currentColor"
+      strokeWidth={2}
+      className="h-3 w-3 cursor-pointer text-blue-gray-500 "
+    >
+      <path
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        d="M11.25 11.25l.041-.02a.75.75 0 011.063.852l-.708 2.836a.75.75 0 001.063.853l.041-.021M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-9-3.75h.008v.008H12V8.25z"
+      />
+    </svg>
+      </Tooltip></Typography>
+   <hr/>
     <div style={{width: '100%', height: '200px' }}>
       <Line data={lineChartDataForMonth} options={{...lineChartOptionsForMonth, maintainAspectRatio: false}} />
       </div>
       </Card>
+
+
       <Card className='p-4 shadow-lg' >
-      <Typography className=" font-baloo font-bold"> عدد البلاغات في الاسبوع:</Typography>
+      <Typography className='font-baloo  text-xs font-bold mb-2 flex items-center justify-center gap-1 '> <span>عدد البلاغات خلال الاسابيع</span>
+      <Tooltip  className="bg-white shadow-lg "
+   content={
+        <div className="w-80">
+          <Typography color="black" className="font-medium font-baloo ">
+        عدد البلاغات خلال الاسابيع
+          </Typography>
+          <Typography
+            variant="small"
+            color="black"
+            className="font-normal opacity-80 font-baloo" 
+          >يوضح هذا الرسم البياني الخطي عدد البلاغات خلال كل اسبوع، ويظهر كيف تتغير أعداد البلاغات من اسبوع لآخر، مما يساعد في التخطيط والاستجابة المستقبلية.
+          </Typography>
+        </div>
+      }>
+        <svg
+      xmlns="http://www.w3.org/2000/svg"
+      fill="none"
+      viewBox="0 0 24 24"
+      stroke="currentColor"
+      strokeWidth={2}
+      className="h-3 w-3 cursor-pointer text-blue-gray-500 "
+    >
+      <path
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        d="M11.25 11.25l.041-.02a.75.75 0 011.063.852l-.708 2.836a.75.75 0 001.063.853l.041-.021M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-9-3.75h.008v.008H12V8.25z"
+      />
+    </svg>
+      </Tooltip></Typography>
+      <hr/>
       <div style={{width: '100%', height: '200px' }}>
       <Line data={lineChartDataForWeeks} options={{...lineChartOptionsForWeeks, maintainAspectRatio: false}} />
       </div>
@@ -809,7 +1264,38 @@ return isLoaded ? (
 
 
     <Card className='p-4 shadow-lg'>
-    <Typography className=" font-baloo font-bold"> اكثرالاحياء تقديمًا للبلاغات:</Typography>
+    <Typography className='font-baloo  text-xs font-bold mb-2 flex items-center justify-center gap-1 '> <span>اكثرالاحياء تقديمًا للبلاغات</span>
+    <Tooltip  className="bg-white shadow-lg "
+   content={
+        <div className="w-80">
+          <Typography color="black" className="font-medium font-baloo">
+          <span>اكثرالاحياء تقديمًا للبلاغات</span>
+          </Typography>
+          <Typography
+            variant="small"
+            color="black"
+            className="font-normal opacity-80 font-baloo"
+          >
+يعرض هذا الرسم البياني بالأعمدة الأفقية عدد البلاغات لكل حي، مما يسلط الضوء على المناطق التي تحتاج إلى اهتمام أكثر في جهود التحسين والصيانة.
+          </Typography>
+        </div>
+      }>
+        <svg
+      xmlns="http://www.w3.org/2000/svg"
+      fill="none"
+      viewBox="0 0 24 24"
+      stroke="currentColor"
+      strokeWidth={2}
+      className="h-3 w-3 cursor-pointer text-blue-gray-500 "
+    >
+      <path
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        d="M11.25 11.25l.041-.02a.75.75 0 011.063.852l-.708 2.836a.75.75 0 001.063.853l.041-.021M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-9-3.75h.008v.008H12V8.25z"
+      />
+    </svg>
+      </Tooltip></Typography>
+    <hr/>
    <div>
   <NeighborhoodComplaintsChart labels={labels} data={data} />
   </div>

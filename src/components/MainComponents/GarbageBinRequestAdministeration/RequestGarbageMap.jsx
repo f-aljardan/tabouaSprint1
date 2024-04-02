@@ -464,6 +464,12 @@ const checkLocationCondtion = async (lat ,lng) =>{
          onLoad={onLoad}
          onUnmount={onUnmount}
          ref={mapRef}
+         options={{
+          streetViewControl: false,
+          mapTypeControl: false, // This hides the map/satellite view control
+          fullscreenControl: false, 
+        
+        }}
         >
   
           {garbageBins.map((bin) => (

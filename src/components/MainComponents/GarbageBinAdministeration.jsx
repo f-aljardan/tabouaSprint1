@@ -34,6 +34,12 @@ const binSizeOptions = [
   { value: 'حاوية صغيرة', label: 'حاوية صغيرة' },
 ];
 
+const reactSelectStyles = {
+  container: (provided) => ({
+    ...provided,
+    width: "250px", // Adjust the width as needed
+  }),
+};
 
 function GarbageBinMap() {
   
@@ -434,7 +440,7 @@ return isLoaded ? (
           value={selectedBinSize !== null ? binSizeOptions.find((option) => option.value === selectedBinSize) : null}
           onChange={(value) => handleBinSizeSelect(value)}
           required
-         
+          styles={reactSelectStyles}
         />
       </div>
     
@@ -459,6 +465,12 @@ return isLoaded ? (
         onUnmount={onUnmount} // Callback function that gets executed when the component unmounts.
         onClick={onMapClick}
         ref={mapRef}
+        options={{
+          streetViewControl: false,
+          mapTypeControl: false, // This hides the map/satellite view control
+          fullscreenControl: false, 
+        
+        }}
       >
 
 

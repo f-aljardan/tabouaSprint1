@@ -3,6 +3,7 @@ import { GoogleMap, useJsApiLoader, Marker , Circle, HeatmapLayer } from '@react
 import { db } from "/src/firebase";
 import { getDocs, collection, addDoc, GeoPoint, deleteDoc, doc ,getDoc, Timestamp,updateDoc } from "firebase/firestore"; 
 import { Button, Card, Typography, Tooltip,  } from "@material-tailwind/react";
+import { useNavigate } from 'react-router-dom';
 import {
     Chart as ChartJS,
     ArcElement,
@@ -23,10 +24,14 @@ import {
 
 ChartJS.register( PointElement, LineElement, CategoryScale, LinearScale, BarElement, Title, TooltipChart, Legend,Colors,ArcElement);
 
+const reactSelectStyles = {
+  container: (provided) => ({
+    ...provided,
+    width: "250px", // Adjust the width as needed
+  }),
+};
 
 
-import DatePicker from 'react-datepicker';
-import 'react-datepicker/dist/react-datepicker.css';
 import ErrorAlertMessage from "../utilityComponents/messages/ErrorAlertMessageFilter"
 import Select from 'react-select';
 import makeAnimated from 'react-select/animated';
@@ -53,7 +58,7 @@ const typeOptions = [
     { value: 'موقع الحاوية', label: 'موقع الحاوية' },
     { value: 'مخلفات مهملة', label: 'مخلفات مهملة' },
     { value: 'مخلفات خطرة', label: 'مخلفات خطرة' },
-    { value: 'وقت تفريغ الحاوية', label: 'وقت تفريغ الحاوية' },
+    { value: 'وقت تفريغ الحاوية', label: 'وقت تفريغ الحاوية' },
     { value: "أخرى", label: "أخرى" },
   ];
   
@@ -66,7 +71,8 @@ const typeOptions = [
   ];
 
 
-export default function Heatmap(){
+export default function Heatmap({setTypeFilter, setStatusFilter}){
+  const navigate = useNavigate();
 
     const [map, setMap] = React.useState(null)
     const [complaints, setComplaints] = useState([]);
@@ -86,7 +92,9 @@ export default function Heatmap(){
     const [showAlertStreet, setShowAlertStreet] = useState(false);
     const handleAlertStreet = () => setShowAlertStreet(!showAlertStreet);
     
-
+    const [selectedYear, setSelectedYear] = useState(new Date().getFullYear());
+    const [chartData, setChartData] = useState({});
+    
  // all google map initilization related function starts here
   // Load Google Maps JavaScript API
   const { isLoaded } = useJsApiLoader({
@@ -164,8 +172,6 @@ export default function Heatmap(){
 
   useEffect(() => {
 
-  
-
   const complaintTypes = complaints.reduce((acc, complaint) => {
     acc[complaint.type] = (acc[complaint.type] || 0) + 1;
     return acc;
@@ -189,6 +195,7 @@ setTypeData ({
           // Make sure to adjust these colors so each complaint type has a unique color.
         ],
         hoverOffset: 7
+
       }
     ]
   });
@@ -213,74 +220,78 @@ setTypeData ({
 }, [complaints]);
 
 
-  const options = {
-    scales: {
-      y: {
-        beginAtZero: true
+const options = {
+  plugins: {
+    legend: {
+      display: false, // This will hide the label above the chart
+    },
+    title: {
+      display: false, // This will hide the title at the top of the chart
+    }
+  },
+  scales: {
+    y: {
+      beginAtZero: true,
+      title: {
+        display: true,
+        text: 'عدد البلاغات', // This sets the y-axis title
+        // font: {
+        //   size: 18,
+        //   weight: 'bold',
+        // }
       }
     },
-    
-  };
-  
+  },
+};
 
 
 
- 
-  // const calculateResolutionTimes = (complaints) => {
-  //   const resolutionTimes = complaints.map(complaint => {
-  //     const createdAt = new Date(complaint.complaintDate).getTime();
-  //     const resolvedAt = new Date(complaint.responseDate).getTime();
-  //     return resolvedAt - createdAt;
-  //   });
-    
-  //   const averageResolutionTime = resolutionTimes.reduce((a, b) => a + b, 0) / resolutionTimes.length;
-    
-  //   return {
-  //     resolutionTimes,
-  //     averageResolutionTime
-  //   };
-  // };
+
+const typesOptions = {
+  maintainAspectRatio: false,
+};
+
+
+
   const calculateResolutionTimes = (complaints) => {
-    console.log("here")
     // Filter complaints to ensure both dates are present
     const validComplaints = complaints.filter(complaint => complaint.complaintDate && complaint.responseDate);
-    console.log("here7")
-    console.log(validComplaints)
-    const resolutionTimes = validComplaints.map(complaint => {
     
+    const resolutionTimes = validComplaints.map(complaint => {
       const createdAt = complaint.complaintDate.toDate().getTime();
       const resolvedAt = complaint.responseDate.toDate().getTime();
-      // Return time in hours
-      const resolutionTime = (resolvedAt - createdAt) / (1000 * 60 * 60);
-      console.log(`createdAt: ${createdAt}, resolvedAt: ${resolvedAt}, resolutionTime: ${resolutionTime} hours`);
-      return resolutionTime;
+      // Calculate time in hours
+      const resolutionTimeInHours = (resolvedAt - createdAt) / (1000 * 60 * 60);
+      // Calculate days and hours
+      const days = Math.floor(resolutionTimeInHours / 24);
+      const hours = resolutionTimeInHours % 24;
+      // Format output
+      const formattedResolutionTime = days > 0
+        ? `${days} يوم, ${hours.toFixed(2)} ساعة`
+        : `${hours.toFixed(2)} ساعة`;
+      console.log(`createdAt: ${createdAt}, resolvedAt: ${resolvedAt}, resolutionTime: ${formattedResolutionTime}`);
+      return resolutionTimeInHours; // still return the time in hours for averaging purposes
     });
-
-    
+  
     // Avoid division by zero by ensuring the array length is not zero
-    const averageResolutionTime = resolutionTimes.length > 0
+    const averageResolutionTimeInHours = resolutionTimes.length > 0
       ? resolutionTimes.reduce((a, b) => a + b, 0) / resolutionTimes.length
       : 0;
     
+    // Calculate average days and hours
+    const averageDays = Math.floor(averageResolutionTimeInHours / 24);
+    const averageHours = averageResolutionTimeInHours % 24;
+    const formattedAverageResolutionTime = averageDays > 0
+      ? `${averageDays} يوم, ${averageHours.toFixed(2)} ساعة`
+      : `${averageHours.toFixed(2)} ساعة`;
+  
     return {
       resolutionTimes,
-      averageResolutionTime // This is now in hours
+      averageResolutionTime: formattedAverageResolutionTime // This is the formatted string
     };
-  };
-  
+  };  
   
 
-// const filterComplaints = (types) => {
-//   // Check if "الكل" is among the selected types or if the array is empty
-//   if (types.includes('الكل') || types.length === 0) {
-//     // If "الكل" is selected or no types are selected, show all complaints
-//     setComplaints(complaintData);
-//   } else {
-//     // Filter complaints to include only those with a type in the selected types
-//     const filteredComplaints = complaintData.filter((comp) => types.includes(comp.type));
-//     setComplaints(filteredComplaints);
-//   }
-// };
 
 useEffect(() => {
   filterComplaints();
@@ -305,10 +316,7 @@ const filterComplaints = () => {
 };
 
 
-// const handleComplaintTypeSelect = (selectedOption) => {
-//   setSelectedComplaintType(selectedOption.value);
-//   filterComplaints(selectedOption.value);
-// };
+
 
 // Handle selection changes for complaint type
 const handleComplaintTypeSelect = (selectedOptions) => {
@@ -320,19 +328,6 @@ const handleComplaintTypeSelect = (selectedOptions) => {
 };
 
 
-// const calculateTodaysComplaints = () => {
-//   const today = new Date();
-//   today.setHours(0, 0, 0, 0); // Reset time to start of the day
-
-//   const todaysComplaints = complaints.filter(complaint => {
-//     const complaintDate = new Date(complaint.complaintDate.seconds * 1000); // Assuming `complaintDate` is a Timestamp object
-//     complaintDate.setHours(0, 0, 0, 0); // Reset time to start of the day for comparison
-
-//     return complaintDate.getTime() === today.getTime();
-//   });
-
-//   return todaysComplaints.length;
-// };
 
 
 // const todaysComplaintsCount = calculateTodaysComplaints();
@@ -368,40 +363,153 @@ useEffect(() => {
 
 
 
+// const complaintsOverTimeByMonth = () => {
+//   const currentDate = new Date();
+//   const currentYear = currentDate.getFullYear();
+//   const currentMonth = currentDate.getMonth();
+//   const complaintCounts = {};
 
-const complaintsOverTimeByMonth = () => {
-  const complaintCounts = {}; // Object to hold month-year: count pairs
+//   complaints.forEach(complaint => {
+//     const complaintDate = new Date(complaint.complaintDate.seconds * 1000);
+//     const month = complaintDate.getMonth();
+//     const year = complaintDate.getFullYear();
+//     const yearMonthKey = `${year}-${(month + 1).toString().padStart(2, '0')}`;
+//     if (complaintDate < currentDate) {
+//       complaintCounts[yearMonthKey] = (complaintCounts[yearMonthKey] || 0) + 1;
+//     }
+//   });
+
+//   const allMonths = Array.from({ length: 12 }, (_, i) => `${currentYear}-${(i + 1).toString().padStart(2, '0')}`);
+//   const counts = allMonths.map(key => {
+//     return key <= `${currentYear}-${(currentMonth + 1).toString().padStart(2, '0')}` ? complaintCounts[key] || 0 : null;
+//   });
+
+//   // Now make sure the label for future months still shows, but without the dot
+//   const datasets = [{
+//     label: 'عدد البلاغات بالشهر',
+//     data: counts,
+//     fill: false,
+//     backgroundColor: 'rgb(54, 162, 235)',
+//     borderColor: 'rgba(54, 162, 235, 0.2)',
+//     // Point background color: show blue for current and past months, transparent for future months
+//     pointBackgroundColor: counts.map((_, index) => index <= currentMonth ? 'rgb(54, 162, 235)' : 'transparent'),
+//   }];
+
+//   // Adjust labels to use the correct month name
+//   const dates = allMonths.map(key => {
+//     const [year, month] = key.split('-');
+//     return new Date(year, month - 1).toLocaleString('ar-EG', { month: 'long', year: 'numeric' });
+//   });
+
+//   return {
+//     labels: dates,
+//     datasets: datasets,
+//   };
+// };
+
+// const chartData = complaintsOverTimeByMonth();
+
+// const lineChartDataForMonth = {
+//   labels: chartData.labels,
+//   datasets: chartData.datasets,
+// };
+
+
+
+
+
+// // Function to generate complaints data by month for a specific year
+// const complaintsOverTimeByMonth = (complaints, year) => {
+
+//   const complaintCounts = {};
+
+//   complaints.forEach(complaint => {
+//     const complaintDate = new Date(complaint.complaintDate.seconds * 1000);
+//     const month = complaintDate.getMonth();
+//     const complaintYear = complaintDate.getFullYear();
+//     const yearMonthKey = `${complaintYear}-${(month + 1).toString().padStart(2, '0')}`;
+
+//     if (complaintYear === year) {
+//       complaintCounts[yearMonthKey] = (complaintCounts[yearMonthKey] || 0) + 1;
+//     }
+//   });
+
+
+//   const allMonths = Array.from({ length: 12 }, (_, i) => `${year}-${(i + 1).toString().padStart(2, '0')}`);
+//   const counts = allMonths.map(key => complaintCounts[key] || 0);
+
+//   const datasets = [{
+//     label: 'عدد البلاغات بالشهر',
+//     data: counts,
+//     fill: false,
+//     backgroundColor: 'rgb(54, 162, 235)',
+//     borderColor: 'rgba(54, 162, 235, 0.2)',
+//     // Point background color: show blue for current and past months, transparent for future months
+   
+//   }];
+
+//   const labels = allMonths.map(key => {
+//     const [year, month] = key.split('-');
+//     return new Date(year, month - 1).toLocaleString('ar-EG', { month: 'long', year: 'numeric' });
+//   });
+
+//   return {
+//     labels: labels,
+//     datasets: datasets,
+//   };
+// };
+
+
+const complaintsOverTimeByMonth = (complaints, year) => {
+  const complaintCounts = {};
+  const currentDate = new Date();
+  const currentYear = currentDate.getFullYear();
+  const currentMonth = currentDate.getMonth();
 
   complaints.forEach(complaint => {
     const complaintDate = new Date(complaint.complaintDate.seconds * 1000);
-    // Format date as "Month Year" string
-    const monthString = complaintDate.toLocaleString('ar-EG', { month: 'long' });
-    const year = complaintDate.getFullYear();
-    const dateString = `${monthString} ${year}`;
+    const month = complaintDate.getMonth();
+    const complaintYear = complaintDate.getFullYear();
+    const yearMonthKey = `${complaintYear}-${(month + 1).toString().padStart(2, '0')}`;
 
-    complaintCounts[dateString] = (complaintCounts[dateString] || 0) + 1;
+    if (complaintYear === year) {
+      complaintCounts[yearMonthKey] = (complaintCounts[yearMonthKey] || 0) + 1;
+    }
   });
 
-  // Split the object into arrays of month-year strings and counts
-  const dates = Object.keys(complaintCounts).sort((a, b) => new Date(a) - new Date(b));
-  const counts = dates.map(date => complaintCounts[date]);
+  const allMonths = Array.from({ length: 12 }, (_, i) => `${year}-${(i + 1).toString().padStart(2, '0')}`);
+  const counts = allMonths.map(key => complaintCounts[key] || 0);
 
-  return { dates, counts };
-};
+  // Define point background colors based on whether the month is in the past or the future
+  const pointBackgroundColors = allMonths.map(key => {
+    const [year, month] = key.split('-').map(Number);
+    const monthDate = new Date(year, month - 1);
+    // If the year is the current year and the month is in the future, make it transparent
+    if (year === currentYear && month - 1 > currentMonth) {
+      return 'transparent';
+    }
+    // Otherwise, use the blue color
+    return 'rgb(54, 162, 235)';
+  });
 
-const { dates, counts } = complaintsOverTimeByMonth();
+  const datasets = [{
+    label: 'عدد البلاغات بالشهر',
+    data: counts,
+    fill: false,
+    backgroundColor: 'rgb(54, 162, 235)',
+    borderColor: 'rgba(54, 162, 235, 0.2)',
+    pointBackgroundColor: pointBackgroundColors, // Set the dynamic colors here
+  }];
 
-const lineChartDataForMonth = {
-  labels: dates,
-  datasets: [
-    {
-      label: 'عدد البلاغات بالشهر',
-      data: counts,
-      fill: false,
-      backgroundColor: 'rgb(54, 162, 235)',
-      borderColor: 'rgba(54, 162, 235, 0.2)',
-    },
-  ],
+  const labels = allMonths.map(key => {
+    const [year, month] = key.split('-');
+    return new Date(year, month - 1).toLocaleString('ar-EG', { month: 'long', year: 'numeric' });
+  });
+
+  return {
+    labels: labels,
+    datasets: datasets,
+  };
 };
 
 const lineChartOptionsForMonth = {
@@ -422,127 +530,29 @@ const lineChartOptionsForMonth = {
   },
 };
 
-
-
-
-// const getWeekNumber = (date) => {
-//   const firstDayOfYear = new Date(date.getFullYear(), 0, 1);
-//   const pastDaysOfYear = (date - firstDayOfYear) / 86400000;
-//   return Math.ceil((pastDaysOfYear + firstDayOfYear.getDay() + 1) / 7);
-// };
-
-// const complaintsOverTimeByWeek = () => {
-//   const complaintCounts = {}; // Object to hold year-week: count pairs
-
-//   complaints.forEach(complaint => {
-//     const complaintDate = new Date(complaint.complaintDate.seconds * 1000);
-//     const year = complaintDate.getFullYear();
-//     const weekNumber = getWeekNumber(complaintDate);
-//     const weekYearString = `اسبوع ${weekNumber}, ${year}`;
-
-//     complaintCounts[weekYearString] = (complaintCounts[weekYearString] || 0) + 1;
-//   });
-
-//   // Split the object into arrays of week-year strings and counts
-//   const weeks = Object.keys(complaintCounts).sort();
-//   const countss = weeks.map(week => complaintCounts[week]);
-
-//   return { weeks, countss };
-// };
-
-// Helper function to get the week number
-const getWeekNumber = (date) => {
-  const firstDayOfYear = new Date(date.getFullYear(), 0, 1);
-  // const pastDaysOfYear = (date - firstDayOfYear) / 86400000;
-  // return Math.ceil((pastDaysOfYear + firstDayOfYear.getDay() + 1) / 7);
-
-  const januaryFirst = 
-        new Date(date.getFullYear(), 0, 1);
-    const daysToNextMonday = 
-        (januaryFirst.getDay() === 1) ? 0 : 
-        (7 - januaryFirst.getDay()) % 7;
-    const nextMonday = 
-        new Date(date.getFullYear(), 0, 
-        januaryFirst.getDate() + daysToNextMonday);
- 
-    return (date < nextMonday) ? 52 : 
-    (date > nextMonday ? Math.ceil(
-    (date - nextMonday) / (24 * 3600 * 1000) / 7) : 1);
-
-};
-
-
-const complaintsOverTimeByWeek = () => {
-  const complaintCounts = {}; // Object to hold year-week: count pairs
-
-  complaints.forEach(complaint => {
-        const complaintDate = complaint.complaintDate.toDate(); // Convert Firestore Timestamp to JavaScript Date
-        const weekNumber = getWeekNumber(complaintDate);
-        const year = complaintDate.getFullYear();
-        const weekYearString = `اسبوع ${weekNumber}, ${year}`;
-
-        complaintCounts[weekYearString] = (complaintCounts[weekYearString] || 0) + 1;
+const updateChartForYear = (selectedYear) => {
+  const filteredComplaints = complaints.filter(complaint => {
+    const complaintDate = new Date(complaint.complaintDate.seconds * 1000);
+    return complaintDate.getFullYear() === selectedYear;
   });
 
-  const weeks = Object.keys(complaintCounts).sort((a, b) => {
-    const weekYearA = a.split(', ');
-    const weekYearB = b.split(', ');
-  
-    const yearA = parseInt(weekYearA[1], 10);
-    const yearB = parseInt(weekYearB[1], 10);
-    
-    if (yearA !== yearB) {
-      return yearA - yearB;
-    }
-    
-    const weekA = parseInt(weekYearA[0].replace('اسبوع ', ''), 10);
-    const weekB = parseInt(weekYearB[0].replace('اسبوع ', ''), 10);
-  
-    return weekA - weekB;
-  });
-  
-
-  const countss = weeks.map(week => complaintCounts[week]);
-
-  return { weeks, countss };
+  const updatedChartData = complaintsOverTimeByMonth(filteredComplaints, selectedYear);
+  setChartData(updatedChartData);
 };
 
 
-const { weeks, countss } = complaintsOverTimeByWeek();
+// Effect to update the chart when the selected year changes
+useEffect(() => {
+  updateChartForYear(selectedYear);
+}, [selectedYear]);
 
-const lineChartDataForWeeks = {
-  labels: weeks,
-  datasets: [
-    {
-      label: 'عدد البلاغات بالأسبوع',
-      data: countss,
-      fill: false,
-      backgroundColor: 'rgb(255, 99, 132)',
-      borderColor: 'rgba(255, 99, 132, 0.2)',
-    },
-  ],
+// Function to handle year selection change
+const handleYearChange = (event) => {
+  setSelectedYear(parseInt(event.target.value, 10));
 };
 
-
-const lineChartOptionsForWeeks = {
-  scales: {
-    x: {
-      
-      title: {
-        display: true,
-        text: 'الاسبوع',
-      },
-    },
-    y: {
-      title: {
-        display: true,
-        text: 'عدد البلاغات',
-      },
-      beginAtZero: true,
-    },
-  },
-};
-
+const uniqueYears = [...new Set(complaints.map(complaint => new Date(complaint.complaintDate.seconds * 1000).getFullYear()))];
+uniqueYears.sort();
 
 
 const extractNeighborhood = (localArea) => {
@@ -604,10 +614,7 @@ const { labels, data } = Object.entries(aggregateComplaintsByNeighborhood(compla
         legend: {
           position: 'right',
         },
-        // title: {
-        //   display: true,
-        //   text: 'أكثر الأحياء تقديمًا للبلاغات',
-        // },
+       
       },
     };
     return <Bar data={chartData} options={options} />;
@@ -651,6 +658,11 @@ setZoom(18);
 
   
 
+  const handleMarkerClick = (complaintId) => {
+    navigate(`/mainpage/complaints/${complaintId}`);
+  };
+
+
 return isLoaded ? (
     <div style={{ position: 'relative', width: '100%', height: '100%' }}>
  
@@ -659,7 +671,7 @@ return isLoaded ? (
         <div className="flex gap-5 p-4 mr-12 z-10" style={{ position: 'absolute' }}>
           <div className='flex-col'>
     <div className='flex gap-5'>
-        <Button
+    <Button
           style={{ background: '#FE9B00', color: '#ffffff' }}
           size="sm"
           onClick={handleUserLocation}>
@@ -667,24 +679,7 @@ return isLoaded ? (
         </Button>
 
         
-        {/* <DatePicker
-  selectsRange={true}
-  startDate={startDate}
-  endDate={endDate}
-  onChange={handleDateChange}
-  isClearable={true}
-/> */}
-
-          {/* <Select
-            placeholder="تصفية حسب حجم الحاوية..."
-            closeMenuOnSelect={false}
-            components={animatedComponents}
-            options={typeOptions}
-            value={selectedComplaintType !== null ? typeOptions.find((option) => option.value === selectedComplaintType) : null}
-            onChange={(value) => handleComplaintTypeSelect(value)}
-            required
-           
-          /> */}
+       
 <Select
   isMulti
   placeholder="تصفية حسب نوع البلاغ..."
@@ -694,7 +689,7 @@ return isLoaded ? (
   value={selectedComplaintType ? typeOptions.filter(option => selectedComplaintType.includes(option.value)) : []}
   // onChange={handleComplaintTypeSelect}
   onChange={handleComplaintTypeSelect}
-  
+  styles={reactSelectStyles}
 />
 
 <Select
@@ -707,21 +702,23 @@ return isLoaded ? (
     setSelectedStatus(option.value);
     filterComplaints();
   }}
- 
+  styles={reactSelectStyles}
 />
 
-<div className="flex items-center justify-center py-2 px-2 bg-white rounded-lg shadow">
-      <span className="text-xs font-medium ml-2">اكثر</span>
-      <div className="w-32 h-4 rounded-full bg-gradient-to-r from-green-300 via-yellow-300 to-red-500"></div>
-      <span className="text-xs font-medium mr-2">اقل</span>
+
+<div className="flex items-center justify-center  bg-white rounded-lg shadow">
+      <span className="text-xs font-medium ">اكثر بلاغات</span>
+      <div className="w-24 h-4 rounded-full bg-gradient-to-r from-green-300 via-yellow-300 to-red-500"></div>
+      <span className="text-xs font-medium ">اقل بلاغات</span>
     </div>
+
 
 </div>
 
 {complaints.length==0?(     
    <div style={{  marginTop:10,  width: '100%', height: '100%'}}>
         <ErrorAlertMessage open={true} handler={handleAlertStreet}
-         message="لا يوجد بيانات بهذا التصنيف" /> </div>
+         message="لا يوجد بيانات بهذا التصنيف" /> </div> 
          ): null
          } 
 
@@ -761,6 +758,15 @@ return isLoaded ? (
 
         )}
         
+         {/* Add Marker components for each complaint */}
+         {complaints.map((complaint) => (
+          <Marker
+            key={complaint.id}
+            position={{ lat: complaint.location._lat, lng: complaint.location._long }}
+            onClick={() => handleMarkerClick(complaint.id)}
+            // Customize the marker icon if needed
+          />
+        ))}
       
   
       {showUserLocation && userPosition && (
@@ -835,7 +841,7 @@ return isLoaded ? (
           <Typography className=" font-baloo text-xs font-bold mb-2"> متوسط مدة حل البلاغ الواحد </Typography>
           <hr/>
   </div>     
-    <Typography className='flex items-center justify-center gap-1'> <span className="font-baloo text-lg font-bold text-gray-700 mt-2">{averageResolutionTime.toFixed(2)} ساعة</span>
+    <Typography className='flex items-center justify-center gap-1'> <span className="font-baloo text-lg font-bold text-gray-700 mt-2">{averageResolutionTime}</span>
     <Tooltip  className="bg-white shadow-lg " content={
         <div className="w-80">
           <Typography color="black" className="font-medium font-baloo">
@@ -981,121 +987,6 @@ return isLoaded ? (
     </svg>
       </Tooltip></Typography>
         </Card>
-{/* 
-<Card variant="filled"  className=' flex flex-col items-center p-4 shadow-lg '>
-<div>
-<Typography className="font-baloo  text-xs font-bold mb-2"><span>عدد البلاغات</span></Typography>
-<hr/>
-  </div> 
-        <div className='flex justify-around gap-5'>
-
-          <div className='flex flex-col items-center'>
-            
-          <Typography className="text-lg font-semibold"><span>اليوم:</span></Typography>
-        <div>  <Typography className='flex items-center justify-center gap-1'> <span className="font-baloo text-right text-lg font-bold text-gray-700">{todaysComplaintsCount} بلاغ</span>
-          <Tooltip  className="bg-white shadow-lg " content={
-        <div className="w-80">
-          <Typography color="black" className="font-medium font-baloo">
-          عدد البلاغات هذا اليوم
-          </Typography>
-          <Typography
-            variant="small"
-            color="black"
-            className="font-normal opacity-80 font-baloo"
-          >
-        يعبر هذا الرقم عن عدد البلاغات التي تم تقديمها اليوم. هذا المؤشر يُساعد في مراقبة الأنشطة اليومية.
-    </Typography>
-        </div>
-      }>
-        <svg
-      xmlns="http://www.w3.org/2000/svg"
-      fill="none"
-      viewBox="0 0 24 24"
-      stroke="currentColor"
-      strokeWidth={2}
-      className="h-3 w-3 cursor-pointer text-blue-gray-500 mt-1"
-    >
-      <path
-        strokeLinecap="round"
-        strokeLinejoin="round"
-        d="M11.25 11.25l.041-.02a.75.75 0 011.063.852l-.708 2.836a.75.75 0 001.063.853l.041-.021M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-9-3.75h.008v.008H12V8.25z"
-      />
-    </svg>
-      </Tooltip> </Typography></div>
-          </div>
-
-          <div className='flex items-center gap-2'>
-          <Typography className="text-lg font-semibold"> <span>الأسبوع:</span></Typography>
-          <Typography className='flex items-center justify-center gap-1'> <span className="font-baloo text-right text-lg font-bold text-gray-700">{thisWeeksComplaintsCount} بلاغ</span>
-          <Tooltip  className="bg-white shadow-lg " content={
-        <div className="w-80">
-          <Typography color="black" className="font-medium font-baloo ">
-          عدد البلاغات هذا الاسبوع
-          </Typography>
-          <Typography
-            variant="small"
-            color="black"
-            className="font-normal opacity-80 font-baloo"
-          >
-يعبر هذا الرقم عن العدد الإجمالي للبلاغات التي تم استقبالها خلال الأسبوع الحالي. هذا الرقم مهم لتقييم الأداء الأسبوعي.
-
-          </Typography>
-        </div>
-      }>
-        <svg
-      xmlns="http://www.w3.org/2000/svg"
-      fill="none"
-      viewBox="0 0 24 24"
-      stroke="currentColor"
-      strokeWidth={2}
-      className="h-3 w-3 cursor-pointer text-blue-gray-500 mt-1"
-    >
-      <path
-        strokeLinecap="round"
-        strokeLinejoin="round"
-        d="M11.25 11.25l.041-.02a.75.75 0 011.063.852l-.708 2.836a.75.75 0 001.063.853l.041-.021M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-9-3.75h.008v.008H12V8.25z"
-      />
-    </svg>
-      </Tooltip></Typography>
-          </div>
-
-          <div className='flex items-center gap-2'>
-          <Typography className="text-lg font-semibold"><span>الشهر:</span></Typography>
-          <Typography className='flex items-center justify-center gap-1'> <span className="font-baloo text-right text-lg font-bold text-gray-700">{thisMonthsComplaintsCount} بلاغ</span>
-          <Tooltip  className="bg-white shadow-lg " content={
-        <div className="w-80">
-          <Typography color="black" className="font-medium font-baloo">
-          عدد البلاغات هذا الشهر
-          </Typography>
-          <Typography
-            variant="small"
-            color="black"
-            className="font-normal opacity-80 font-baloo"
-          >
-يعبر هذا الرقم عن العدد الإجمالي للبلاغات التي تم استقبالها خلال الشهر الحالي. هذا الرقم مهم لتقييم الأداء الشهري.
-          </Typography>
-        </div>
-      }>
-        <svg
-      xmlns="http://www.w3.org/2000/svg"
-      fill="none"
-      viewBox="0 0 24 24"
-      stroke="currentColor"
-      strokeWidth={2}
-      className="h-3 w-3 cursor-pointer text-blue-gray-500 mt-1"
-    >
-      <path
-        strokeLinecap="round"
-        strokeLinejoin="round"
-        d="M11.25 11.25l.041-.02a.75.75 0 011.063.852l-.708 2.836a.75.75 0 001.063.853l.041-.021M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-9-3.75h.008v.008H12V8.25z"
-      />
-    </svg>
-      </Tooltip></Typography>
-          </div>
-
-          </div>
-    
-  </Card> */}
 
 
 
@@ -1137,7 +1028,26 @@ return isLoaded ? (
       </Tooltip></Typography>
   <hr/>
   <div style={{ width: '100%', height: '300px' }}>
-    <Doughnut data={typeData} options={{ maintainAspectRatio: false }}/>
+  <Doughnut 
+  data={typeData} 
+  options={{
+    ...typesOptions, // Assuming typesOptions is defined elsewhere in your code
+    onClick: function(evt, elements, chart) {
+      if (elements.length > 0) {
+        // Attempting a direct access to the chart instance from the third argument of the callback
+        const index = elements[0].index;
+        const labelClicked = chart.data.labels[index];
+        
+        console.log("Label clicked:", labelClicked);
+
+        // Assuming setTypeFilter and navigate are correctly defined and accessible here
+        setTypeFilter(labelClicked); // Update the filter state
+        navigate(`/mainpage/complaints`); // Navigate with the filter as a query parameter
+      }
+    }
+  }} 
+/>
+
     {/* options={{ maintainAspectRatio: false }} */}
   </div>
   </Card>
@@ -1176,7 +1086,20 @@ return isLoaded ? (
       </Tooltip></Typography>
   <hr/>
   <div style={{ width: '100%', height: '300px' }}>
-    <Bar data={statusData} options={{ ...options, maintainAspectRatio: false }}  />
+    <Bar data={statusData} options={{ ...options, maintainAspectRatio: false , 
+    onClick: function(evt, elements, chart) {
+      if (elements.length > 0) {
+        // Attempting a direct access to the chart instance from the third argument of the callback
+        const index = elements[0].index;
+        const labelClicked = chart.data.labels[index];
+        
+        console.log("Label clicked:", labelClicked);
+
+        // Assuming setTypeFilter and navigate are correctly defined and accessible here
+        setStatusFilter(labelClicked); // Update the filter state
+        navigate(`/mainpage/complaints`); // Navigate with the filter as a query parameter
+      }
+    }}}  />
     {/* options={{ ...options, maintainAspectRatio: false }} */}
   </div>
   </Card>
@@ -1184,7 +1107,7 @@ return isLoaded ? (
 
 
 
-    <div className="flex justify-around">
+    <div className="">
    <Card className=' p-4 shadow-lg' >
    <Typography  className='font-baloo  text-xs font-bold mb-2 flex items-center justify-center gap-1 '><span>عدد البلاغات خلال الاشهر</span> 
    <Tooltip  className="bg-white shadow-lg "
@@ -1218,48 +1141,18 @@ return isLoaded ? (
     </svg>
       </Tooltip></Typography>
    <hr/>
-    <div style={{width: '100%', height: '200px' }}>
-      <Line data={lineChartDataForMonth} options={{...lineChartOptionsForMonth, maintainAspectRatio: false}} />
-      </div>
+   <select onChange={handleYearChange} value={selectedYear}>
+  {uniqueYears.map(year => (
+    <option key={year} value={year}>{year}</option>
+  ))}
+</select>
+    {/* <div style={{width: '100%', height: '100%' }}> */}
+      <Line data={chartData} options={{...lineChartOptionsForMonth,}} />
+      {/* </div> */}
       </Card>
 
 
-      <Card className='p-4 shadow-lg' >
-      <Typography className='font-baloo  text-xs font-bold mb-2 flex items-center justify-center gap-1 '> <span>عدد البلاغات خلال الاسابيع</span>
-      <Tooltip  className="bg-white shadow-lg "
-   content={
-        <div className="w-80">
-          <Typography color="black" className="font-medium font-baloo ">
-        عدد البلاغات خلال الاسابيع
-          </Typography>
-          <Typography
-            variant="small"
-            color="black"
-            className="font-normal opacity-80 font-baloo" 
-          >يوضح هذا الرسم البياني الخطي عدد البلاغات خلال كل اسبوع، ويظهر كيف تتغير أعداد البلاغات من اسبوع لآخر، مما يساعد في التخطيط والاستجابة المستقبلية.
-          </Typography>
-        </div>
-      }>
-        <svg
-      xmlns="http://www.w3.org/2000/svg"
-      fill="none"
-      viewBox="0 0 24 24"
-      stroke="currentColor"
-      strokeWidth={2}
-      className="h-3 w-3 cursor-pointer text-blue-gray-500 "
-    >
-      <path
-        strokeLinecap="round"
-        strokeLinejoin="round"
-        d="M11.25 11.25l.041-.02a.75.75 0 011.063.852l-.708 2.836a.75.75 0 001.063.853l.041-.021M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-9-3.75h.008v.008H12V8.25z"
-      />
-    </svg>
-      </Tooltip></Typography>
-      <hr/>
-      <div style={{width: '100%', height: '200px' }}>
-      <Line data={lineChartDataForWeeks} options={{...lineChartOptionsForWeeks, maintainAspectRatio: false}} />
-      </div>
-      </Card>
+     
     </div>
 
 

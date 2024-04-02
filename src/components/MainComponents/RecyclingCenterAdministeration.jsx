@@ -46,7 +46,12 @@ const center = {
 
 const googleMapsLibraries = ["visualization"];
 
-
+const reactSelectStyles = {
+  container: (provided) => ({
+    ...provided,
+    width: "300px", // Adjust the width as needed
+  }),
+};
 
 function RecyclingCentersMap() {
 
@@ -490,7 +495,7 @@ const DeleteRecyclingCenter = async (centerId) => {
   return isLoaded ? (
     <div style={{ position: 'relative', width: '100%', height: '100%' }}>
 
-    <div className="flex gap-5 p-4 mr-12" style={{ position: 'absolute', zIndex: 1000 }}>
+    <div className="flex gap-5 p-4 mr-5" style={{ position: 'absolute', zIndex: 1000 }}>
       <Tooltip
         className="bg-white font-baloo text-md text-gray-600"
         content=" لإضافة موقع مركز تدوير جديد قم بالضغط على الموقع المحدد والالتزام بحدود المباني"
@@ -528,6 +533,7 @@ const DeleteRecyclingCenter = async (centerId) => {
   value={selectedCenterType !== '' ? options.find((option) => option.value === selectedCenterType) : null}
   onChange={(value) => handleCenterTypeSelect(value)}
   required
+  styles={reactSelectStyles}
 />
 </div>
     
@@ -574,6 +580,12 @@ const DeleteRecyclingCenter = async (centerId) => {
       onUnmount={onUnmount}
       onClick={onMapClick}
       ref={mapRef}
+      options={{
+        streetViewControl: false,
+        mapTypeControl: false, // This hides the map/satellite view control
+        fullscreenControl: false, 
+      
+      }}
     >
 
         {recyclingCenters.map((recycleCenter) => (

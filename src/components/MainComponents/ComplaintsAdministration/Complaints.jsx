@@ -1,4 +1,4 @@
-import { Link , useNavigate} from "react-router-dom";
+import { Link , useNavigate, useSearchParams} from "react-router-dom";
 import { useState, useEffect } from "react";
 import { MagnifyingGlassIcon } from "@heroicons/react/24/outline";
 import {Card, Typography, Chip,Input } from "@material-tailwind/react";
@@ -13,11 +13,12 @@ import Select from "react-select";
 // import ViewRequestInfo from "../../utilityComponents/viewInfo/ViewRequestInfo"
 
 
-export default function Complaints(){
-   
+export default function Complaints({typeFilter, setTypeFilter, statusFilter, setStatusFilter}){
+
+
   const [complaints, setComplaints] = useState([]);
-  const [statusFilter, setStatusFilter] = useState(""); 
-  const [typeFilter, setTypeFilter] = useState(""); 
+  // const [statusFilter, setStatusFilter] = useState(""); 
+  // const [typeFilter, setTypeFilter] = useState(""); 
   const [searchQuery, setSearchQuery] = useState('');
   const [searchResults, setSearchResults] = useState([]);
 
@@ -94,7 +95,7 @@ const typeOptions = [
   { value: 'موقع الحاوية', label: 'موقع الحاوية' },
   { value: 'مخلفات مهملة', label: 'مخلفات مهملة' },
   { value: 'مخلفات خطرة', label: 'مخلفات خطرة' },
-  { value: 'وقت تفريغ الحاوية', label: 'وقت تفريغ الحاوية' },
+  { value: 'وقت تفريغ الحاوية', label: 'وقت تفريغ الحاوية' },
   { value: "أخرى", label: "أخرى" },
 ];
 

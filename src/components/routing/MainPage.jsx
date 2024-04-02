@@ -57,8 +57,9 @@ function MainPage() {
       return unsubscribe;
     }, [navigate]);
     
-
-
+    const [typeFilter, setTypeFilter] = useState(""); 
+    const [statusFilter, setStatusFilter] = useState("");
+    
     // to route to other page
       return (
         <>
@@ -80,9 +81,9 @@ function MainPage() {
           <Route path="/garbagebinrequests" element={<GarbageBinRequests />} />
           <Route path="/garbagebinrequests/:id" element={<GarbageBinRequestDetails />} />
           <Route path="/recycle" element={<div className='map h-[calc(122vh-2rem)]'><RecyclingCenterMap /></div>} />
-          <Route path="/complaints" element={<Complaints />} />
+          <Route path="/complaints" element={<Complaints typeFilter={typeFilter} setTypeFilter={setTypeFilter} statusFilter={statusFilter} setStatusFilter={setStatusFilter}  />} />
           <Route path="/complaints/:id" element={<ComplaintDetails />} />
-          <Route path="/heatmap" element={<div className='map h-[calc(122vh-2rem)]'><Heatmap /></div>} />
+          <Route path="/heatmap" element={<div className='map h-[calc(122vh-2rem)]'><Heatmap setTypeFilter={setTypeFilter} setStatusFilter={setStatusFilter}/></div>} />
           {userData.isAdmin && <Route path="/manage" element={<ManageStaff />} />}
         </>
       )}

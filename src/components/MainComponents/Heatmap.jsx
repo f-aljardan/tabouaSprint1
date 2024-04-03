@@ -19,7 +19,9 @@ import {
 
   } from 'chart.js';
   import { Bar , Line, Doughnut} from 'react-chartjs-2';
-
+  import FullscreenIcon from '@mui/icons-material/Fullscreen';
+  import FullscreenExitIcon from '@mui/icons-material/FullscreenExit';
+  
 
 
 ChartJS.register( PointElement, LineElement, CategoryScale, LinearScale, BarElement, Title, TooltipChart, Legend,Colors,ArcElement);
@@ -31,6 +33,12 @@ const reactSelectStyles = {
   }),
 };
 
+const reactTypeSelectStyles = {
+  container: (provided) => ({
+    ...provided,
+    width: "450px", // Adjust the width as needed
+  }),
+};
 
 import ErrorAlertMessage from "../utilityComponents/messages/ErrorAlertMessageFilter"
 import Select from 'react-select';
@@ -71,7 +79,7 @@ const typeOptions = [
   ];
 
 
-export default function Heatmap({setTypeFilter, setStatusFilter}){
+export default function Heatmap({setTypeFilter, setStatusFilter, setSearchQuery, setNeighborhoodFilter}){
   const navigate = useNavigate();
 
     const [map, setMap] = React.useState(null)
@@ -79,10 +87,10 @@ export default function Heatmap({setTypeFilter, setStatusFilter}){
     const [complaintData ,SetComplaintData] = React.useState([]);
     const [selectedComplaintType, setSelectedComplaintType] = useState([]);
     const [zoom, setZoom] = useState(11); // set the initial zoom level
+    const [visibleMarkers, setVisibleMarkers] = useState([]);
     const [userPosition, setUserPosition] = useState(null);
     const [showUserLocation, setShowUserLocation] = useState(false);
     const [userLocationRange, setUserLocationRange] = useState(null);
-    const mapRef = useRef(null);
     const [selectedStatus, setSelectedStatus] = useState("");
     const [todaysComplaintsCount, setTodaysComplaintsCount] = useState(0);
     const [thisMonthsComplaintsCount, setThisMonthsComplaintsCount] = useState(0);
@@ -97,6 +105,8 @@ export default function Heatmap({setTypeFilter, setStatusFilter}){
     
  // all google map initilization related function starts here
   // Load Google Maps JavaScript API
+  const mapRef = useRef(null);
+
   const { isLoaded } = useJsApiLoader({
     id: 'google-map-script',
     googleMapsApiKey: "AIzaSyA_uotKtYzbjy44Y2IvoQFds2cCO6VmfMk",
@@ -107,7 +117,7 @@ export default function Heatmap({setTypeFilter, setStatusFilter}){
 // Callback function when the map loads
   const onLoad = React.useCallback(function callback(map) {
     mapRef.current = map; // Store the map object in the ref
-    
+
   }, []);
 
 
@@ -321,10 +331,8 @@ const filterComplaints = () => {
 // Handle selection changes for complaint type
 const handleComplaintTypeSelect = (selectedOptions) => {
   const selectedTypes = selectedOptions ? selectedOptions.map(option => option.value) : [];
-
   setSelectedComplaintType(selectedTypes);
   filterComplaints();
-  // No need to pass selectedTypes since filterComplaints accesses state directly
 };
 
 
@@ -336,26 +344,23 @@ useEffect(() => {
   const today = new Date();
   const startOfMonth = new Date(today.getFullYear(), today.getMonth(), 1);
   const startOfWeek = new Date(today.setDate(today.getDate() - today.getDay()));
-  console.log("today " +today )
-  console.log("startOfMonth " +startOfMonth )
-  console.log("startOfWeek " +startOfWeek )
+
   const todaysCount = complaints.filter(complaint => {
     const  complaintDate = new Date(complaint.complaintDate.seconds * 1000);
     return complaintDate.toDateString() === today.toDateString();
   }).length;
 
-  console.log("todaysCount "+todaysCount)
+ 
   const monthsCount = complaints.filter(complaint => {
     const complaintDate = new Date(complaint.complaintDate.seconds * 1000);
     return complaintDate >= startOfMonth;
   }).length;
-  console.log("monthsCount "+ monthsCount)
+
   const weeksCount = complaints.filter(complaint => {
     const complaintDate = new Date(complaint.complaintDate.seconds * 1000);
     return complaintDate >= startOfWeek;
   }).length;
 
-  console.log("weeksCount "+weeksCount)
   setTodaysComplaintsCount(todaysCount);
   setThisMonthsComplaintsCount(monthsCount);
   setThisWeeksComplaintsCount(weeksCount);
@@ -363,101 +368,6 @@ useEffect(() => {
 
 
 
-// const complaintsOverTimeByMonth = () => {
-//   const currentDate = new Date();
-//   const currentYear = currentDate.getFullYear();
-//   const currentMonth = currentDate.getMonth();
-//   const complaintCounts = {};
-
-//   complaints.forEach(complaint => {
-//     const complaintDate = new Date(complaint.complaintDate.seconds * 1000);
-//     const month = complaintDate.getMonth();
-//     const year = complaintDate.getFullYear();
-//     const yearMonthKey = `${year}-${(month + 1).toString().padStart(2, '0')}`;
-//     if (complaintDate < currentDate) {
-//       complaintCounts[yearMonthKey] = (complaintCounts[yearMonthKey] || 0) + 1;
-//     }
-//   });
-
-//   const allMonths = Array.from({ length: 12 }, (_, i) => `${currentYear}-${(i + 1).toString().padStart(2, '0')}`);
-//   const counts = allMonths.map(key => {
-//     return key <= `${currentYear}-${(currentMonth + 1).toString().padStart(2, '0')}` ? complaintCounts[key] || 0 : null;
-//   });
-
-//   // Now make sure the label for future months still shows, but without the dot
-//   const datasets = [{
-//     label: 'عدد البلاغات بالشهر',
-//     data: counts,
-//     fill: false,
-//     backgroundColor: 'rgb(54, 162, 235)',
-//     borderColor: 'rgba(54, 162, 235, 0.2)',
-//     // Point background color: show blue for current and past months, transparent for future months
-//     pointBackgroundColor: counts.map((_, index) => index <= currentMonth ? 'rgb(54, 162, 235)' : 'transparent'),
-//   }];
-
-//   // Adjust labels to use the correct month name
-//   const dates = allMonths.map(key => {
-//     const [year, month] = key.split('-');
-//     return new Date(year, month - 1).toLocaleString('ar-EG', { month: 'long', year: 'numeric' });
-//   });
-
-//   return {
-//     labels: dates,
-//     datasets: datasets,
-//   };
-// };
-
-// const chartData = complaintsOverTimeByMonth();
-
-// const lineChartDataForMonth = {
-//   labels: chartData.labels,
-//   datasets: chartData.datasets,
-// };
-
-
-
-
-
-// // Function to generate complaints data by month for a specific year
-// const complaintsOverTimeByMonth = (complaints, year) => {
-
-//   const complaintCounts = {};
-
-//   complaints.forEach(complaint => {
-//     const complaintDate = new Date(complaint.complaintDate.seconds * 1000);
-//     const month = complaintDate.getMonth();
-//     const complaintYear = complaintDate.getFullYear();
-//     const yearMonthKey = `${complaintYear}-${(month + 1).toString().padStart(2, '0')}`;
-
-//     if (complaintYear === year) {
-//       complaintCounts[yearMonthKey] = (complaintCounts[yearMonthKey] || 0) + 1;
-//     }
-//   });
-
-
-//   const allMonths = Array.from({ length: 12 }, (_, i) => `${year}-${(i + 1).toString().padStart(2, '0')}`);
-//   const counts = allMonths.map(key => complaintCounts[key] || 0);
-
-//   const datasets = [{
-//     label: 'عدد البلاغات بالشهر',
-//     data: counts,
-//     fill: false,
-//     backgroundColor: 'rgb(54, 162, 235)',
-//     borderColor: 'rgba(54, 162, 235, 0.2)',
-//     // Point background color: show blue for current and past months, transparent for future months
-   
-//   }];
-
-//   const labels = allMonths.map(key => {
-//     const [year, month] = key.split('-');
-//     return new Date(year, month - 1).toLocaleString('ar-EG', { month: 'long', year: 'numeric' });
-//   });
-
-//   return {
-//     labels: labels,
-//     datasets: datasets,
-//   };
-// };
 
 
 const complaintsOverTimeByMonth = (complaints, year) => {
@@ -544,7 +454,7 @@ const updateChartForYear = (selectedYear) => {
 // Effect to update the chart when the selected year changes
 useEffect(() => {
   updateChartForYear(selectedYear);
-}, [selectedYear]);
+}, [selectedYear, complaints]);
 
 // Function to handle year selection change
 const handleYearChange = (event) => {
@@ -553,6 +463,37 @@ const handleYearChange = (event) => {
 
 const uniqueYears = [...new Set(complaints.map(complaint => new Date(complaint.complaintDate.seconds * 1000).getFullYear()))];
 uniqueYears.sort();
+
+
+const arabicMonthToNumber = {
+  "يناير": "01", "فبراير": "02", "مارس": "03", "أبريل": "04",
+  "مايو": "05", "يونيو": "06", "يوليو": "07", "أغسطس": "08",
+  "سبتمبر": "09", "أكتوبر": "10", "نوفمبر": "11", "ديسمبر": "12"
+};
+
+const convertArabicNumerals = (arabicYear) => {
+  const arabicToWestern = { '٠': '0', '١': '1', '٢': '2', '٣': '3', '٤': '4', '٥': '5', '٦': '6', '٧': '7', '٨': '8', '٩': '9' };
+  return arabicYear.split('').map(char => arabicToWestern[char] || char).join('');
+};
+
+const convertYearMonthNameToNumber = (label) => {
+  // Split the label into month and year
+  const [monthName, arabicYear] = label.trim().split(' ');
+
+  // Convert the Arabic year to a Western year
+  const westernYear = convertArabicNumerals(arabicYear);
+
+  // Get the last two digits of the year
+  const yearLastTwoDigits = westernYear.slice(-2);
+
+  // Map the Arabic month name to a month number
+  const monthNumber = arabicMonthToNumber[monthName];
+
+  // Combine the last two digits of the year and month in the format YYMM
+  return yearLastTwoDigits + monthNumber;
+};
+
+
 
 
 const extractNeighborhood = (localArea) => {
@@ -566,6 +507,7 @@ const extractNeighborhood = (localArea) => {
     return localArea.split(',')[0].trim();
   }
 };
+
 
 const aggregateComplaintsByNeighborhood = (complaints) => {
   const complaintsByNeighborhood = {};
@@ -589,12 +531,38 @@ const { labels, data } = Object.entries(aggregateComplaintsByNeighborhood(compla
 
 
   const NeighborhoodComplaintsChart = ({ labels, data }) => {
+
+    const handleClickOnChart = (evt, element) => {
+      if (element.length > 0) {
+        const index = element[0].index;
+        const neighborhoodName = labels[index];
+        console.log(neighborhoodName)
+        setTypeFilter('');
+        setStatusFilter("");
+        setSearchQuery("");
+        setNeighborhoodFilter(neighborhoodName); 
+        navigate(`/mainpage/complaints`); 
+
+      }
+    };
+
+    const [displayCount, setDisplayCount] = useState(10); // Initially show top 10 neighborhoods
+    const heightPerNeighborhood = 25;
+
+    const handleShowMore = () => {
+      // Set displayCount to the total number of neighborhoods, showing all of them
+      setDisplayCount(labels.length);
+    };
+  
+    const displayedLabels = labels.slice(0, displayCount);
+    const displayedData = data.slice(0, displayCount);
+  
     const chartData = {
-      labels,
+      labels: displayedLabels,
       datasets: [
         {
           label: 'عدد البلاغات',
-          data,
+          data: displayedData,
           backgroundColor: 'rgba(54, 162, 235, 0.5)',
           borderColor: 'rgba(54, 162, 235, 1)',
           borderWidth: 1,
@@ -602,7 +570,30 @@ const { labels, data } = Object.entries(aggregateComplaintsByNeighborhood(compla
       ],
     };
   
+    // const chartData = {
+    //   labels,
+    //   datasets: [
+    //     {
+    //       label: 'عدد البلاغات',
+    //       data,
+    //       backgroundColor: 'rgba(54, 162, 235, 0.5)',
+    //       borderColor: 'rgba(54, 162, 235, 1)',
+    //       borderWidth: 1,
+    //     },
+    //   ],
+    // };
+    
+    
     const options = {
+      onClick: handleClickOnChart,
+      plugins: {
+        legend: {
+          display: false, // This will hide the label above the chart
+        },
+        title: {
+          display: false, // This will hide the title at the top of the chart
+        }
+      },
       indexAxis: 'y', // Horizontal bar chart
       elements: {
         bar: {
@@ -610,19 +601,52 @@ const { labels, data } = Object.entries(aggregateComplaintsByNeighborhood(compla
         },
       },
       responsive: true,
-      plugins: {
-        legend: {
-          position: 'right',
-        },
+      maintainAspectRatio: false, 
+      // plugins: {
+      //   legend: {
+      //     position: 'right',
+      //   },
        
+      // },
+      scales: {
+        x: {
+          title: {
+            display: true,
+            text: 'عدد البلاغات', // This sets the y-axis title
+            // font: {
+            //   size: 18,
+            //   weight: 'bold',
+            // }
+          }
+        },
       },
     };
-    return <Bar data={chartData} options={options} />;
-  }
-const complaintsByNeighborhood = aggregateComplaintsByNeighborhood(complaints);
 
-const sortedNeighborhoods = Object.entries(complaintsByNeighborhood)
-  .sort((a, b) => b[1] - a[1]);
+      // Calculate chart height based on displayCount
+  const chartHeight = Math.max(displayCount * heightPerNeighborhood, 50); // Ensure a minimum height
+
+    // return <Bar data={chartData} options={options} />;
+    // return ( <div>
+    //   <Bar data={chartData} options={options} />
+    //   {displayCount < labels.length && (
+    //     <button onClick={handleShowMore} style={{ marginTop: '10px' }}>More</button>
+    //   )}
+    // </div>);
+    return (<div>
+      <div style={{ height: `${chartHeight}px` }}>
+        <Bar data={chartData} options={options} />
+      </div>
+      {displayCount < labels.length && (
+        <button onClick={handleShowMore} style={{ marginTop: '10px' }}>إظهار المزيد</button>
+      )}
+    </div>)
+    
+     
+  }
+// const complaintsByNeighborhood = aggregateComplaintsByNeighborhood(complaints);
+
+// const sortedNeighborhoods = Object.entries(complaintsByNeighborhood)
+//   .sort((a, b) => b[1] - a[1]);
 
 
 
@@ -662,9 +686,62 @@ setZoom(18);
     navigate(`/mainpage/complaints/${complaintId}`);
   };
 
+  useEffect(() => {
+    if (!mapRef.current) return;
+    const onZoomChanged = () => {
+      const currentZoom = mapRef.current.getZoom();
+      setZoom(currentZoom);
+      if (currentZoom >= 15) {
+        // Show markers only when the zoom level is 12 or greater
+        setVisibleMarkers(complaints);
+      } else {
+        setVisibleMarkers([]); // Hide markers
+      }
+    };
+
+    mapRef.current.addListener('zoom_changed', onZoomChanged);
+    return () => {
+      if (mapRef.current) {
+        window.google.maps.event.clearListeners(mapRef.current, 'zoom_changed');
+      }
+    };
+  }, [map]);
+
+
+  const [isFullscreen, setIsFullscreen] = useState(false);
+  const mapContainerRef = useRef(null);
+  const toggleFullscreen = () => {
+    if (!document.fullscreenElement) {
+      mapContainerRef.current.requestFullscreen().catch((err) => {
+        alert(`Error attempting to enable fullscreen mode: ${err.message} (${err.name})`);
+      });
+      setIsFullscreen(true);
+    } else {
+      if (document.exitFullscreen) {
+        document.exitFullscreen();
+        setIsFullscreen(false);
+      }
+    }
+  };
+
+  // Detect fullscreen change to update the isFullscreen state
+  useEffect(() => {
+    const handleFullscreenChange = () => {
+      const fullscreenElement = document.fullscreenElement;
+      setIsFullscreen(!!fullscreenElement);
+    };
+
+    document.addEventListener('fullscreenchange', handleFullscreenChange);
+
+    return () => {
+      document.removeEventListener('fullscreenchange', handleFullscreenChange);
+    };
+  }, []);
+
+
 
 return isLoaded ? (
-    <div style={{ position: 'relative', width: '100%', height: '100%' }}>
+    <div style={{ position: 'relative', width: '100%', height: '100%' }} ref={mapContainerRef}>
  
  
 
@@ -689,7 +766,7 @@ return isLoaded ? (
   value={selectedComplaintType ? typeOptions.filter(option => selectedComplaintType.includes(option.value)) : []}
   // onChange={handleComplaintTypeSelect}
   onChange={handleComplaintTypeSelect}
-  styles={reactSelectStyles}
+  styles={reactTypeSelectStyles}
 />
 
 <Select
@@ -706,11 +783,7 @@ return isLoaded ? (
 />
 
 
-<div className="flex items-center justify-center  bg-white rounded-lg shadow">
-      <span className="text-xs font-medium ">اكثر بلاغات</span>
-      <div className="w-24 h-4 rounded-full bg-gradient-to-r from-green-300 via-yellow-300 to-red-500"></div>
-      <span className="text-xs font-medium ">اقل بلاغات</span>
-    </div>
+
 
 
 </div>
@@ -739,7 +812,7 @@ return isLoaded ? (
           options={{
             streetViewControl: false,
             mapTypeControl: false, // This hides the map/satellite view control
-            
+            fullscreenControl: false,
           
           }}
      
@@ -759,12 +832,12 @@ return isLoaded ? (
         )}
         
          {/* Add Marker components for each complaint */}
-         {complaints.map((complaint) => (
+         {visibleMarkers.map((complaint) => (
           <Marker
             key={complaint.id}
             position={{ lat: complaint.location._lat, lng: complaint.location._long }}
             onClick={() => handleMarkerClick(complaint.id)}
-            // Customize the marker icon if needed
+           
           />
         ))}
       
@@ -777,13 +850,31 @@ return isLoaded ? (
   
            </GoogleMap>
 
+        
+
+           <button
+        onClick={toggleFullscreen}
+        style={{ position: 'absolute', top: 10, right: 10, zIndex: 10, background: 'none', border: 'none' }}
+        title={isFullscreen ? 'Exit Fullscreen' : 'Enter Fullscreen'}
+      >
+        {isFullscreen ? <FullscreenExitIcon fontSize="large" /> : <FullscreenIcon fontSize="large" />}
+      </button>
+
+<div  style={{ position: 'absolute', bottom: 10, zIndex: 10, left: '50%', transform: 'translateX(-50%)'}} className='flex justify-center'>
+<div className="flex items-center justify-center  bg-white rounded-lg shadow p-2">
+      <span className="text-xs font-medium ml-1">اكثر بلاغات</span>
+      <div className="w-24 h-4 rounded-full bg-gradient-to-r from-green-300 via-yellow-300 to-red-500"></div>
+      <span className="text-xs font-medium mr-1">اقل بلاغات</span>
+    </div>
+</div>
+      
 
 {complaints.length==0? null:(
 
 
 <div className='flex-col'>
 
-<div style={{ overflowX: "auto", maxHeight: "280vh", marginTop:"10px" }}>
+<div style={{ overflowX: "auto", maxHeight: "380vh", marginTop:"10px" }}>
             <Card className="max-w-4xl m-auto mb-10">
 
             <div className=" pr-8 py-2 " style={{backgroundColor:'#07512D', color: "white" , borderRadius: "5px"}}>
@@ -874,10 +965,19 @@ return isLoaded ? (
         </Card>
  )}
 
+<Card variant="filled"  className=" flex flex-col items-center gap-1 p-2 shadow-lg">
+<div>
+          <Typography className=" font-baloo text-xs font-bold "> عدد البلاغات</Typography>
+        
+</div>    
 
-<Card variant="filled"  className=" flex flex-col items-center p-4 shadow-lg">
+
+
+<div className='flex justify-around gap-3'>
+
+<Card variant="filled"  className=" flex flex-col items-center p-2 shadow-lg">
           <div>
-          <Typography className=" font-baloo text-xs font-bold mb-2"> اليوم</Typography>
+          <Typography className=" font-baloo text-xs font-bold "> هذا اليوم</Typography>
           <hr/>
   </div>     
   <Typography className='flex items-center justify-center gap-1'> <span className="font-baloo text-right text-lg font-bold text-gray-700">{todaysComplaintsCount} بلاغ</span>
@@ -912,9 +1012,9 @@ return isLoaded ? (
       </Tooltip> </Typography> 
         </Card>
 
-        <Card variant="filled"  className=" flex flex-col items-center p-4 shadow-lg">
+        <Card variant="filled"  className=" flex flex-col items-center p-2  shadow-lg">
           <div>
-          <Typography className=" font-baloo text-xs font-bold mb-2"> الاسبوع</Typography>
+          <Typography className=" font-baloo text-xs font-bold "> الاسبوع</Typography>
           <hr/>
   </div>     
   <Typography className='flex items-center justify-center gap-1'> <span className="font-baloo text-right text-lg font-bold text-gray-700">{thisWeeksComplaintsCount} بلاغ</span>
@@ -951,9 +1051,9 @@ return isLoaded ? (
         </Card>
 
 
-        <Card variant="filled"  className=" flex flex-col items-center p-4 shadow-lg">
+        <Card variant="filled"  className=" flex flex-col items-center p-2  shadow-lg">
           <div>
-          <Typography className=" font-baloo text-xs font-bold mb-2"> الشهر</Typography>
+          <Typography className=" font-baloo text-xs font-bold"> الشهر</Typography>
           <hr/>
   </div>     
   <Typography className='flex items-center justify-center gap-1'> <span className="font-baloo text-right text-lg font-bold text-gray-700">{thisMonthsComplaintsCount} بلاغ</span>
@@ -987,6 +1087,9 @@ return isLoaded ? (
     </svg>
       </Tooltip></Typography>
         </Card>
+
+</div>
+</Card>
 
 
 
@@ -1040,7 +1143,9 @@ return isLoaded ? (
         
         console.log("Label clicked:", labelClicked);
 
-        // Assuming setTypeFilter and navigate are correctly defined and accessible here
+        setStatusFilter("");
+        setSearchQuery("");
+        setNeighborhoodFilter(""); 
         setTypeFilter(labelClicked); // Update the filter state
         navigate(`/mainpage/complaints`); // Navigate with the filter as a query parameter
       }
@@ -1094,8 +1199,9 @@ return isLoaded ? (
         const labelClicked = chart.data.labels[index];
         
         console.log("Label clicked:", labelClicked);
-
-        // Assuming setTypeFilter and navigate are correctly defined and accessible here
+        setTypeFilter('');
+        setSearchQuery("");
+        setNeighborhoodFilter(""); 
         setStatusFilter(labelClicked); // Update the filter state
         navigate(`/mainpage/complaints`); // Navigate with the filter as a query parameter
       }
@@ -1147,7 +1253,22 @@ return isLoaded ? (
   ))}
 </select>
     {/* <div style={{width: '100%', height: '100%' }}> */}
-      <Line data={chartData} options={{...lineChartOptionsForMonth,}} />
+      <Line data={chartData} options={{...lineChartOptionsForMonth, 
+      onClick: (evt, element) => {
+        if (element.length > 0) {
+          const index = element[0].index;
+          const label = chartData.labels[index];
+          console.log("lable: "+ label);
+          const yearMonthNumber = convertYearMonthNameToNumber(label);
+          console.log(yearMonthNumber); 
+          setTypeFilter('');
+          setStatusFilter("");
+          setNeighborhoodFilter(""); 
+          setSearchQuery(yearMonthNumber);
+          navigate(`/mainpage/complaints`); // Navigate with the filter as a query parameter
+        }
+      }
+      }} />
       {/* </div> */}
       </Card>
 
@@ -1189,7 +1310,7 @@ return isLoaded ? (
     </svg>
       </Tooltip></Typography>
     <hr/>
-   <div>
+   <div >
   <NeighborhoodComplaintsChart labels={labels} data={data} />
   </div>
   </Card>

@@ -59,7 +59,9 @@ function MainPage() {
     
     const [typeFilter, setTypeFilter] = useState(""); 
     const [statusFilter, setStatusFilter] = useState("");
-    
+    const [searchQuery, setSearchQuery] = useState('');
+    const [neighborhoodFilter, setNeighborhoodFilter] = useState('');
+
     // to route to other page
       return (
         <>
@@ -81,9 +83,9 @@ function MainPage() {
           <Route path="/garbagebinrequests" element={<GarbageBinRequests />} />
           <Route path="/garbagebinrequests/:id" element={<GarbageBinRequestDetails />} />
           <Route path="/recycle" element={<div className='map h-[calc(122vh-2rem)]'><RecyclingCenterMap /></div>} />
-          <Route path="/complaints" element={<Complaints typeFilter={typeFilter} setTypeFilter={setTypeFilter} statusFilter={statusFilter} setStatusFilter={setStatusFilter}  />} />
+          <Route path="/complaints" element={<Complaints typeFilter={typeFilter} setTypeFilter={setTypeFilter} statusFilter={statusFilter} setStatusFilter={setStatusFilter} searchQuery={searchQuery} setSearchQuery={setSearchQuery} neighborhoodFilter={neighborhoodFilter} setNeighborhoodFilter={setNeighborhoodFilter} />} />
           <Route path="/complaints/:id" element={<ComplaintDetails />} />
-          <Route path="/heatmap" element={<div className='map h-[calc(122vh-2rem)]'><Heatmap setTypeFilter={setTypeFilter} setStatusFilter={setStatusFilter}/></div>} />
+          <Route path="/heatmap" element={<div className='map h-[calc(122vh-2rem)]'><Heatmap setTypeFilter={setTypeFilter} setStatusFilter={setStatusFilter} setSearchQuery={setSearchQuery}  setNeighborhoodFilter={setNeighborhoodFilter}/></div>} />
           {userData.isAdmin && <Route path="/manage" element={<ManageStaff />} />}
         </>
       )}

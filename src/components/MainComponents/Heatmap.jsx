@@ -17,7 +17,7 @@ import {
     Title,
     BarElement,
 
-  } from 'chart.js';
+ } from 'chart.js';
   import { Bar , Line, Doughnut} from 'react-chartjs-2';
   import FullscreenIcon from '@mui/icons-material/Fullscreen';
   import FullscreenExitIcon from '@mui/icons-material/FullscreenExit';
@@ -159,12 +159,13 @@ export default function Heatmap({setTypeFilter, setStatusFilter, setSearchQuery,
     };
 
     fetchComplaints();
+   
   }, []);
 
   const [averageResolutionTime, setAverageResolutionTime] = useState(0);
   
   useEffect(()=>{
-    const { averageResolutionTime } = calculateResolutionTimes(complaints);
+    const { averageResolutionTime } = calculateComplaintsResolutionTimes(complaints);
       setAverageResolutionTime(averageResolutionTime);
   }, [complaints])
 
@@ -212,7 +213,6 @@ setTypeData ({
 
   
   let statusCounts = complaints.reduce((acc, complaint) => {
-    // Assuming each complaint has a 'status' property
     acc[complaint.status] = (acc[complaint.status] || 0) + 1;
     return acc;
   }, {});
@@ -254,32 +254,23 @@ const options = {
   },
 };
 
-
-
-
 const typesOptions = {
   maintainAspectRatio: false,
 };
 
 
 
-  const calculateResolutionTimes = (complaints) => {
-    // Filter complaints to ensure both dates are present
+  const calculateComplaintsResolutionTimes = (complaints) => {
+
+    // Filter complaints that is resolved
     const validComplaints = complaints.filter(complaint => complaint.complaintDate && complaint.responseDate);
     
     const resolutionTimes = validComplaints.map(complaint => {
       const createdAt = complaint.complaintDate.toDate().getTime();
       const resolvedAt = complaint.responseDate.toDate().getTime();
+      
       // Calculate time in hours
       const resolutionTimeInHours = (resolvedAt - createdAt) / (1000 * 60 * 60);
-      // Calculate days and hours
-      const days = Math.floor(resolutionTimeInHours / 24);
-      const hours = resolutionTimeInHours % 24;
-      // Format output
-      const formattedResolutionTime = days > 0
-        ? `${days} يوم, ${hours.toFixed(2)} ساعة`
-        : `${hours.toFixed(2)} ساعة`;
-      console.log(`createdAt: ${createdAt}, resolvedAt: ${resolvedAt}, resolutionTime: ${formattedResolutionTime}`);
       return resolutionTimeInHours; // still return the time in hours for averaging purposes
     });
   
@@ -308,49 +299,112 @@ useEffect(() => {
 }, [selectedStatus, selectedComplaintType]); // Re-run filter when these dependencies change
 
 
+  // // Filter by selected complaint types (if applicable)
+  // if (selectedComplaintType.length > 0 && !selectedComplaintType.includes("الكل")) {
+  //   filteredComplaints = filteredComplaints.filter(comp => selectedComplaintType.includes(comp.type));
+  // } 
+
+
 const filterComplaints = () => {
   let filteredComplaints = complaintData;
 
-  // Filter by selected complaint types (if applicable)
-  if (selectedComplaintType.length > 0 && !selectedComplaintType.includes("الكل")) {
-    filteredComplaints = filteredComplaints.filter(comp => selectedComplaintType.includes(comp.type));
+  const isAllSelected = selectedComplaintType.some(option => option.value === "الكل");
+ 
+  if (selectedComplaintType.length === 0 || isAllSelected) {
+    setComplaints(filteredComplaints);
   }
 
-  // Filter by selected status (if not 'all')
-  if (selectedStatus !== "الكل") {
-    filteredComplaints = filteredComplaints.filter(comp => comp.status === selectedStatus);
+  if (selectedStatus =="" || selectedStatus == "الكل") {
+    setComplaints(filteredComplaints);
   }
- 
+
+  if (selectedComplaintType.length > 0 && !isAllSelected) {
+    filteredComplaints = filteredComplaints.filter(complaint => {
+      const isTypeMatch = selectedComplaintType.some(type => {
+        const match = type.value === complaint.type;
+        return match;
+      });
+      return isTypeMatch;
+    });
+  }
+
   setComplaints(filteredComplaints);
   
+  if (selectedStatus !=="" && selectedStatus !== "الكل") {
+    filteredComplaints = filteredComplaints.filter(complaint =>
+      complaint.status === selectedStatus);
+  }
+
+  setComplaints(filteredComplaints);
 };
 
 
-
-
-// Handle selection changes for complaint type
 const handleComplaintTypeSelect = (selectedOptions) => {
-  const selectedTypes = selectedOptions ? selectedOptions.map(option => option.value) : [];
-  setSelectedComplaintType(selectedTypes);
-  filterComplaints();
+  setSelectedComplaintType(selectedOptions || []);
 };
 
 
+// // Handle selection changes for complaint type
+// const handleComplaintTypeSelect = (selectedOptions) => {
+//   const selectedTypes = selectedOptions ? selectedOptions.map(option => option.value) : [];
+//   setSelectedComplaintType(selectedTypes);
+//   filterComplaints();
+// };
 
 
-// const todaysComplaintsCount = calculateTodaysComplaints();
 
-useEffect(() => {
-  const today = new Date();
-  const startOfMonth = new Date(today.getFullYear(), today.getMonth(), 1);
-  const startOfWeek = new Date(today.setDate(today.getDate() - today.getDay()));
 
-  const todaysCount = complaints.filter(complaint => {
-    const  complaintDate = new Date(complaint.complaintDate.seconds * 1000);
-    return complaintDate.toDateString() === today.toDateString();
-  }).length;
+
+// useEffect(() => {
+//   const today = new Date();
+//   const startOfMonth = new Date(today.getFullYear(), today.getMonth(), 1);
+//   const startOfWeek = new Date(today.setDate(today.getDate() - today.getDay()));
+  
+//   console.log("today "+ today)
+//   const todaysCount = complaints.filter(complaint => {
+//     const  complaintDate = new Date(complaint.complaintDate.seconds * 1000);
+//     // console.log("COMPtoday "+complaintDate.toDateString())
+ 
+    
+//     return complaintDate === today;
+//   }).length;
 
  
+//   const monthsCount = complaints.filter(complaint => {
+//     const complaintDate = new Date(complaint.complaintDate.seconds * 1000);
+//     return complaintDate >= startOfMonth;
+//   }).length;
+
+//   const weeksCount = complaints.filter(complaint => {
+//     const complaintDate = new Date(complaint.complaintDate.seconds * 1000);
+//     return complaintDate >= startOfWeek;
+//   }).length;
+
+//   setTodaysComplaintsCount(todaysCount);
+//   setThisMonthsComplaintsCount(monthsCount);
+//   setThisWeeksComplaintsCount(weeksCount);
+// }, [complaints]);
+
+
+useEffect(() => {
+  // Correctly establish "today" at the start of the day for comparison
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+
+  // Keep "today" date unchanged for "startOfMonth" calculation
+  const startOfMonth = new Date(today.getFullYear(), today.getMonth(), 1);
+
+  // Use a new Date object for "startOfWeek" to avoid mutating "today"
+  const startOfWeek = new Date();
+  startOfWeek.setHours(0, 0, 0, 0); // Reset time to start of day for consistent comparison
+  startOfWeek.setDate(startOfWeek.getDate() - startOfWeek.getDay());
+
+  const todaysCount = complaints.filter(complaint => {
+    const complaintDate = new Date(complaint.complaintDate.seconds * 1000);
+    complaintDate.setHours(0, 0, 0, 0); // Reset time for consistent day comparison
+    return complaintDate.getTime() === today.getTime();
+  }).length;
+
   const monthsCount = complaints.filter(complaint => {
     const complaintDate = new Date(complaint.complaintDate.seconds * 1000);
     return complaintDate >= startOfMonth;
@@ -369,8 +423,7 @@ useEffect(() => {
 
 
 
-
-const complaintsOverTimeByMonth = (complaints, year) => {
+const showComplaintsByMonth = (complaints, year) => {
   const complaintCounts = {};
   const currentDate = new Date();
   const currentYear = currentDate.getFullYear();
@@ -393,7 +446,7 @@ const complaintsOverTimeByMonth = (complaints, year) => {
   // Define point background colors based on whether the month is in the past or the future
   const pointBackgroundColors = allMonths.map(key => {
     const [year, month] = key.split('-').map(Number);
-    const monthDate = new Date(year, month - 1);
+   
     // If the year is the current year and the month is in the future, make it transparent
     if (year === currentYear && month - 1 > currentMonth) {
       return 'transparent';
@@ -408,7 +461,7 @@ const complaintsOverTimeByMonth = (complaints, year) => {
     fill: false,
     backgroundColor: 'rgb(54, 162, 235)',
     borderColor: 'rgba(54, 162, 235, 0.2)',
-    pointBackgroundColor: pointBackgroundColors, // Set the dynamic colors here
+    pointBackgroundColor: pointBackgroundColors, 
   }];
 
   const labels = allMonths.map(key => {
@@ -446,7 +499,7 @@ const updateChartForYear = (selectedYear) => {
     return complaintDate.getFullYear() === selectedYear;
   });
 
-  const updatedChartData = complaintsOverTimeByMonth(filteredComplaints, selectedYear);
+  const updatedChartData = showComplaintsByMonth(filteredComplaints, selectedYear);
   setChartData(updatedChartData);
 };
 
@@ -497,19 +550,19 @@ const convertYearMonthNameToNumber = (label) => {
 
 
 const extractNeighborhood = (localArea) => {
-  // Check if localArea starts with a postal code (sequence of digits followed by a comma)
+  // Check if localArea starts with a postal code 
   const postalCodeRegex = /^\d+\s*,\s*/;
   if (postalCodeRegex.test(localArea)) {
-    // Extract the part after the postal code and comma
+    // Extract the part after the postal code 
     return localArea.replace(postalCodeRegex, '').trim();
   } else {
-    // Assume the first part before any comma is the neighborhood name
+    // Extract the first part 
     return localArea.split(',')[0].trim();
   }
 };
 
 
-const aggregateComplaintsByNeighborhood = (complaints) => {
+const combineComplaintsByNeighborhood = (complaints) => {
   const complaintsByNeighborhood = {};
 
   complaints.forEach(complaint => {
@@ -521,7 +574,7 @@ const aggregateComplaintsByNeighborhood = (complaints) => {
 };
 
 
-const { labels, data } = Object.entries(aggregateComplaintsByNeighborhood(complaints))
+const { labels, data } = Object.entries(combineComplaintsByNeighborhood(complaints))
   .sort((a, b) => b[1] - a[1])
   .reduce((acc, [neighborhood, count]) => {
     acc.labels.push(neighborhood);
@@ -536,7 +589,7 @@ const { labels, data } = Object.entries(aggregateComplaintsByNeighborhood(compla
       if (element.length > 0) {
         const index = element[0].index;
         const neighborhoodName = labels[index];
-        console.log(neighborhoodName)
+        
         setTypeFilter('');
         setStatusFilter("");
         setSearchQuery("");
@@ -568,21 +621,7 @@ const { labels, data } = Object.entries(aggregateComplaintsByNeighborhood(compla
           borderWidth: 1,
         },
       ],
-    };
-  
-    // const chartData = {
-    //   labels,
-    //   datasets: [
-    //     {
-    //       label: 'عدد البلاغات',
-    //       data,
-    //       backgroundColor: 'rgba(54, 162, 235, 0.5)',
-    //       borderColor: 'rgba(54, 162, 235, 1)',
-    //       borderWidth: 1,
-    //     },
-    //   ],
-    // };
-    
+    }; 
     
     const options = {
       onClick: handleClickOnChart,
@@ -602,21 +641,11 @@ const { labels, data } = Object.entries(aggregateComplaintsByNeighborhood(compla
       },
       responsive: true,
       maintainAspectRatio: false, 
-      // plugins: {
-      //   legend: {
-      //     position: 'right',
-      //   },
-       
-      // },
       scales: {
         x: {
           title: {
             display: true,
             text: 'عدد البلاغات', // This sets the y-axis title
-            // font: {
-            //   size: 18,
-            //   weight: 'bold',
-            // }
           }
         },
       },
@@ -625,13 +654,6 @@ const { labels, data } = Object.entries(aggregateComplaintsByNeighborhood(compla
       // Calculate chart height based on displayCount
   const chartHeight = Math.max(displayCount * heightPerNeighborhood, 50); // Ensure a minimum height
 
-    // return <Bar data={chartData} options={options} />;
-    // return ( <div>
-    //   <Bar data={chartData} options={options} />
-    //   {displayCount < labels.length && (
-    //     <button onClick={handleShowMore} style={{ marginTop: '10px' }}>More</button>
-    //   )}
-    // </div>);
     return (<div>
       <div style={{ height: `${chartHeight}px` }}>
         <Bar data={chartData} options={options} />
@@ -643,10 +665,6 @@ const { labels, data } = Object.entries(aggregateComplaintsByNeighborhood(compla
     
      
   }
-// const complaintsByNeighborhood = aggregateComplaintsByNeighborhood(complaints);
-
-// const sortedNeighborhoods = Object.entries(complaintsByNeighborhood)
-//   .sort((a, b) => b[1] - a[1]);
 
 
 
@@ -682,7 +700,7 @@ setZoom(18);
 
   
 
-  const handleMarkerClick = (complaintId) => {
+  const showComplaintDetails = (complaintId) => {
     navigate(`/mainpage/complaints/${complaintId}`);
   };
 
@@ -690,12 +708,13 @@ setZoom(18);
     if (!mapRef.current) return;
     const onZoomChanged = () => {
       const currentZoom = mapRef.current.getZoom();
-      setZoom(currentZoom);
+   
       if (currentZoom >= 15) {
-        // Show markers only when the zoom level is 12 or greater
+        
         setVisibleMarkers(complaints);
       } else {
-        setVisibleMarkers([]); // Hide markers
+        
+        setVisibleMarkers([]);
       }
     };
 
@@ -705,14 +724,14 @@ setZoom(18);
         window.google.maps.event.clearListeners(mapRef.current, 'zoom_changed');
       }
     };
-  }, [map]);
+  }, [complaints]);
 
 
   const [isFullscreen, setIsFullscreen] = useState(false);
-  const mapContainerRef = useRef(null);
+  // const mapContainerRef = useRef(null);
   const toggleFullscreen = () => {
     if (!document.fullscreenElement) {
-      mapContainerRef.current.requestFullscreen().catch((err) => {
+      mapRef.current.requestFullscreen().catch((err) => {
         alert(`Error attempting to enable fullscreen mode: ${err.message} (${err.name})`);
       });
       setIsFullscreen(true);
@@ -741,7 +760,7 @@ setZoom(18);
 
 
 return isLoaded ? (
-    <div style={{ position: 'relative', width: '100%', height: '100%' }} ref={mapContainerRef}>
+    <div style={{ position: 'relative', width: '100%', height: '100%' }} ref={mapRef}>
  
  
 
@@ -756,18 +775,29 @@ return isLoaded ? (
         </Button>
 
         
-       
+{/*        
 <Select
   isMulti
   placeholder="تصفية حسب نوع البلاغ..."
   closeMenuOnSelect={false}
   components={animatedComponents}
   options={typeOptions}
-  value={selectedComplaintType ? typeOptions.filter(option => selectedComplaintType.includes(option.value)) : []}
-  // onChange={handleComplaintTypeSelect}
+  value={selectedComplaintType.map(type => typeOptions.find(option => option.value === type))}
+  onChange={handleComplaintTypeSelect}
+  styles={reactTypeSelectStyles}
+/> */}
+
+<Select
+  isMulti
+  placeholder="تصفية حسب نوع البلاغ..."
+  closeMenuOnSelect={false}
+  components={animatedComponents}
+  options={typeOptions}
+  value={selectedComplaintType}
   onChange={handleComplaintTypeSelect}
   styles={reactTypeSelectStyles}
 />
+
 
 <Select
    placeholder="تصفية حسب حالة البلاغ..."
@@ -775,10 +805,10 @@ return isLoaded ? (
    components={animatedComponents}
   options={statusOptions}
   value={statusOptions.find(option => option.value === selectedStatus)}
-  onChange={option => {
-    setSelectedStatus(option.value);
-    filterComplaints();
-  }}
+  onChange={ option =>{
+    setSelectedStatus(option.value)
+  }
+}
   styles={reactSelectStyles}
 />
 
@@ -811,35 +841,35 @@ return isLoaded ? (
           onUnmount={onUnmount} 
           options={{
             streetViewControl: false,
-            mapTypeControl: false, // This hides the map/satellite view control
+            mapTypeControl: false,
             fullscreenControl: false,
           
           }}
      
-        //   onClick={onMapClick}
+      
         >
   
   
-  {complaints.length > 0 && (
-        //   <HeatmapLayer
-        //     data={complaints.map(comp => new google.maps.LatLng(comp.location._lat, comp.location._long))}
-        //   />
+  {/* {complaints.length > 0 && (
+       <> */}
           <HeatmapLayer
-  data={complaints.map(comp => new google.maps.LatLng(comp.location._lat, comp.location._long))}
-  options={{radius: 25, opacity: 0.7}}
-/>
+            data={complaints.map(comp => new google.maps.LatLng(comp.location._lat, comp.location._long))}
+            options={{radius: 25, opacity: 0.7, }}
+            /> 
+            
+            {visibleMarkers.map((complaint) => (
+              <Marker
+                key={complaint.id}
+                position={{ lat: complaint.location._lat, lng: complaint.location._long }}
+                onClick={() => showComplaintDetails(complaint.id)}
+              />
+            ))}
 
-        )}
+            {/* </>
+            )} */}
         
-         {/* Add Marker components for each complaint */}
-         {visibleMarkers.map((complaint) => (
-          <Marker
-            key={complaint.id}
-            position={{ lat: complaint.location._lat, lng: complaint.location._long }}
-            onClick={() => handleMarkerClick(complaint.id)}
-           
-          />
-        ))}
+        
+         
       
   
       {showUserLocation && userPosition && (
@@ -1131,29 +1161,28 @@ return isLoaded ? (
       </Tooltip></Typography>
   <hr/>
   <div style={{ width: '100%', height: '300px' }}>
+  
   <Doughnut 
   data={typeData} 
   options={{
-    ...typesOptions, // Assuming typesOptions is defined elsewhere in your code
+    ...typesOptions, 
     onClick: function(evt, elements, chart) {
       if (elements.length > 0) {
-        // Attempting a direct access to the chart instance from the third argument of the callback
+      
         const index = elements[0].index;
         const labelClicked = chart.data.labels[index];
         
-        console.log("Label clicked:", labelClicked);
-
         setStatusFilter("");
         setSearchQuery("");
         setNeighborhoodFilter(""); 
-        setTypeFilter(labelClicked); // Update the filter state
-        navigate(`/mainpage/complaints`); // Navigate with the filter as a query parameter
+        setTypeFilter(labelClicked);
+        navigate(`/mainpage/complaints`); 
       }
     }
   }} 
 />
 
-    {/* options={{ maintainAspectRatio: false }} */}
+  
   </div>
   </Card>
 
@@ -1191,22 +1220,22 @@ return isLoaded ? (
       </Tooltip></Typography>
   <hr/>
   <div style={{ width: '100%', height: '300px' }}>
-    <Bar data={statusData} options={{ ...options, maintainAspectRatio: false , 
+
+    <Bar data={statusData} 
+    options={{ ...options, maintainAspectRatio: false , 
     onClick: function(evt, elements, chart) {
       if (elements.length > 0) {
-        // Attempting a direct access to the chart instance from the third argument of the callback
         const index = elements[0].index;
         const labelClicked = chart.data.labels[index];
         
-        console.log("Label clicked:", labelClicked);
         setTypeFilter('');
         setSearchQuery("");
         setNeighborhoodFilter(""); 
-        setStatusFilter(labelClicked); // Update the filter state
-        navigate(`/mainpage/complaints`); // Navigate with the filter as a query parameter
+        setStatusFilter(labelClicked); 
+        navigate(`/mainpage/complaints`); 
       }
     }}}  />
-    {/* options={{ ...options, maintainAspectRatio: false }} */}
+
   </div>
   </Card>
     </div>
@@ -1253,22 +1282,23 @@ return isLoaded ? (
   ))}
 </select>
     {/* <div style={{width: '100%', height: '100%' }}> */}
+
       <Line data={chartData} options={{...lineChartOptionsForMonth, 
       onClick: (evt, element) => {
         if (element.length > 0) {
           const index = element[0].index;
           const label = chartData.labels[index];
-          console.log("lable: "+ label);
+         
           const yearMonthNumber = convertYearMonthNameToNumber(label);
-          console.log(yearMonthNumber); 
+        
           setTypeFilter('');
           setStatusFilter("");
           setNeighborhoodFilter(""); 
           setSearchQuery(yearMonthNumber);
-          navigate(`/mainpage/complaints`); // Navigate with the filter as a query parameter
-        }
-      }
+          navigate(`/mainpage/complaints`); 
+        }}
       }} />
+
       {/* </div> */}
       </Card>
 

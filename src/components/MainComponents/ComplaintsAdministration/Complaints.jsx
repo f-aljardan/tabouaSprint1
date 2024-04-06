@@ -109,6 +109,16 @@ const typeOptions = [
   };
   
  
+  const filteredComplaints = complaints
+  .filter(
+    (complaint) =>
+      (statusFilter === "" || statusFilter === "الكل" || complaint.status === statusFilter) &&
+      (typeFilter === "" || typeFilter === "الكل" || complaint.complaintType === typeFilter) &&
+      (neighborhoodFilter === "" || neighborhoodFilter === "الكل" || extractNeighborhood(complaint.localArea) === neighborhoodFilter)
+  )
+  .sort((a, b) => a.complaintDate?.toDate() - b.complaintDate?.toDate());
+
+
 
   return (
     <> <div className="m-5"><div  style={{ overflowX: "auto",    maxHeight: "110vh",}}>
@@ -211,6 +221,7 @@ const typeOptions = [
     </tr>
   </thead>
   <tbody>
+    
   {searchQuery
     ? (searchResults.length === 0 ? (
         
@@ -224,9 +235,6 @@ const typeOptions = [
       ) : (
         searchResults.filter(
           (complaint) =>
-            // statusFilter === '' ||
-            // statusFilter === 'الكل' ||
-            // complaint.status === statusFilter
         (statusFilter === '' || statusFilter === 'الكل' || complaint.status === statusFilter) &&
         (typeFilter === '' || typeFilter === 'الكل' || complaint.complaintType === typeFilter)&&
         (neighborhoodFilter === '' || neighborhoodFilter === 'الكل' || extractNeighborhood(complaint.localArea) === neighborhoodFilter)
@@ -281,65 +289,77 @@ const typeOptions = [
            
             </tr>
          
-        )
+        ) 
       )
       )) 
    
-    : complaints
-      .filter(
-        (complaint) =>
-        (statusFilter === '' || statusFilter === 'الكل' || complaint.status === statusFilter) &&
-        (typeFilter === '' || typeFilter === 'الكل' || complaint.complaintType === typeFilter) &&
-        (neighborhoodFilter === '' || neighborhoodFilter === 'الكل' ||extractNeighborhood(complaint.localArea) === neighborhoodFilter)
-      )
-      .sort(
-        (a, b) =>
-          a.complaintDate?.toDate() - b.complaintDate?.toDate()
-      )
-      .map((complaint) => (
+    // : complaints
+    //   .filter(
+    //     (complaint) =>
+    //     (statusFilter === '' || statusFilter === 'الكل' || complaint.status === statusFilter) &&
+    //     (typeFilter === '' || typeFilter === 'الكل' || complaint.complaintType === typeFilter) &&
+    //     (neighborhoodFilter === '' || neighborhoodFilter === 'الكل' ||extractNeighborhood(complaint.localArea) === neighborhoodFilter)
+    //   )
+    //   .sort(
+    //     (a, b) =>
+    //       a.complaintDate?.toDate() - b.complaintDate?.toDate()
+    //   )
+    : filteredComplaints.length === 0 ? (
+      <tr>
+       <td className="p-4 border-b border-blue-gray-50 text-center" colSpan="5">
+        <Typography variant="small" color="red" className="font-bold">
+        <span>لا يوجد بلاغات مطابقة للتصنيف</span>  
+        </Typography>
+      </td>
+      </tr>
+    ) : (
+      filteredComplaints.map((complaint) => (
+        // Render your complaint row here
         <tr key={complaint.id}>
-           <td
-                    className="p-4 text-right cursor-pointer hover:text-red"
-                  > 
-                   <Link to={`${complaint.id}`}>
-  <Typography color="teal">
-    <span>{complaint.complaintNo}</span>
-  </Typography>
+        <td
+                 className="p-4 text-right cursor-pointer hover:text-red"
+               > 
+                <Link to={`${complaint.id}`}>
+<Typography color="teal">
+ <span>{complaint.complaintNo}</span>
+</Typography>
 </Link>
-                  </td>
-          <td className="p-4 text-right">
-            {complaint.complaintDate?.toDate().toLocaleDateString() || 'N/A'}
-          </td>
+               </td>
+       <td className="p-4 text-right">
+         {complaint.complaintDate?.toDate().toLocaleDateString() || 'N/A'}
+       </td>
 
-          <td className="p-4 text-right">
-              <span>{complaint.complaintType} </span>
-              </td> 
-              
-              <td className="p-4 text-right">
-              <span>{extractNeighborhood(complaint.localArea)} </span>
-              </td>
+       <td className="p-4 text-right">
+           <span>{complaint.complaintType} </span>
+           </td> 
+           
+           <td className="p-4 text-right">
+           <span>{extractNeighborhood(complaint.localArea)} </span>
+           </td>
 
-          <td className="p-4 text-center">
-            <div className="w-20">
-              <Chip
-                className="rounded-full text-center"
-                size="sm"
-                variant="ghost"
-                value={complaint.status}
-                color={
-                  complaint.status === "تم التنفيذ"
-                    ? 'green'
-                    : complaint.status === 'مرفوض'
-                    ? 'red'
-                    : complaint.status === 'قيد التنفيذ'
-                    ? 'amber'
-                    : 'teal'
-                }
-              />
-            </div>
-          </td>
-        </tr>
-      ))}
+       <td className="p-4 text-center">
+         <div className="w-20">
+           <Chip
+             className="rounded-full text-center"
+             size="sm"
+             variant="ghost"
+             value={complaint.status}
+             color={
+               complaint.status === "تم التنفيذ"
+                 ? 'green'
+                 : complaint.status === 'مرفوض'
+                 ? 'red'
+                 : complaint.status === 'قيد التنفيذ'
+                 ? 'amber'
+                 : 'teal'
+             }
+           />
+         </div>
+       </td>
+     </tr>
+      ))
+    )}
+     
 </tbody>
 
 
@@ -349,8 +369,7 @@ const typeOptions = [
       </Card> 
       </div>
       </div>
-{/* 
-      <ViewRequestInfo  open={showRequestInfo} handler={handleRequestInfo} requestInfo={selectedRequest} /> */}
+
     </>
   );
         }  

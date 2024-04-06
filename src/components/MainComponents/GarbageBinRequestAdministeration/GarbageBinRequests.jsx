@@ -102,6 +102,17 @@ export default function GarbageBinRequests() {
   };
   
  
+  
+  const filteredRequests = requests
+  .filter(
+    (request) =>
+    statusFilter === '' ||
+    statusFilter === 'الكل' ||
+    request.status === statusFilter
+    )
+  .sort((a, b) => a.requestDate?.toDate() - b.requestDate?.toDate());
+
+
 
   return (
     <> <div className="m-5"><div  style={{ overflowX: "auto",    maxHeight: "110vh",}}>
@@ -234,18 +245,16 @@ export default function GarbageBinRequests() {
       )
       )) 
    
-    : requests
-      .filter(
-        (request) =>
-          statusFilter === '' ||
-          statusFilter === 'الكل' ||
-          request.status === statusFilter
-      )
-      .sort(
-        (a, b) =>
-          a.requestDate?.toDate() - b.requestDate?.toDate()
-      )
-      .map((request) => (
+     : filteredRequests.length === 0 ? (
+      <tr>
+       <td className="p-4 border-b border-blue-gray-50 text-center" colSpan="3">
+        <Typography variant="small" color="red" className="font-bold">
+        <span>لا يوجد طلبات مطابقة للتصنيف</span>  
+        </Typography>
+      </td>
+      </tr>
+    ) : (
+      filteredRequests.map((request) => (
         <tr key={request.id}>
           {/* <td className="p-4 text-right cursor-pointer hover:text-red" onClick={() => handleViewRequestClick(request)}>
             <Typography  color="teal">
@@ -284,7 +293,8 @@ export default function GarbageBinRequests() {
             </div>
           </td>
         </tr>
-      ))}
+         ))
+         )}
 </tbody>
 
 
@@ -295,7 +305,7 @@ export default function GarbageBinRequests() {
       </div>
       </div>
 
-      {/* <ViewRequestInfo  open={showRequestInfo} handler={handleRequestInfo} requestInfo={selectedRequest} /> */}
+     
     </>
   );
         }  

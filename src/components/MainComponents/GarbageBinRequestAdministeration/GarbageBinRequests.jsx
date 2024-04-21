@@ -218,7 +218,7 @@ export default function GarbageBinRequests() {
 
 
    <td className="p-4 text-right">
-                {request.requestDate?.toDate().toLocaleDateString() || 'N/A'}
+                {request.requestDate?.toDate().toISOString().slice(0,10) || 'N/A'}
               </td>
               <td className="p-4 text-center">
                 <div className="w-20">
@@ -271,7 +271,7 @@ export default function GarbageBinRequests() {
 </Link>
                   </td>
           <td className="p-4 text-right">
-            {request.requestDate?.toDate().toLocaleDateString() || 'N/A'}
+            {request.requestDate?.toDate().toISOString().slice(0,10) || 'N/A'}
           </td>
           <td className="p-4 text-center">
             <div className="w-20">

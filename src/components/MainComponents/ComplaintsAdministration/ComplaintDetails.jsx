@@ -22,7 +22,7 @@ const containerStyle = {
 
   const googleMapsLibraries = ["visualization"];
 
-export default function ComplaintDetails() {
+export default function ComplaintDetails({directRoute}) {
   const { id } = useParams();
   const [zoom, setZoom] = useState(10); // set the initial zoom level
   const [complaintDetails, setComplaintDetails] = useState(null);
@@ -362,7 +362,20 @@ const moveSlideUser = (step) => {
     <>
       {complaintDetails ? (
         <div className="m-5">
-         
+      {directRoute? 
+      <Breadcrumbs fullWidth className="mb-3">
+      <span className="opacity-80 text-lg font-bold" onClick={() => navigate(-1)}>
+        الخريطة الحرارية
+      </span>
+      <span className="text-lg font-bold">
+        رقم البلاغ{" "}
+        {complaintDetails ? (
+          <>{complaintDetails.complaintNo}</>
+        ) : null}
+      </span>
+    </Breadcrumbs>
+
+      :
           <Breadcrumbs fullWidth className="mb-3">
                 <span className="opacity-80 text-lg font-bold" onClick={() => navigate(-1)}>
                   البلاغات
@@ -375,8 +388,58 @@ const moveSlideUser = (step) => {
                 </span>
               </Breadcrumbs>
 
+                  }
 
               <div className="timeline-container ">
+ {!complaintDetails.inprogressDate && complaintDetails.status === "مرفوض" ? 
+ <div className="timeline-reject">
+  <>
+    <div className="timeline-item" data-status="executed">
+    <div className="w-28">
+    <Chip
+                    size="sm"
+                    className="rounded-full text-sm text-white  font-bold text-center timeline-marker"
+                
+                    value={  <div>جديد</div>}
+                    color={ "teal"}
+                  /> </div>
+      <div className="timeline-content">
+      <p>تاريخ إستلام البلاغ</p>
+        <p className="timeline-time">{complaintDetails.complaintDate?.toDate().toLocaleDateString() || 'N/A'}</p>
+       
+       
+      </div>
+    </div>
+   
+    <div className="line-reject" data-status="executed"></div> 
+     </>
+
+
+     <div className="timeline-item" data-status={"rejected"}>
+         <div className="w-28">
+        <Chip
+                  size="sm"
+                   
+                    className="rounded-full text-sm text-white font-bold text-center timeline-marker "
+                    value={<div className="flex items-center">  {complaintDetails.status}</div>}
+                    color={
+                      complaintDetails.status === "تم التنفيذ"
+                        ? "green"
+                        : complaintDetails.status === "مرفوض"
+                        ? "red"
+                        : "teal"
+                    }
+                  /> </div>
+        <div className="timeline-content">
+        <p>تاريخ انتهاء التنفيذ</p>
+          <p className="timeline-time">{complaintDetails.responseDate?.toDate().toLocaleDateString() || 'N/A'}</p>
+         
+         
+        </div>
+      </div>
+  </div>
+ :
+
   <div className="timeline">
    
     { complaintDetails.status === 'جديد'? ( <>
@@ -415,7 +478,10 @@ const moveSlideUser = (step) => {
        
       </div>
     </div>
-     <div className="line" data-status="executed"></div> </>)
+    {!complaintDetails.inprogressDate && complaintDetails.status === "مرفوض" ? 
+    <div className="line-reject" data-status="executed"></div> :
+    <div className="line" data-status="executed"></div> }
+     </>)
 }
 
     {complaintDetails.status === 'قيد التنفيذ'? (
@@ -451,7 +517,8 @@ const moveSlideUser = (step) => {
         </div>
       </div>
  <div className="line" data-status="waiting"></div> </>
-    ): (<>
+    ): complaintDetails.inprogressDate?
+      (<>
       <div className="timeline-item" data-status="executed">
       <div className="w-28">
         <Chip
@@ -468,7 +535,9 @@ const moveSlideUser = (step) => {
           
         </div>
       </div>  <div className="line" data-status="executed"></div> </>
-    )}
+    ) :
+    null 
+  }
 
     
     {(complaintDetails.status === 'مرفوض' || complaintDetails.status === 'تم التنفيذ') ? (
@@ -513,6 +582,8 @@ const moveSlideUser = (step) => {
       </div>
     )}
   </div>
+}
+
 </div> 
 
 
@@ -745,7 +816,8 @@ const moveSlideUser = (step) => {
   <option value="جديد" disabled={!complaintDetails || complaintDetails.status == "قيد التنفيذ"}>جديد</option>
   <option value="قيد التنفيذ">قيد التنفيذ</option>
   <option value="تم التنفيذ" disabled={!complaintDetails || complaintDetails.status == 'جديد'}> قبول</option>
-  <option value="مرفوض" disabled={!complaintDetails || complaintDetails.status == 'جديد'}> رفض</option>
+  <option value="مرفوض" > رفض</option>
+  {/* <option value="مرفوض" disabled={!complaintDetails || complaintDetails.status == 'جديد'}> رفض</option> */}
 </select>
 
 <Typography color="red"  className="font-semibold">

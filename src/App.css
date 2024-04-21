@@ -241,12 +241,28 @@ input[type=file]::file-selector-button:hover {
   position: relative;
  
 }
+
+.timeline-reject{
+  display: grid;
+  grid-template-columns: repeat(3,1fr);
+  align-items: center;
+  position: relative;
+}
+
 .line {
   width: 12rem;
   margin-bottom: 60px;
   height: 3px;
-  border-radius: 1.5px; /* Adds rounded corners */
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2); /* Adds subtle shadow */
+  border-radius: 1.5px; 
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2); 
+}
+
+.line-reject {
+  width: 35rem;
+  margin-bottom: 60px;
+  height: 3px;
+  border-radius: 1.5px; 
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2); 
 }
 
 .line[data-status="waiting"] {
@@ -261,6 +277,9 @@ input[type=file]::file-selector-button:hover {
   background-color: #889494; /* Slightly adjusted color for better contrast */
 }
 
+.line-reject[data-status="executed"] {
+  background-color: #889494; /* Slightly adjusted color for better contrast */
+}
 
 
 

@@ -125,7 +125,7 @@ const handleAccordionToggle = (accordionIndex) => {
             <ListItemPrefix>
               <TbMessageReport className="h-6 w-6" />
             </ListItemPrefix>
-            <Link to="complaints" onClick={() => handleItemClick('complaints')}> إدارةالبلاغات  </Link>
+            <Link to="complaints" onClick={() => handleItemClick('complaints') }> إدارةالبلاغات  </Link>
           </ListItem>
           <hr />
 

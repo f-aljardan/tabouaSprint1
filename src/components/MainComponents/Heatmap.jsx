@@ -77,9 +77,10 @@ const typeOptions = [
     { value: 'تم التنفيذ', label: 'تم التنفيذ' },
     { value: "مرفوض", label: "مرفوض" },
   ];
+  
+   
 
-
-export default function Heatmap({setTypeFilter, setStatusFilter, setSearchQuery, setNeighborhoodFilter}){
+export default function Heatmap({setDirectRoute, setTypeFilter, setStatusFilter, setDateFilter, setNeighborhoodFilter}){
   const navigate = useNavigate();
 
     const [map, setMap] = React.useState(null)
@@ -95,10 +96,9 @@ export default function Heatmap({setTypeFilter, setStatusFilter, setSearchQuery,
     const [todaysComplaintsCount, setTodaysComplaintsCount] = useState(0);
     const [thisMonthsComplaintsCount, setThisMonthsComplaintsCount] = useState(0);
     const [thisWeeksComplaintsCount, setThisWeeksComplaintsCount] = useState(0);
-    // const [binId , setBinId] = useState();
- 
-    const [showAlertStreet, setShowAlertStreet] = useState(false);
-    const handleAlertStreet = () => setShowAlertStreet(!showAlertStreet);
+    const [showNoDataAlert, setShowNoDataAlert] = useState(false);
+    const [showAlert, setShowAlert] = useState(false);
+    const handleAlert = () => setShowAlert(!showAlert);
     
     const [selectedYear, setSelectedYear] = useState(new Date().getFullYear());
     const [chartData, setChartData] = useState({});
@@ -260,53 +260,97 @@ const typesOptions = {
 
 
 
-  const calculateComplaintsResolutionTimes = (complaints) => {
+  // const calculateComplaintsResolutionTimes = (complaints) => {
 
-    // Filter complaints that is resolved
+  //   // Filter complaints that is resolved
+  //   const validComplaints = complaints.filter(complaint => complaint.complaintDate && complaint.responseDate);
+    
+  //   const resolutionTimes = validComplaints.map(complaint => {
+  //     const createdAt = complaint.complaintDate.toDate().getTime();
+  //     const resolvedAt = complaint.responseDate.toDate().getTime();
+      
+  //     // Calculate time in hours
+  //     const resolutionTimeInHours = (resolvedAt - createdAt) / (1000 * 60 * 60);
+  //     return resolutionTimeInHours; // still return the time in hours for averaging purposes
+  //   });
+  
+  //   // Avoid division by zero by ensuring the array length is not zero
+  //   const averageResolutionTimeInHours = resolutionTimes.length > 0
+  //     ? resolutionTimes.reduce((a, b) => a + b, 0) / resolutionTimes.length
+  //     : 0;
+    
+  //   // Calculate average days and hours
+  //   const averageDays = Math.floor(averageResolutionTimeInHours / 24);
+  //   const averageHours = averageResolutionTimeInHours % 24;
+  //   const formattedAverageResolutionTime = averageDays > 0
+  //     ? `${averageDays} يوم, ${averageHours.toFixed(2)} ساعة`
+  //     : `${averageHours.toFixed(2)} ساعة`;
+  
+  //   return {
+  //     resolutionTimes,
+  //     averageResolutionTime: formattedAverageResolutionTime // This is the formatted string
+  //   };
+  // };  
+  
+  const calculateComplaintsResolutionTimes = (complaints) => {
+   // Filter complaints that is resolved
     const validComplaints = complaints.filter(complaint => complaint.complaintDate && complaint.responseDate);
     
     const resolutionTimes = validComplaints.map(complaint => {
       const createdAt = complaint.complaintDate.toDate().getTime();
       const resolvedAt = complaint.responseDate.toDate().getTime();
       
-      // Calculate time in hours
-      const resolutionTimeInHours = (resolvedAt - createdAt) / (1000 * 60 * 60);
-      return resolutionTimeInHours; // still return the time in hours for averaging purposes
+      // Calculate time in milliseconds
+      return resolvedAt - createdAt;
     });
+
+    if (resolutionTimes.length === 0) {
+      return {
+        resolutionTimes: [],
+        averageResolutionTime: 'No data'
+      };
+    }
   
-    // Avoid division by zero by ensuring the array length is not zero
-    const averageResolutionTimeInHours = resolutionTimes.length > 0
-      ? resolutionTimes.reduce((a, b) => a + b, 0) / resolutionTimes.length
-      : 0;
-    
-    // Calculate average days and hours
-    const averageDays = Math.floor(averageResolutionTimeInHours / 24);
-    const averageHours = averageResolutionTimeInHours % 24;
-    const formattedAverageResolutionTime = averageDays > 0
-      ? `${averageDays} يوم, ${averageHours.toFixed(2)} ساعة`
-      : `${averageHours.toFixed(2)} ساعة`;
+    // Calculate the average resolution time in milliseconds
+    const averageResolutionTimeInMilliseconds = resolutionTimes.reduce((a, b) => a + b, 0) / resolutionTimes.length;
+  
+    // Convert milliseconds to days, hours, and minutes
+    let remainingTime = averageResolutionTimeInMilliseconds;
+
+    // const days = Math.floor(remainingTime / (1000 * 60 * 60 * 24));
+    // remainingTime %= (1000 * 60 * 60 * 24);
+    // const hours = Math.floor(remainingTime / (1000 * 60 * 60));
+    // remainingTime %= (1000 * 60 * 60);
+    // const minutes = Math.floor(remainingTime / (1000 * 60));
+  
+    const days = Math.floor(remainingTime / (1000 * 60 * 60 * 24));
+    const hours = Math.floor((remainingTime % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+    const minutes = Math.floor((remainingTime % (1000 * 60 * 60)) / (1000 * 60));
+
+    // Construct the formatted average resolution time string
+    let formattedAverageResolutionTime = [];
+    if (days > 0) formattedAverageResolutionTime.push(`${days} يوم`);
+    if (hours > 0) formattedAverageResolutionTime.push(`${hours} ساعة`);
+    if (minutes > 0) formattedAverageResolutionTime.push(`${minutes} دقيقة`);
   
     return {
       resolutionTimes,
-      averageResolutionTime: formattedAverageResolutionTime // This is the formatted string
+      averageResolutionTime: formattedAverageResolutionTime.join(', ') || 'أقل من دقيقة'
     };
-  };  
+  };
   
 
+  
 
 useEffect(() => {
   filterComplaints();
 }, [selectedStatus, selectedComplaintType]); // Re-run filter when these dependencies change
 
 
-  // // Filter by selected complaint types (if applicable)
-  // if (selectedComplaintType.length > 0 && !selectedComplaintType.includes("الكل")) {
-  //   filteredComplaints = filteredComplaints.filter(comp => selectedComplaintType.includes(comp.type));
-  // } 
-
 
 const filterComplaints = () => {
   let filteredComplaints = complaintData;
+let didFilter = false;
 
   const isAllSelected = selectedComplaintType.some(option => option.value === "الكل");
  
@@ -326,6 +370,8 @@ const filterComplaints = () => {
       });
       return isTypeMatch;
     });
+
+    didFilter = true;
   }
 
   setComplaints(filteredComplaints);
@@ -333,9 +379,18 @@ const filterComplaints = () => {
   if (selectedStatus !=="" && selectedStatus !== "الكل") {
     filteredComplaints = filteredComplaints.filter(complaint =>
       complaint.status === selectedStatus);
+      didFilter = true;
   }
 
   setComplaints(filteredComplaints);
+
+  if( didFilter && filteredComplaints.length === 0){
+    setShowNoDataAlert(true);
+  }else{
+    setShowNoDataAlert(false);
+  }
+
+ 
 };
 
 
@@ -509,19 +564,25 @@ useEffect(() => {
   updateChartForYear(selectedYear);
 }, [selectedYear, complaints]);
 
+
+// // Function to handle year selection change
+// const handleYearChange = (event) => {
+//   setSelectedYear(parseInt(event.target.value, 10));
+// };
 // Function to handle year selection change
-const handleYearChange = (event) => {
-  setSelectedYear(parseInt(event.target.value, 10));
+const handleYearChange = (selectedOption, setSelectedYear) => {
+  setSelectedYear(selectedOption.value);
 };
 
 const uniqueYears = [...new Set(complaints.map(complaint => new Date(complaint.complaintDate.seconds * 1000).getFullYear()))];
 uniqueYears.sort();
 
 
+
 const arabicMonthToNumber = {
-  "يناير": "01", "فبراير": "02", "مارس": "03", "أبريل": "04",
-  "مايو": "05", "يونيو": "06", "يوليو": "07", "أغسطس": "08",
-  "سبتمبر": "09", "أكتوبر": "10", "نوفمبر": "11", "ديسمبر": "12"
+  "يناير": "1", "فبراير": "2", "مارس": "3", "أبريل": "4",
+  "مايو": "5", "يونيو": "6", "يوليو": "7", "أغسطس": "8",
+  "سبتمبر": "9", "أكتوبر": "10", "نوفمبر": "11", "ديسمبر": "12"
 };
 
 const convertArabicNumerals = (arabicYear) => {
@@ -537,13 +598,12 @@ const convertYearMonthNameToNumber = (label) => {
   const westernYear = convertArabicNumerals(arabicYear);
 
   // Get the last two digits of the year
-  const yearLastTwoDigits = westernYear.slice(-2);
+  // const yearLastTwoDigits = westernYear.slice(-2);
 
   // Map the Arabic month name to a month number
   const monthNumber = arabicMonthToNumber[monthName];
 
-  // Combine the last two digits of the year and month in the format YYMM
-  return yearLastTwoDigits + monthNumber;
+  return westernYear + "-" + monthNumber;
 };
 
 
@@ -592,23 +652,26 @@ const { labels, data } = Object.entries(combineComplaintsByNeighborhood(complain
         
         setTypeFilter('');
         setStatusFilter("");
-        setSearchQuery("");
+        setDateFilter("");
         setNeighborhoodFilter(neighborhoodName); 
+        setDirectRoute(true);
         navigate(`/mainpage/complaints`); 
 
       }
     };
 
-    const [displayCount, setDisplayCount] = useState(10); // Initially show top 10 neighborhoods
+    // const [displayCount, setDisplayCount] = useState(10); // Initially show top 10 neighborhoods
     const heightPerNeighborhood = 25;
 
-    const handleShowMore = () => {
-      // Set displayCount to the total number of neighborhoods, showing all of them
-      setDisplayCount(labels.length);
-    };
+    // const handleShowMore = () => {
+    //   // Set displayCount to the total number of neighborhoods, showing all of them
+    //   setDisplayCount(labels.length);
+    // };
   
-    const displayedLabels = labels.slice(0, displayCount);
-    const displayedData = data.slice(0, displayCount);
+    const displayedLabels = labels
+    // .slice(0, displayCount);
+    const displayedData = data
+    // .slice(0, displayCount);
   
     const chartData = {
       labels: displayedLabels,
@@ -652,15 +715,15 @@ const { labels, data } = Object.entries(combineComplaintsByNeighborhood(complain
     };
 
       // Calculate chart height based on displayCount
-  const chartHeight = Math.max(displayCount * heightPerNeighborhood, 50); // Ensure a minimum height
+  const chartHeight = Math.max(labels.length * heightPerNeighborhood, 50); // Ensure a minimum height
 
     return (<div>
       <div style={{ height: `${chartHeight}px` }}>
         <Bar data={chartData} options={options} />
       </div>
-      {displayCount < labels.length && (
+      {/* {displayCount < labels.length && (
         <button onClick={handleShowMore} style={{ marginTop: '10px' }}>إظهار المزيد</button>
-      )}
+      )} */}
     </div>)
     
      
@@ -701,6 +764,7 @@ setZoom(18);
   
 
   const showComplaintDetails = (complaintId) => {
+    setDirectRoute(true);
     navigate(`/mainpage/complaints/${complaintId}`);
   };
 
@@ -728,10 +792,11 @@ setZoom(18);
 
 
   const [isFullscreen, setIsFullscreen] = useState(false);
-  // const mapContainerRef = useRef(null);
+  const mapContainerRef = useRef(null);
+
   const toggleFullscreen = () => {
     if (!document.fullscreenElement) {
-      mapRef.current.requestFullscreen().catch((err) => {
+      mapContainerRef.current.requestFullscreen().catch((err) => {
         alert(`Error attempting to enable fullscreen mode: ${err.message} (${err.name})`);
       });
       setIsFullscreen(true);
@@ -760,7 +825,7 @@ setZoom(18);
 
 
 return isLoaded ? (
-    <div style={{ position: 'relative', width: '100%', height: '100%' }} ref={mapRef}>
+    <div style={{ position: 'relative', width: '100%', height: '100%' }} ref={mapContainerRef}>
  
  
 
@@ -818,12 +883,15 @@ return isLoaded ? (
 
 </div>
 
-{complaints.length==0?(     
-   <div style={{  marginTop:10,  width: '100%', height: '100%'}}>
-        <ErrorAlertMessage open={true} handler={handleAlertStreet}
-         message="لا يوجد بيانات بهذا التصنيف" /> </div> 
-         ): null
+{showNoDataAlert ?
+         ( <div style={{  marginTop:10,  width: '100%', height: '100%'}}>
+             <ErrorAlertMessage open={true} handler={handleAlert}
+              message="لا يوجد بيانات بهذا التصنيف" /> </div> 
+         )
+         : null
          } 
+
+
 
   </div>
 
@@ -1044,7 +1112,7 @@ return isLoaded ? (
 
         <Card variant="filled"  className=" flex flex-col items-center p-2  shadow-lg">
           <div>
-          <Typography className=" font-baloo text-xs font-bold "> الاسبوع</Typography>
+          <Typography className=" font-baloo text-xs font-bold "> هذا الاسبوع</Typography>
           <hr/>
   </div>     
   <Typography className='flex items-center justify-center gap-1'> <span className="font-baloo text-right text-lg font-bold text-gray-700">{thisWeeksComplaintsCount} بلاغ</span>
@@ -1083,7 +1151,7 @@ return isLoaded ? (
 
         <Card variant="filled"  className=" flex flex-col items-center p-2  shadow-lg">
           <div>
-          <Typography className=" font-baloo text-xs font-bold"> الشهر</Typography>
+          <Typography className=" font-baloo text-xs font-bold"> هذا الشهر</Typography>
           <hr/>
   </div>     
   <Typography className='flex items-center justify-center gap-1'> <span className="font-baloo text-right text-lg font-bold text-gray-700">{thisMonthsComplaintsCount} بلاغ</span>
@@ -1173,9 +1241,10 @@ return isLoaded ? (
         const labelClicked = chart.data.labels[index];
         
         setStatusFilter("");
-        setSearchQuery("");
+        setDateFilter("");
         setNeighborhoodFilter(""); 
         setTypeFilter(labelClicked);
+        setDirectRoute(true);
         navigate(`/mainpage/complaints`); 
       }
     }
@@ -1229,9 +1298,10 @@ return isLoaded ? (
         const labelClicked = chart.data.labels[index];
         
         setTypeFilter('');
-        setSearchQuery("");
+        setDateFilter("");
         setNeighborhoodFilter(""); 
         setStatusFilter(labelClicked); 
+        setDirectRoute(true);
         navigate(`/mainpage/complaints`); 
       }
     }}}  />
@@ -1244,19 +1314,19 @@ return isLoaded ? (
 
     <div className="">
    <Card className=' p-4 shadow-lg' >
-   <Typography  className='font-baloo  text-xs font-bold mb-2 flex items-center justify-center gap-1 '><span>عدد البلاغات خلال الاشهر</span> 
+   <Typography  className='font-baloo  text-xs font-bold mb-2 flex items-center justify-center gap-1 '><span>توزيع البلاغات خلال سنة</span> 
    <Tooltip  className="bg-white shadow-lg "
    content={
         <div className="w-80">
           <Typography color="black" className="font-medium font-baloo">
-          <span>عدد البلاغات خلال الاشهر</span>
+          <span>توزيع البلاغات خلال السنة</span>
           </Typography>
           <Typography
             variant="small"
             color="black"
             className="font-normal opacity-80 font-baloo"
           >
-يوضح هذا الرسم البياني الخطي عدد البلاغات خلال كل شهر، ويظهر كيف تتغير أعداد البلاغات من شهر لآخر، مما يساعد في التخطيط والاستجابة المستقبلية.
+يوضح هذا الرسم البياني الخطي عدد البلاغات خلال السنة ، ويظهر كيف تتغير أعداد البلاغات من شهر لآخر، مما يساعد في التخطيط والاستجابة المستقبلية.
           </Typography>
         </div>
       }>
@@ -1276,11 +1346,19 @@ return isLoaded ? (
     </svg>
       </Tooltip></Typography>
    <hr/>
-   <select onChange={handleYearChange} value={selectedYear}>
+
+   {/* <select onChange={handleYearChange} value={selectedYear}>
   {uniqueYears.map(year => (
     <option key={year} value={year}>{year}</option>
   ))}
-</select>
+</select> */}
+
+<Select
+      onChange={(selectedOption) => handleYearChange(selectedOption, setSelectedYear)}
+      options={uniqueYears.map(year => ({ value: year, label: year }))}
+      value={{ value: selectedYear, label: selectedYear }}
+    />
+
     {/* <div style={{width: '100%', height: '100%' }}> */}
 
       <Line data={chartData} options={{...lineChartOptionsForMonth, 
@@ -1294,7 +1372,8 @@ return isLoaded ? (
           setTypeFilter('');
           setStatusFilter("");
           setNeighborhoodFilter(""); 
-          setSearchQuery(yearMonthNumber);
+          setDateFilter(yearMonthNumber);
+          setDirectRoute(true);
           navigate(`/mainpage/complaints`); 
         }}
       }} />
@@ -1308,12 +1387,13 @@ return isLoaded ? (
 
 
     <Card className='p-4 shadow-lg'>
-    <Typography className='font-baloo  text-xs font-bold mb-2 flex items-center justify-center gap-1 '> <span>اكثرالاحياء تقديمًا للبلاغات</span>
+    <Typography className='font-baloo  text-xs font-bold mb-2 flex items-center justify-center gap-1 '> <span> توزيع البلاغات بحسب الاحياء  </span>
     <Tooltip  className="bg-white shadow-lg "
    content={
         <div className="w-80">
           <Typography color="black" className="font-medium font-baloo">
-          <span>اكثرالاحياء تقديمًا للبلاغات</span>
+          <span> توزيع البلاغات بحسب الاحياء </span> 
+          {/* <span>اكثرالاحياء تقديمًا للبلاغات</span> */}
           </Typography>
           <Typography
             variant="small"

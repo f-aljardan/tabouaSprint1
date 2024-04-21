@@ -255,7 +255,7 @@ return (
      
 <div style={{ overflowX: "auto",   maxHeight: "110vh",}}>
 
-<Card className="max-w-2xl p-8  "> 
+<Card className="max-w-2xl p-8   "> 
         <h2 className="text-2xl font-semibold mb-4">قائمة الموظفين</h2> 
 
        

@@ -1,7 +1,7 @@
 import { Link , useNavigate, useSearchParams} from "react-router-dom";
 import { useState, useEffect } from "react";
 import { MagnifyingGlassIcon } from "@heroicons/react/24/outline";
-import {Card, Typography, Chip,Input } from "@material-tailwind/react";
+import {Card, Typography, Chip,Input , IconButton} from "@material-tailwind/react";
 import { db } from "../../../firebase";
 import {
   collection,
@@ -12,15 +12,16 @@ import {
 import Select from "react-select"; 
 // import ViewRequestInfo from "../../utilityComponents/viewInfo/ViewRequestInfo"
 
+export default function Complaints({directRoute,setDirectRoute, typeFilter, setTypeFilter, statusFilter, setStatusFilter, dateFilter ,setDateFilter , neighborhoodFilter, setNeighborhoodFilter }){
+ 
 
-export default function Complaints({typeFilter, setTypeFilter, statusFilter, setStatusFilter, searchQuery,setSearchQuery , neighborhoodFilter, setNeighborhoodFilter }){
-
-
+  const navigate = useNavigate();
   const [complaints, setComplaints] = useState([]);
   // const [statusFilter, setStatusFilter] = useState(""); 
   // const [typeFilter, setTypeFilter] = useState(""); 
-  // const [searchQuery, setSearchQuery] = useState('');
+  const [searchQuery, setSearchQuery] = useState('');
   const [searchResults, setSearchResults] = useState([]);
+ 
 
  
   const [neighborhoodOptions, setNeighborhoodOptions] = useState([]);
@@ -53,6 +54,11 @@ const extractNeighborhood = (localArea) => {
       // Generate neighborhood options from complaints
       const neighborhoods = Array.from(new Set(updatedComplaints.map(complaint => extractNeighborhood(complaint.localArea)))).sort();
       setNeighborhoodOptions(neighborhoods.map(n => ({ value: n, label: n })));
+
+      console.log("date: "+ dateFilter)
+     
+    
+      
     });
 
     return () => {
@@ -109,22 +115,47 @@ const typeOptions = [
   };
   
  
+
+
   const filteredComplaints = complaints
   .filter(
     (complaint) =>
       (statusFilter === "" || statusFilter === "الكل" || complaint.status === statusFilter) &&
       (typeFilter === "" || typeFilter === "الكل" || complaint.complaintType === typeFilter) &&
-      (neighborhoodFilter === "" || neighborhoodFilter === "الكل" || extractNeighborhood(complaint.localArea) === neighborhoodFilter)
+      (neighborhoodFilter === "" || neighborhoodFilter === "الكل" || extractNeighborhood(complaint.localArea) === neighborhoodFilter) &&
+      (dateFilter === "" ? true :  `${complaint.complaintDate?.toDate().getFullYear()}-${complaint.complaintDate?.toDate().getMonth() + 1}` === dateFilter)
   )
   .sort((a, b) => a.complaintDate?.toDate() - b.complaintDate?.toDate());
 
 
+ 
 
   return (
     <> <div className="m-5"><div  style={{ overflowX: "auto",    maxHeight: "110vh",}}>
       <Card className="max-w-4xl m-auto p-8  "  >
+        <div className="flex justify-between">
+
         <h2 className="text-2xl font-semibold mb-4">قائمة البلاغات</h2>
         
+        {directRoute ? (
+                <button onClick={() => {
+                  navigate(-1); 
+                  setDirectRoute(false);
+                  setTypeFilter('');
+                  setStatusFilter('');
+                  setNeighborhoodFilter('');
+                  setDateFilter(''); 
+                }}
+                   className=" mb-4">
+                  <IconButton variant="text" size="lg">
+                 <i className="fas fa-arrow-left fa-lg" />
+                 </IconButton>
+                </button>
+            ) : null}
+
+        </div>
+      
+
         <div className="mb-4 flex items-center gap-3">
 
         
@@ -150,6 +181,7 @@ const typeOptions = [
                 onChange={(selectedOption) => setNeighborhoodFilter(selectedOption.value)}
                 styles={reactSelectStyles}
               />
+
 
 
            <div className="w-full md:w-72">
@@ -237,7 +269,8 @@ const typeOptions = [
           (complaint) =>
         (statusFilter === '' || statusFilter === 'الكل' || complaint.status === statusFilter) &&
         (typeFilter === '' || typeFilter === 'الكل' || complaint.complaintType === typeFilter)&&
-        (neighborhoodFilter === '' || neighborhoodFilter === 'الكل' || extractNeighborhood(complaint.localArea) === neighborhoodFilter)
+        (neighborhoodFilter === '' || neighborhoodFilter === 'الكل' || extractNeighborhood(complaint.localArea) === neighborhoodFilter) &&
+        (dateFilter === "" ? true :  `${complaint.complaintDate?.toDate().getFullYear()}-${complaint.complaintDate?.toDate().getMonth() + 1}` === dateFilter)
         )
         .sort(
           (a, b) =>
@@ -255,7 +288,7 @@ const typeOptions = [
                   </td>
                
    <td className="p-4 text-right">
-                {complaint.complaintDate?.toDate().toLocaleDateString() || 'N/A'}
+                {complaint.complaintDate?.toDate().toISOString().slice(0,10) || 'N/A'}
               </td>    
 
               <td className="p-4 text-right">
@@ -326,7 +359,7 @@ const typeOptions = [
 </Link>
                </td>
        <td className="p-4 text-right">
-         {complaint.complaintDate?.toDate().toLocaleDateString() || 'N/A'}
+         {complaint.complaintDate?.toDate().toISOString().slice(0,10) || 'N/A'}
        </td>
 
        <td className="p-4 text-right">

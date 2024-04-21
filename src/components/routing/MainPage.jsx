@@ -59,8 +59,9 @@ function MainPage() {
     
     const [typeFilter, setTypeFilter] = useState(""); 
     const [statusFilter, setStatusFilter] = useState("");
-    const [searchQuery, setSearchQuery] = useState('');
+    const [dateFilter, setDateFilter] = useState('');
     const [neighborhoodFilter, setNeighborhoodFilter] = useState('');
+    const [directRoute, setDirectRoute] = useState(false);
 
     // to route to other page
       return (
@@ -73,6 +74,7 @@ function MainPage() {
     setShowSidebar={setShowSidebar}
     activeItem={activeItem}
     setActiveItem={setActiveItem}
+
   />
   <div className="content-container">
     <Routes>
@@ -83,9 +85,9 @@ function MainPage() {
           <Route path="/garbagebinrequests" element={<GarbageBinRequests />} />
           <Route path="/garbagebinrequests/:id" element={<GarbageBinRequestDetails />} />
           <Route path="/recycle" element={<div className='map h-[calc(122vh-2rem)]'><RecyclingCenterMap /></div>} />
-          <Route path="/complaints" element={<Complaints typeFilter={typeFilter} setTypeFilter={setTypeFilter} statusFilter={statusFilter} setStatusFilter={setStatusFilter} searchQuery={searchQuery} setSearchQuery={setSearchQuery} neighborhoodFilter={neighborhoodFilter} setNeighborhoodFilter={setNeighborhoodFilter} />} />
-          <Route path="/complaints/:id" element={<ComplaintDetails />} />
-          <Route path="/heatmap" element={<div className='map h-[calc(122vh-2rem)]'><Heatmap setTypeFilter={setTypeFilter} setStatusFilter={setStatusFilter} setSearchQuery={setSearchQuery}  setNeighborhoodFilter={setNeighborhoodFilter}/></div>} />
+          <Route path="/complaints" element={<Complaints directRoute={directRoute} setDirectRoute={setDirectRoute} typeFilter={typeFilter} setTypeFilter={setTypeFilter} statusFilter={statusFilter} setStatusFilter={setStatusFilter} dateFilter={dateFilter} setDateFilter={setDateFilter} neighborhoodFilter={neighborhoodFilter} setNeighborhoodFilter={setNeighborhoodFilter} />} />
+          <Route path="/complaints/:id" element={<ComplaintDetails directRoute={directRoute}/>} />
+          <Route path="/heatmap" element={<div className='map h-[calc(122vh-2rem)]'><Heatmap setDirectRoute={setDirectRoute} setTypeFilter={setTypeFilter} setStatusFilter={setStatusFilter} setDateFilter={setDateFilter}  setNeighborhoodFilter={setNeighborhoodFilter}/></div>} />
           {userData.isAdmin && <Route path="/manage" element={<ManageStaff />} />}
         </>
       )}

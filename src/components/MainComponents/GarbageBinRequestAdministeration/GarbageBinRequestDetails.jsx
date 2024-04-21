@@ -442,11 +442,11 @@ export default function GarbageBinRequestDetails() {
     target="_blank"
     rel="noopener noreferrer"
     style={{
-      color: 'teal', // Text color
-      textDecoration: 'none' // Removes the underline from the link
+      color: 'teal', 
+      textDecoration: 'none' 
     }}
-    onMouseOver={(e) => e.target.style.textDecoration = 'underline'} // Underlines the text on hover
-    onMouseOut={(e) => e.target.style.textDecoration = 'none'} // Removes the underline when not hovering
+    onMouseOver={(e) => e.target.style.textDecoration = 'underline'} 
+    onMouseOut={(e) => e.target.style.textDecoration = 'none'} 
   >
     {requestDetails.localArea}
   </a>
@@ -511,7 +511,7 @@ export default function GarbageBinRequestDetails() {
           (<div className=" pr-8 py-2 " style={{backgroundColor:'#FE5500', color: "white", borderRadius: "5px"}}>
   
           <Typography className="font-baloo text-right text-xl font-bold ">
-            تفاصيل تنفيذ الطلب
+            تفاصيل رفض الطلب
           </Typography>
           </div>)
         

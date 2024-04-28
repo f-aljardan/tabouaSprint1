@@ -677,8 +677,8 @@ const moveSlideUser = (step) => {
                       <Marker
             position={{ lat: center.lat, lng: center.lng }}
             icon={{
-              url:"http://maps.google.com/mapfiles/ms/icons/green-dot.png" ,
-              scaledSize: new window.google.maps.Size(40, 40), // Adjust the size if needed
+              url: "/greenMarker.png",
+              scaledSize: new window.google.maps.Size(40, 40),
             }}
                       >  
                          </Marker>

@@ -930,6 +930,10 @@ return isLoaded ? (
                 key={complaint.id}
                 position={{ lat: complaint.location._lat, lng: complaint.location._long }}
                 onClick={() => showComplaintDetails(complaint.id)}
+                icon={{
+                  url: "/greenMarker.png",
+                  scaledSize: new window.google.maps.Size(45, 45),
+                }}
               />
             ))}
 

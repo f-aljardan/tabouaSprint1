@@ -521,7 +521,7 @@ const checkLocationCondtion = async (lat ,lng) =>{
           draggable={ request.status == 'قيد التنفيذ' ? true : false}
           onDragEnd={handleDragEnd}  
           icon={{
-            url: request.status == 'تم التنفيذ' ?  '' : "http://maps.google.com/mapfiles/ms/icons/green-dot.png" ,
+            url: request.status == 'تم التنفيذ' ?  '' : "/greenMarker.png" ,
             scaledSize: new window.google.maps.Size(40, 40), // Adjust the size if needed
           }}
         >
@@ -663,7 +663,7 @@ const checkLocationCondtion = async (lat ,lng) =>{
               }}
               zIndex={1000}
               icon={{
-                url:"http://maps.google.com/mapfiles/ms/icons/green-dot.png" ,
+                url:"/greenMarker.png" ,
                 scaledSize: new window.google.maps.Size(40, 40), // Adjust the size if needed
               }}
             >

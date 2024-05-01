@@ -86,7 +86,7 @@ function MainPage() {
           <Route path="/garbagebinrequests/:id" element={<GarbageBinRequestDetails />} />
           <Route path="/recycle" element={<div className='map h-[calc(122vh-2rem)]'><RecyclingCenterMap /></div>} />
           <Route path="/complaints" element={<Complaints directRoute={directRoute} setDirectRoute={setDirectRoute} typeFilter={typeFilter} setTypeFilter={setTypeFilter} statusFilter={statusFilter} setStatusFilter={setStatusFilter} dateFilter={dateFilter} setDateFilter={setDateFilter} neighborhoodFilter={neighborhoodFilter} setNeighborhoodFilter={setNeighborhoodFilter} />} />
-          <Route path="/complaints/:id" element={<ComplaintDetails directRoute={directRoute}/>} />
+          <Route path="/complaints/:id" element={<ComplaintDetails directRoute={directRoute} setDirectRoute={setDirectRoute}/>} />
           <Route path="/heatmap" element={<div className='map h-[calc(122vh-2rem)]'><Heatmap setDirectRoute={setDirectRoute} setTypeFilter={setTypeFilter} setStatusFilter={setStatusFilter} setDateFilter={setDateFilter}  setNeighborhoodFilter={setNeighborhoodFilter}/></div>} />
           {userData.isAdmin && <Route path="/manage" element={<ManageStaff />} />}
         </>

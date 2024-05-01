@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { useParams , useNavigate} from "react-router-dom";
 import { doc, getDoc , updateDoc, onSnapshot} from "firebase/firestore"; // Import the necessary Firebase functions
 import { db, storage } from "../../../firebase";
-import { Breadcrumbs , Card, Typography, Chip,Button, Textarea} from "@material-tailwind/react";
+import { Breadcrumbs , Card, Typography, Chip,Button, Textarea, IconButton} from "@material-tailwind/react";
 import { GoogleMap, useJsApiLoader, Marker } from '@react-google-maps/api';
 import SummaryComplaintResponse from "../../utilityComponents/messages/SummaryComplaintResponse"
 import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
@@ -22,7 +22,7 @@ const containerStyle = {
 
   const googleMapsLibraries = ["visualization"];
 
-export default function ComplaintDetails({directRoute}) {
+export default function ComplaintDetails({directRoute, setDirectRoute}) {
   const { id } = useParams();
   const [zoom, setZoom] = useState(10); // set the initial zoom level
   const [complaintDetails, setComplaintDetails] = useState(null);
@@ -363,8 +363,9 @@ const moveSlideUser = (step) => {
       {complaintDetails ? (
         <div className="m-5">
       {directRoute? 
+      <div className="flex justify-between">
       <Breadcrumbs fullWidth className="mb-3">
-      <span className="opacity-80 text-lg font-bold" onClick={() => navigate(-1)}>
+      <span className="opacity-80 text-lg font-bold" onClick={() => {navigate(-1);  setDirectRoute(false); }}>
         الخريطة الحرارية
       </span>
       <span className="text-lg font-bold">
@@ -374,6 +375,15 @@ const moveSlideUser = (step) => {
         ) : null}
       </span>
     </Breadcrumbs>
+
+
+  <button onClick={() => {navigate(-1);  setDirectRoute(false); }}
+     className=" mb-4">
+    <IconButton variant="text" size="lg">
+   <i className="fas fa-arrow-left fa-lg" />
+   </IconButton>
+  </button>
+</div>
 
       :
           <Breadcrumbs fullWidth className="mb-3">
@@ -677,8 +687,8 @@ const moveSlideUser = (step) => {
                       <Marker
             position={{ lat: center.lat, lng: center.lng }}
             icon={{
-              url: "/greenMarker.png",
-              scaledSize: new window.google.maps.Size(40, 40),
+              url: "/complaintMarker.png",
+              scaledSize: new window.google.maps.Size(45, 45),
             }}
                       >  
                          </Marker>

@@ -55,7 +55,7 @@ const handleAccordionToggle = (accordionIndex) => {
     return (
       <div className={`sidebar ${showSidebar ? '' : 'hidden'}`}>
           <div className='sidebar'>
-      <Card className="h-[calc(122vh-2rem)] w-full max-w-[20rem] p-4 shadow-xl shadow-blue-gray-900/5 "  >
+      <Card className="h-[calc(128vh-2rem)] w-full max-w-[20rem] p-4 shadow-xl shadow-blue-gray-900/5 "  >
         <div>
             <div className='flex justify-center'>
             <img src={logo} width={135} style={{ marginBottom: '35px' , marginTop: '25px'}}/>

@@ -295,7 +295,7 @@ const typesOptions = {
   const calculateComplaintsResolutionTimes = (complaints) => {
    // Filter complaints that is resolved
     const validComplaints = complaints.filter(complaint => complaint.complaintDate && complaint.responseDate);
-    
+   
     const resolutionTimes = validComplaints.map(complaint => {
       const createdAt = complaint.complaintDate.toDate().getTime();
       const resolvedAt = complaint.responseDate.toDate().getTime();
@@ -304,6 +304,7 @@ const typesOptions = {
       return resolvedAt - createdAt;
     });
 
+  
     if (resolutionTimes.length === 0) {
       return {
         resolutionTimes: [],
@@ -312,26 +313,31 @@ const typesOptions = {
     }
   
     // Calculate the average resolution time in milliseconds
-    const averageResolutionTimeInMilliseconds = resolutionTimes.reduce((a, b) => a + b, 0) / resolutionTimes.length;
+    // const averageResolutionTimeInMilliseconds = resolutionTimes.reduce((a, b) => a + b, 0) / resolutionTimes.length;
+    const averageResolutionTimeInMilliseconds = resolutionTimes.length > 0
+  ? Math.abs(resolutionTimes.reduce((a, b) => a + b, 0) / resolutionTimes.length)
+  : 0;
+
   
     // Convert milliseconds to days, hours, and minutes
     let remainingTime = averageResolutionTimeInMilliseconds;
 
-    // const days = Math.floor(remainingTime / (1000 * 60 * 60 * 24));
-    // remainingTime %= (1000 * 60 * 60 * 24);
-    // const hours = Math.floor(remainingTime / (1000 * 60 * 60));
-    // remainingTime %= (1000 * 60 * 60);
-    // const minutes = Math.floor(remainingTime / (1000 * 60));
-  
     const days = Math.floor(remainingTime / (1000 * 60 * 60 * 24));
-    const hours = Math.floor((remainingTime % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-    const minutes = Math.floor((remainingTime % (1000 * 60 * 60)) / (1000 * 60));
+    remainingTime %= (1000 * 60 * 60 * 24);
+    const hours = Math.floor(remainingTime / (1000 * 60 * 60));
+    remainingTime %= (1000 * 60 * 60);
+    const minutes = Math.floor(remainingTime / (1000 * 60));
+  
+    // const days = Math.floor(remainingTime / (1000 * 60 * 60 * 24));
+    // const hours = Math.floor((remainingTime % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+    // const minutes = Math.floor((remainingTime % (1000 * 60 * 60)) / (1000 * 60));
 
     // Construct the formatted average resolution time string
     let formattedAverageResolutionTime = [];
     if (days > 0) formattedAverageResolutionTime.push(`${days} يوم`);
     if (hours > 0) formattedAverageResolutionTime.push(`${hours} ساعة`);
     if (minutes > 0) formattedAverageResolutionTime.push(`${minutes} دقيقة`);
+  
   
     return {
       resolutionTimes,
@@ -931,7 +937,7 @@ return isLoaded ? (
                 position={{ lat: complaint.location._lat, lng: complaint.location._long }}
                 onClick={() => showComplaintDetails(complaint.id)}
                 icon={{
-                  url: "/greenMarker.png",
+                  url: "/complaintMarker.png",
                   scaledSize: new window.google.maps.Size(45, 45),
                 }}
               />
@@ -1318,7 +1324,7 @@ return isLoaded ? (
 
     <div className="">
    <Card className=' p-4 shadow-lg' >
-   <Typography  className='font-baloo  text-xs font-bold mb-2 flex items-center justify-center gap-1 '><span>توزيع البلاغات خلال سنة</span> 
+   <Typography  className='font-baloo  text-xs font-bold mb-2 flex items-center justify-center gap-1 '>
    <Tooltip  className="bg-white shadow-lg "
    content={
         <div className="w-80">
@@ -1348,7 +1354,16 @@ return isLoaded ? (
         d="M11.25 11.25l.041-.02a.75.75 0 011.063.852l-.708 2.836a.75.75 0 001.063.853l.041-.021M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-9-3.75h.008v.008H12V8.25z"
       />
     </svg>
-      </Tooltip></Typography>
+      </Tooltip>
+      
+    <span>توزيع البلاغات خلال سنة :</span> 
+  
+      <Select
+      onChange={(selectedOption) => handleYearChange(selectedOption, setSelectedYear)}
+      options={uniqueYears.map(year => ({ value: year, label: year }))}
+      value={{ value: selectedYear, label: selectedYear }}
+    />
+      </Typography>
    <hr/>
 
    {/* <select onChange={handleYearChange} value={selectedYear}>
@@ -1357,11 +1372,7 @@ return isLoaded ? (
   ))}
 </select> */}
 
-<Select
-      onChange={(selectedOption) => handleYearChange(selectedOption, setSelectedYear)}
-      options={uniqueYears.map(year => ({ value: year, label: year }))}
-      value={{ value: selectedYear, label: selectedYear }}
-    />
+
 
     {/* <div style={{width: '100%', height: '100%' }}> */}
 

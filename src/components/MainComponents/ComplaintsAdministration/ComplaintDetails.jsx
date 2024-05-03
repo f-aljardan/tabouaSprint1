@@ -22,7 +22,7 @@ const containerStyle = {
 
   const googleMapsLibraries = ["visualization"];
 
-export default function ComplaintDetails({directRoute, setDirectRoute}) {
+export default function ComplaintDetails({directRouteComplaint, setDirectRouteComplaint}) {
   const { id } = useParams();
   const [zoom, setZoom] = useState(10); // set the initial zoom level
   const [complaintDetails, setComplaintDetails] = useState(null);
@@ -362,10 +362,10 @@ const moveSlideUser = (step) => {
     <>
       {complaintDetails ? (
         <div className="m-5">
-      {directRoute? 
+      {directRouteComplaint? 
       <div className="flex justify-between">
       <Breadcrumbs fullWidth className="mb-3">
-      <span className="opacity-80 text-lg font-bold" onClick={() => {navigate(-1);  setDirectRoute(false); }}>
+      <span className="opacity-80 text-lg font-bold" onClick={() => {navigate(-1);  setDirectRouteComplaint(false); }}>
         الخريطة الحرارية
       </span>
       <span className="text-lg font-bold">
@@ -377,7 +377,7 @@ const moveSlideUser = (step) => {
     </Breadcrumbs>
 
 
-  <button onClick={() => {navigate(-1);  setDirectRoute(false); }}
+  <button onClick={() => {navigate(-1);  setDirectRouteComplaint(false); }}
      className=" mb-4">
     <IconButton variant="text" size="lg">
    <i className="fas fa-arrow-left fa-lg" />

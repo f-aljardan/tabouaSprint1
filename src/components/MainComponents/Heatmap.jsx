@@ -80,7 +80,7 @@ const typeOptions = [
   
    
 
-export default function Heatmap({setDirectRoute, setTypeFilter, setStatusFilter, setDateFilter, setNeighborhoodFilter}){
+export default function Heatmap({setDirectRoute, setDirectRouteComplaint, setTypeFilter, setStatusFilter, setDateFilter, setNeighborhoodFilter}){
   const navigate = useNavigate();
 
     const [map, setMap] = React.useState(null)
@@ -141,7 +141,7 @@ export default function Heatmap({setDirectRoute, setTypeFilter, setStatusFilter,
         querySnapshot.forEach((doc) => {
           const data = doc.data();
           const location = data.location || {}; // Ensure location is an object
-          complaintData.push({ id: doc.id, location, type: data.complaintType, status: data.status ,complaintDate: data.complaintDate, responseDate: data.responseDate, localArea: data.localArea });
+          complaintData.push({ id: doc.id, location, type: data.complaintType, status: data.status ,complaintDate: data.complaintDate, responseDate: data.responseDate, inprogressDate: data.inprogressDate, localArea: data.localArea });
         });
 
         // Initially, set all garbage bins
@@ -460,22 +460,75 @@ useEffect(() => {
   startOfWeek.setHours(0, 0, 0, 0); // Reset time to start of day for consistent comparison
   startOfWeek.setDate(startOfWeek.getDate() - startOfWeek.getDay());
 
-  const todaysCount = complaints.filter(complaint => {
-    const complaintDate = new Date(complaint.complaintDate.seconds * 1000);
-    complaintDate.setHours(0, 0, 0, 0); // Reset time for consistent day comparison
-    return complaintDate.getTime() === today.getTime();
-  }).length;
-
-  const monthsCount = complaints.filter(complaint => {
-    const complaintDate = new Date(complaint.complaintDate.seconds * 1000);
-    return complaintDate >= startOfMonth;
-  }).length;
-
-  const weeksCount = complaints.filter(complaint => {
-    const complaintDate = new Date(complaint.complaintDate.seconds * 1000);
-    return complaintDate >= startOfWeek;
-  }).length;
-
+  let todaysCount
+  let monthsCount 
+  let weeksCount
+  if(selectedStatus==="قيد التنفيذ"){
+    console.log("here pro sec")
+    todaysCount = complaints.filter(complaint => {
+      if(complaint.status==="قيد التنفيذ"){
+        console.log("here pro")
+      const complaintDate = new Date(complaint.inprogressDate.seconds * 1000);
+      complaintDate.setHours(0, 0, 0, 0); 
+      return complaintDate.getTime() === today.getTime();
+    } } ).length;
+ 
+     monthsCount = complaints.filter(complaint => {
+      if(complaint.status==="قيد التنفيذ"){
+        console.log("here pro")
+      const complaintDate = new Date(complaint.inprogressDate.seconds * 1000);
+      return complaintDate >= startOfMonth;
+  }}).length;
+  
+     weeksCount = complaints.filter(complaint => {
+      if(complaint.status==="قيد التنفيذ"){
+        console.log("here pro")
+      const complaintDate = new Date(complaint.inprogressDate.seconds * 1000);
+      return complaintDate >= startOfWeek;
+  }}).length;
+ 
+  }else if(selectedStatus==="تم التنفيذ" || selectedStatus==="مرفوض"){
+    console.log("here do se")
+    todaysCount = complaints.filter(complaint => {
+      if(complaint.status==="تم التنفيذ" || complaint.status==="مرفوض"){
+        console.log("here do")
+      const complaintDate = new Date(complaint.responseDate.seconds * 1000);
+      complaintDate.setHours(0, 0, 0, 0); // Reset time for consistent day comparison
+      return complaintDate.getTime() === today.getTime();
+  }}).length;
+  
+     monthsCount = complaints.filter(complaint => {
+      if(complaint.status==="تم التنفيذ" || complaint.status==="مرفوض"){
+        console.log("here do")
+      const complaintDate = new Date(complaint.responseDate.seconds * 1000);
+      return complaintDate >= startOfMonth;
+  }}).length;
+  
+     weeksCount = complaints.filter(complaint => {
+      if(complaint.status==="تم التنفيذ" || complaint.status==="مرفوض"){
+        console.log("here do")
+      const complaintDate = new Date(complaint.responseDate.seconds * 1000);
+      return complaintDate >= startOfWeek;
+  }}).length;
+  }else{
+     todaysCount = complaints.filter(complaint => {
+      const complaintDate = new Date(complaint.complaintDate.seconds * 1000);
+      complaintDate.setHours(0, 0, 0, 0); // Reset time for consistent day comparison
+      return complaintDate.getTime() === today.getTime();
+    }).length;
+  
+     monthsCount = complaints.filter(complaint => {
+      const complaintDate = new Date(complaint.complaintDate.seconds * 1000);
+      return complaintDate >= startOfMonth;
+    }).length;
+  
+     weeksCount = complaints.filter(complaint => {
+      const complaintDate = new Date(complaint.complaintDate.seconds * 1000);
+      return complaintDate >= startOfWeek;
+    }).length;
+  
+  }
+ 
   setTodaysComplaintsCount(todaysCount);
   setThisMonthsComplaintsCount(monthsCount);
   setThisWeeksComplaintsCount(weeksCount);
@@ -770,7 +823,7 @@ setZoom(18);
   
 
   const showComplaintDetails = (complaintId) => {
-    setDirectRoute(true);
+    setDirectRouteComplaint(true);
     navigate(`/mainpage/complaints/${complaintId}`);
   };
 

@@ -23,7 +23,7 @@ import {
   import logo from "/src/assets/tabouaNo.png";
 
 
-  function Sidebar({ authorized, showSidebar, setShowSidebar , activeItem, setActiveItem}) {
+  function Sidebar({ authorized, showSidebar, setShowSidebar , activeItem, setActiveItem, setDirectRoute, setDirectRouteComplaint}) {
   
 
   useEffect(()=>{
@@ -125,7 +125,7 @@ const handleAccordionToggle = (accordionIndex) => {
             <ListItemPrefix>
               <TbMessageReport className="h-6 w-6" />
             </ListItemPrefix>
-            <Link to="complaints" onClick={() => handleItemClick('complaints') }> إدارةالبلاغات  </Link>
+            <Link to="complaints" onClick={() => {handleItemClick('complaints'); setDirectRoute(false), setDirectRouteComplaint(false) }}> إدارةالبلاغات  </Link>
           </ListItem>
           <hr />
 

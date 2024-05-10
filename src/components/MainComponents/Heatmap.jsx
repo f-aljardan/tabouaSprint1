@@ -1,7 +1,7 @@
 import React , {useState, useEffect, useRef} from 'react'
 import { GoogleMap, useJsApiLoader, Marker , Circle, HeatmapLayer } from '@react-google-maps/api';
 import { db } from "/src/firebase";
-import { getDocs, collection, addDoc, GeoPoint, deleteDoc, doc ,getDoc, Timestamp,updateDoc } from "firebase/firestore"; 
+import { getDocs, collection} from "firebase/firestore"; 
 import { Button, Card, Typography, Tooltip,  } from "@material-tailwind/react";
 import { useNavigate } from 'react-router-dom';
 import {
@@ -29,14 +29,14 @@ ChartJS.register( PointElement, LineElement, CategoryScale, LinearScale, BarElem
 const reactSelectStyles = {
   container: (provided) => ({
     ...provided,
-    width: "250px", // Adjust the width as needed
+    width: "250px",
   }),
 };
 
 const reactTypeSelectStyles = {
   container: (provided) => ({
     ...provided,
-    width: "450px", // Adjust the width as needed
+    width: "450px", 
   }),
 };
 
@@ -47,10 +47,10 @@ const animatedComponents = makeAnimated();
 
 const googleMapsLibraries = ["visualization"];
 
-// Define constants for the Google Map
+//  constants size for the Google Map
 const containerStyle = {
   width: '100%', 
-    height: '100%'
+  height: '100%'
 };
 // Set the initial center for the  Google Map
 const center = {
@@ -78,7 +78,6 @@ const typeOptions = [
     { value: "مرفوض", label: "مرفوض" },
   ];
   
-   
 
 export default function Heatmap({setDirectRoute, setDirectRouteComplaint, setTypeFilter, setStatusFilter, setDateFilter, setNeighborhoodFilter}){
   const navigate = useNavigate();
@@ -144,14 +143,11 @@ export default function Heatmap({setDirectRoute, setDirectRouteComplaint, setTyp
           complaintData.push({ id: doc.id, location, type: data.complaintType, status: data.status ,complaintDate: data.complaintDate, responseDate: data.responseDate, inprogressDate: data.inprogressDate, localArea: data.localArea });
         });
 
-        // Initially, set all garbage bins
+        //  set all garbage bins
         setComplaints(complaintData);
 
-        // Store the bin data for filtering
+        // Store  bin data for filtering
         SetComplaintData(complaintData);
-
-        
-    
 
       } catch (error) {
         console.error('Error fetching garbage bins:', error);
@@ -159,8 +155,10 @@ export default function Heatmap({setDirectRoute, setDirectRouteComplaint, setTyp
     };
 
     fetchComplaints();
-   
   }, []);
+
+
+
 
   const [averageResolutionTime, setAverageResolutionTime] = useState(0);
   
@@ -170,17 +168,18 @@ export default function Heatmap({setDirectRoute, setDirectRouteComplaint, setTyp
   }, [complaints])
 
 
+
+
   const [typeData, setTypeData] = useState({});
   const [statusData, setStatusData] = useState({});
+
   const statusColors = {
     "جديد": "teal",
     "قيد التنفيذ": "#F5DA4A",
     "تم التنفيذ": "#97B980",
     "مرفوض":  "#FE5500",
-    // Add more status colors as needed
   };
   
-
   useEffect(() => {
 
   const complaintTypes = complaints.reduce((acc, complaint) => {
@@ -202,23 +201,19 @@ setTypeData ({
           '#FE9B00', // orange
           '#97B980', // Light green
           '#07512D', // dark green
-         
-          // Make sure to adjust these colors so each complaint type has a unique color.
         ],
         hoverOffset: 7
-
       }
     ]
   });
 
-  
   let statusCounts = complaints.reduce((acc, complaint) => {
     acc[complaint.status] = (acc[complaint.status] || 0) + 1;
     return acc;
   }, {});
   
   setStatusData({
-    labels: Object.keys(statusCounts), // ["New", "In Progress", "Resolved"]
+    labels: Object.keys(statusCounts), 
     datasets: [{
       label: 'عدد البلاغات',
       data: Object.values(statusCounts), 
@@ -233,10 +228,10 @@ setTypeData ({
 const options = {
   plugins: {
     legend: {
-      display: false, // This will hide the label above the chart
+      display: false,
     },
     title: {
-      display: false, // This will hide the title at the top of the chart
+      display: false, 
     }
   },
   scales: {
@@ -244,11 +239,7 @@ const options = {
       beginAtZero: true,
       title: {
         display: true,
-        text: 'عدد البلاغات', // This sets the y-axis title
-        // font: {
-        //   size: 18,
-        //   weight: 'bold',
-        // }
+        text: 'عدد البلاغات', 
       }
     },
   },
@@ -258,44 +249,12 @@ const typesOptions = {
   maintainAspectRatio: false,
 };
 
+  
 
 
-  // const calculateComplaintsResolutionTimes = (complaints) => {
-
-  //   // Filter complaints that is resolved
-  //   const validComplaints = complaints.filter(complaint => complaint.complaintDate && complaint.responseDate);
-    
-  //   const resolutionTimes = validComplaints.map(complaint => {
-  //     const createdAt = complaint.complaintDate.toDate().getTime();
-  //     const resolvedAt = complaint.responseDate.toDate().getTime();
-      
-  //     // Calculate time in hours
-  //     const resolutionTimeInHours = (resolvedAt - createdAt) / (1000 * 60 * 60);
-  //     return resolutionTimeInHours; // still return the time in hours for averaging purposes
-  //   });
-  
-  //   // Avoid division by zero by ensuring the array length is not zero
-  //   const averageResolutionTimeInHours = resolutionTimes.length > 0
-  //     ? resolutionTimes.reduce((a, b) => a + b, 0) / resolutionTimes.length
-  //     : 0;
-    
-  //   // Calculate average days and hours
-  //   const averageDays = Math.floor(averageResolutionTimeInHours / 24);
-  //   const averageHours = averageResolutionTimeInHours % 24;
-  //   const formattedAverageResolutionTime = averageDays > 0
-  //     ? `${averageDays} يوم, ${averageHours.toFixed(2)} ساعة`
-  //     : `${averageHours.toFixed(2)} ساعة`;
-  
-  //   return {
-  //     resolutionTimes,
-  //     averageResolutionTime: formattedAverageResolutionTime // This is the formatted string
-  //   };
-  // };  
-  
   const calculateComplaintsResolutionTimes = (complaints) => {
    // Filter complaints that is resolved
     const validComplaints = complaints.filter(complaint => complaint.complaintDate && complaint.responseDate);
-   
     const resolutionTimes = validComplaints.map(complaint => {
       const createdAt = complaint.complaintDate.toDate().getTime();
       const resolvedAt = complaint.responseDate.toDate().getTime();
@@ -313,12 +272,10 @@ const typesOptions = {
     }
   
     // Calculate the average resolution time in milliseconds
-    // const averageResolutionTimeInMilliseconds = resolutionTimes.reduce((a, b) => a + b, 0) / resolutionTimes.length;
     const averageResolutionTimeInMilliseconds = resolutionTimes.length > 0
   ? Math.abs(resolutionTimes.reduce((a, b) => a + b, 0) / resolutionTimes.length)
   : 0;
 
-  
     // Convert milliseconds to days, hours, and minutes
     let remainingTime = averageResolutionTimeInMilliseconds;
 
@@ -327,17 +284,12 @@ const typesOptions = {
     const hours = Math.floor(remainingTime / (1000 * 60 * 60));
     remainingTime %= (1000 * 60 * 60);
     const minutes = Math.floor(remainingTime / (1000 * 60));
-  
-    // const days = Math.floor(remainingTime / (1000 * 60 * 60 * 24));
-    // const hours = Math.floor((remainingTime % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-    // const minutes = Math.floor((remainingTime % (1000 * 60 * 60)) / (1000 * 60));
 
     // Construct the formatted average resolution time string
     let formattedAverageResolutionTime = [];
     if (days > 0) formattedAverageResolutionTime.push(`${days} يوم`);
     if (hours > 0) formattedAverageResolutionTime.push(`${hours} ساعة`);
     if (minutes > 0) formattedAverageResolutionTime.push(`${minutes} دقيقة`);
-  
   
     return {
       resolutionTimes,
@@ -348,15 +300,16 @@ const typesOptions = {
 
   
 
+
+
+
 useEffect(() => {
   filterComplaints();
-}, [selectedStatus, selectedComplaintType]); // Re-run filter when these dependencies change
-
-
+}, [selectedStatus, selectedComplaintType]); 
 
 const filterComplaints = () => {
   let filteredComplaints = complaintData;
-let didFilter = false;
+  let didFilter = false;
 
   const isAllSelected = selectedComplaintType.some(option => option.value === "الكل");
  
@@ -395,79 +348,36 @@ let didFilter = false;
   }else{
     setShowNoDataAlert(false);
   }
-
- 
 };
-
 
 const handleComplaintTypeSelect = (selectedOptions) => {
   setSelectedComplaintType(selectedOptions || []);
 };
 
 
-// // Handle selection changes for complaint type
-// const handleComplaintTypeSelect = (selectedOptions) => {
-//   const selectedTypes = selectedOptions ? selectedOptions.map(option => option.value) : [];
-//   setSelectedComplaintType(selectedTypes);
-//   filterComplaints();
-// };
-
-
-
-
-
-// useEffect(() => {
-//   const today = new Date();
-//   const startOfMonth = new Date(today.getFullYear(), today.getMonth(), 1);
-//   const startOfWeek = new Date(today.setDate(today.getDate() - today.getDay()));
-  
-//   console.log("today "+ today)
-//   const todaysCount = complaints.filter(complaint => {
-//     const  complaintDate = new Date(complaint.complaintDate.seconds * 1000);
-//     // console.log("COMPtoday "+complaintDate.toDateString())
- 
-    
-//     return complaintDate === today;
-//   }).length;
-
- 
-//   const monthsCount = complaints.filter(complaint => {
-//     const complaintDate = new Date(complaint.complaintDate.seconds * 1000);
-//     return complaintDate >= startOfMonth;
-//   }).length;
-
-//   const weeksCount = complaints.filter(complaint => {
-//     const complaintDate = new Date(complaint.complaintDate.seconds * 1000);
-//     return complaintDate >= startOfWeek;
-//   }).length;
-
-//   setTodaysComplaintsCount(todaysCount);
-//   setThisMonthsComplaintsCount(monthsCount);
-//   setThisWeeksComplaintsCount(weeksCount);
-// }, [complaints]);
 
 
 useEffect(() => {
-  // Correctly establish "today" at the start of the day for comparison
+  // "today" at the start of the day for correct comparison
   const today = new Date();
   today.setHours(0, 0, 0, 0);
 
-  // Keep "today" date unchanged for "startOfMonth" calculation
   const startOfMonth = new Date(today.getFullYear(), today.getMonth(), 1);
 
-  // Use a new Date object for "startOfWeek" to avoid mutating "today"
   const startOfWeek = new Date();
-  startOfWeek.setHours(0, 0, 0, 0); // Reset time to start of day for consistent comparison
+  startOfWeek.setHours(0, 0, 0, 0); // reset time for consistent comparison
   startOfWeek.setDate(startOfWeek.getDate() - startOfWeek.getDay());
 
   let todaysCount
   let monthsCount 
   let weeksCount
+
   if(selectedStatus==="قيد التنفيذ"){
-    console.log("here pro sec")
+
     todaysCount = complaints.filter(complaint => {
+
       if(complaint.status==="قيد التنفيذ"){
-        console.log("here pro")
+
       const complaintDate = new Date(complaint.inprogressDate.seconds * 1000);
       complaintDate.setHours(0, 0, 0, 0); 
       return complaintDate.getTime() === today.getTime();
@@ -475,45 +385,40 @@ useEffect(() => {
  
      monthsCount = complaints.filter(complaint => {
       if(complaint.status==="قيد التنفيذ"){
-        console.log("here pro")
       const complaintDate = new Date(complaint.inprogressDate.seconds * 1000);
       return complaintDate >= startOfMonth;
   }}).length;
   
      weeksCount = complaints.filter(complaint => {
       if(complaint.status==="قيد التنفيذ"){
-        console.log("here pro")
       const complaintDate = new Date(complaint.inprogressDate.seconds * 1000);
       return complaintDate >= startOfWeek;
   }}).length;
  
   }else if(selectedStatus==="تم التنفيذ" || selectedStatus==="مرفوض"){
-    console.log("here do se")
     todaysCount = complaints.filter(complaint => {
       if(complaint.status==="تم التنفيذ" || complaint.status==="مرفوض"){
-        console.log("here do")
       const complaintDate = new Date(complaint.responseDate.seconds * 1000);
-      complaintDate.setHours(0, 0, 0, 0); // Reset time for consistent day comparison
+      complaintDate.setHours(0, 0, 0, 0); 
       return complaintDate.getTime() === today.getTime();
   }}).length;
   
      monthsCount = complaints.filter(complaint => {
       if(complaint.status==="تم التنفيذ" || complaint.status==="مرفوض"){
-        console.log("here do")
       const complaintDate = new Date(complaint.responseDate.seconds * 1000);
       return complaintDate >= startOfMonth;
   }}).length;
   
      weeksCount = complaints.filter(complaint => {
       if(complaint.status==="تم التنفيذ" || complaint.status==="مرفوض"){
-        console.log("here do")
       const complaintDate = new Date(complaint.responseDate.seconds * 1000);
       return complaintDate >= startOfWeek;
   }}).length;
+
   }else{
      todaysCount = complaints.filter(complaint => {
       const complaintDate = new Date(complaint.complaintDate.seconds * 1000);
-      complaintDate.setHours(0, 0, 0, 0); // Reset time for consistent day comparison
+      complaintDate.setHours(0, 0, 0, 0); 
       return complaintDate.getTime() === today.getTime();
     }).length;
   
@@ -528,7 +433,6 @@ useEffect(() => {
     }).length;
   
   }
- 
   setTodaysComplaintsCount(todaysCount);
   setThisMonthsComplaintsCount(monthsCount);
   setThisWeeksComplaintsCount(weeksCount);
@@ -557,7 +461,6 @@ const showComplaintsByMonth = (complaints, year) => {
   const allMonths = Array.from({ length: 12 }, (_, i) => `${year}-${(i + 1).toString().padStart(2, '0')}`);
   const counts = allMonths.map(key => complaintCounts[key] || 0);
 
-  // Define point background colors based on whether the month is in the past or the future
   const pointBackgroundColors = allMonths.map(key => {
     const [year, month] = key.split('-').map(Number);
    
@@ -565,7 +468,7 @@ const showComplaintsByMonth = (complaints, year) => {
     if (year === currentYear && month - 1 > currentMonth) {
       return 'transparent';
     }
-    // Otherwise, use the blue color
+    // otherwise use the blue color
     return 'rgb(54, 162, 235)';
   });
 
@@ -617,17 +520,10 @@ const updateChartForYear = (selectedYear) => {
   setChartData(updatedChartData);
 };
 
-
-// Effect to update the chart when the selected year changes
 useEffect(() => {
   updateChartForYear(selectedYear);
 }, [selectedYear, complaints]);
 
-
-// // Function to handle year selection change
-// const handleYearChange = (event) => {
-//   setSelectedYear(parseInt(event.target.value, 10));
-// };
 // Function to handle year selection change
 const handleYearChange = (selectedOption, setSelectedYear) => {
   setSelectedYear(selectedOption.value);
@@ -653,18 +549,14 @@ const convertYearMonthNameToNumber = (label) => {
   // Split the label into month and year
   const [monthName, arabicYear] = label.trim().split(' ');
 
-  // Convert the Arabic year to a Western year
+  // Convert the Arabic year to a english year
   const westernYear = convertArabicNumerals(arabicYear);
-
-  // Get the last two digits of the year
-  // const yearLastTwoDigits = westernYear.slice(-2);
 
   // Map the Arabic month name to a month number
   const monthNumber = arabicMonthToNumber[monthName];
 
   return westernYear + "-" + monthNumber;
 };
-
 
 
 
@@ -719,19 +611,10 @@ const { labels, data } = Object.entries(combineComplaintsByNeighborhood(complain
       }
     };
 
-    // const [displayCount, setDisplayCount] = useState(10); // Initially show top 10 neighborhoods
     const heightPerNeighborhood = 25;
-
-    // const handleShowMore = () => {
-    //   // Set displayCount to the total number of neighborhoods, showing all of them
-    //   setDisplayCount(labels.length);
-    // };
-  
     const displayedLabels = labels
-    // .slice(0, displayCount);
     const displayedData = data
-    // .slice(0, displayCount);
-  
+ 
     const chartData = {
       labels: displayedLabels,
       datasets: [
@@ -749,13 +632,13 @@ const { labels, data } = Object.entries(combineComplaintsByNeighborhood(complain
       onClick: handleClickOnChart,
       plugins: {
         legend: {
-          display: false, // This will hide the label above the chart
+          display: false, 
         },
         title: {
-          display: false, // This will hide the title at the top of the chart
+          display: false, 
         }
       },
-      indexAxis: 'y', // Horizontal bar chart
+      indexAxis: 'y', 
       elements: {
         bar: {
           borderWidth: 2,
@@ -767,30 +650,20 @@ const { labels, data } = Object.entries(combineComplaintsByNeighborhood(complain
         x: {
           title: {
             display: true,
-            text: 'عدد البلاغات', // This sets the y-axis title
+            text: 'عدد البلاغات',
           }
         },
       },
     };
 
-      // Calculate chart height based on displayCount
   const chartHeight = Math.max(labels.length * heightPerNeighborhood, 50); // Ensure a minimum height
 
     return (<div>
       <div style={{ height: `${chartHeight}px` }}>
         <Bar data={chartData} options={options} />
       </div>
-      {/* {displayCount < labels.length && (
-        <button onClick={handleShowMore} style={{ marginTop: '10px' }}>إظهار المزيد</button>
-      )} */}
-    </div>)
-    
-     
+    </div>) 
   }
-
-
-
-
 
 
 
@@ -808,11 +681,7 @@ const { labels, data } = Object.entries(combineComplaintsByNeighborhood(complain
 
           // Set the center of the map to the user's location
           map.setCenter(userPosition);
-
-
- // Directly set the zoom level of the map
-setZoom(18);
-          
+          setZoom(18);
         }
       });
     } else {
@@ -821,7 +690,6 @@ setZoom(18);
   };
 
   
-
   const showComplaintDetails = (complaintId) => {
     setDirectRouteComplaint(true);
     navigate(`/mainpage/complaints/${complaintId}`);
@@ -830,13 +698,10 @@ setZoom(18);
   useEffect(() => {
     if (!mapRef.current) return;
     const onZoomChanged = () => {
-      const currentZoom = mapRef.current.getZoom();
-   
-      if (currentZoom >= 15) {
-        
+    const currentZoom = mapRef.current.getZoom();
+      if (currentZoom >= 15) { 
         setVisibleMarkers(complaints);
       } else {
-        
         setVisibleMarkers([]);
       }
     };
@@ -848,7 +713,6 @@ setZoom(18);
       }
     };
   }, [complaints]);
-
 
   const [isFullscreen, setIsFullscreen] = useState(false);
   const mapContainerRef = useRef(null);
@@ -873,7 +737,6 @@ setZoom(18);
       const fullscreenElement = document.fullscreenElement;
       setIsFullscreen(!!fullscreenElement);
     };
-
     document.addEventListener('fullscreenchange', handleFullscreenChange);
 
     return () => {
@@ -886,8 +749,6 @@ setZoom(18);
 return isLoaded ? (
     <div style={{ position: 'relative', width: '100%', height: '100%' }} ref={mapContainerRef}>
  
- 
-
         <div className="flex gap-5 p-4 mr-12 z-10" style={{ position: 'absolute' }}>
           <div className='flex-col'>
     <div className='flex gap-5'>
@@ -898,18 +759,6 @@ return isLoaded ? (
           <span>عرض الموقع الحالي</span>
         </Button>
 
-        
-{/*        
-<Select
-  isMulti
-  placeholder="تصفية حسب نوع البلاغ..."
-  closeMenuOnSelect={false}
-  components={animatedComponents}
-  options={typeOptions}
-  value={selectedComplaintType.map(type => typeOptions.find(option => option.value === type))}
-  onChange={handleComplaintTypeSelect}
-  styles={reactTypeSelectStyles}
-/> */}
 
 <Select
   isMulti
@@ -936,10 +785,6 @@ return isLoaded ? (
   styles={reactSelectStyles}
 />
 
-
-
-
-
 </div>
 
 {showNoDataAlert ?
@@ -950,17 +795,11 @@ return isLoaded ? (
          : null
          } 
 
-
-
-  </div>
-
-  
-
-        </div>
+          </div>
+          </div>
        
-
         <GoogleMap
-          mapContainerStyle={containerStyle}
+         mapContainerStyle={containerStyle}
          center={userPosition || center}
          zoom={zoom}
          onLoad={onLoad}
@@ -970,15 +809,9 @@ return isLoaded ? (
             streetViewControl: false,
             mapTypeControl: false,
             fullscreenControl: false,
-          
           }}
-     
-      
         >
   
-  
-  {/* {complaints.length > 0 && (
-       <> */}
           <HeatmapLayer
             data={complaints.map(comp => new google.maps.LatLng(comp.location._lat, comp.location._long))}
             options={{radius: 25, opacity: 0.7, }}
@@ -996,13 +829,7 @@ return isLoaded ? (
               />
             ))}
 
-            {/* </>
-            )} */}
         
-        
-         
-      
-  
       {showUserLocation && userPosition && (
             <Marker position={userPosition} icon={{ path: window.google.maps.SymbolPath.CIRCLE, scale: 10, fillColor: '#4285F4', fillOpacity: 0.8, strokeColor: '#4285F4' }}>
               <Circle center={userLocationRange} options={{ radius: userLocationRange.radius, strokeColor: '#4285F4', fillColor: '#4285F4', fillOpacity: 0.2 }} />
@@ -1011,9 +838,7 @@ return isLoaded ? (
   
            </GoogleMap>
 
-        
-
-           <button
+      <button
         onClick={toggleFullscreen}
         style={{ position: 'absolute', top: 10, right: 10, zIndex: 10, background: 'none', border: 'none' }}
         title={isFullscreen ? 'Exit Fullscreen' : 'Enter Fullscreen'}
@@ -1040,7 +865,7 @@ return isLoaded ? (
 
             <div className=" pr-8 py-2 " style={{backgroundColor:'#07512D', color: "white" , borderRadius: "5px"}}>
             <Typography className="font-baloo text-right text-xl font-bold ">
-                   تحليل  البلاغات 
+                 تحليل  البلاغات 
                   </Typography>
                   </div>
                       <hr/>
@@ -1252,9 +1077,6 @@ return isLoaded ? (
 </div>
 </Card>
 
-
-
-
 </div>
 
 
@@ -1419,22 +1241,11 @@ return isLoaded ? (
       </Typography>
    <hr/>
 
-   {/* <select onChange={handleYearChange} value={selectedYear}>
-  {uniqueYears.map(year => (
-    <option key={year} value={year}>{year}</option>
-  ))}
-</select> */}
-
-
-
-    {/* <div style={{width: '100%', height: '100%' }}> */}
-
       <Line data={chartData} options={{...lineChartOptionsForMonth, 
       onClick: (evt, element) => {
         if (element.length > 0) {
           const index = element[0].index;
           const label = chartData.labels[index];
-         
           const yearMonthNumber = convertYearMonthNameToNumber(label);
         
           setTypeFilter('');
@@ -1446,11 +1257,8 @@ return isLoaded ? (
         }}
       }} />
 
-      {/* </div> */}
       </Card>
 
-
-     
     </div>
 
 
@@ -1461,7 +1269,6 @@ return isLoaded ? (
         <div className="w-80">
           <Typography color="black" className="font-medium font-baloo">
           <span> توزيع البلاغات بحسب الاحياء </span> 
-          {/* <span>اكثرالاحياء تقديمًا للبلاغات</span> */}
           </Typography>
           <Typography
             variant="small"
@@ -1492,19 +1299,12 @@ return isLoaded ? (
   <NeighborhoodComplaintsChart labels={labels} data={data} />
   </div>
   </Card>
-
-     </div>
+  </div>
 
   </Card>
 </div>
-
-
 </div>
-
-
 ) }
-
-
       </div>
     ) : <></>
   }

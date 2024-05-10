@@ -48,7 +48,7 @@ body{
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  min-height: 100vh; /* This ensures the card takes the full height of the viewport */
+  min-height: 100vh; 
 
 }
 .welcome{
@@ -56,7 +56,7 @@ body{
   flex-direction: column;
   gap: 10px;
   justify-content: center;
-  min-height: 100vh; /* This ensures the card takes the full height of the viewport */
+  min-height: 100vh; 
 
 }
 
@@ -126,7 +126,6 @@ input[type=file]::file-selector-button:hover {
 }
 
 
-/* Styles for the upload images section */
 .upload-images-section {
   margin-top: 20px;
   text-align: right;
@@ -136,16 +135,16 @@ input[type=file]::file-selector-button:hover {
 
 .image-upload-instructions {
   font-size: 14px;
-  color: #666; /* Grey text */
+  color: #666;
   margin-top: 5px;
 }
 
 .error-message {
-  color: #ff0000; /* Red text */
+  color: #ff0000; 
   margin-top: 5px;
 }
 
-/* Styles for image previews */
+
 .image-previews {
   display: flex;
   flex-wrap: wrap;
@@ -158,14 +157,14 @@ input[type=file]::file-selector-button:hover {
   border: 1px solid #ddd;
   border-radius: 4px;
   padding: 5px;
-  position: relative; /* Needed for absolute positioning of delete button */
+  position: relative; 
   width: 150px;
   height: 150px;
   overflow: hidden;
   display: flex;
   align-items: center;
   justify-content: center;
-  margin-right: 10px; /* Add some spacing between previews */
+  margin-right: 10px; 
 }
 
 .image-preview img {
@@ -274,45 +273,12 @@ input[type=file]::file-selector-button:hover {
 }
 
 .line[data-status="executed"] {
-  background-color: #889494; /* Slightly adjusted color for better contrast */
+  background-color: #889494; 
 }
 
 .line-reject[data-status="executed"] {
-  background-color: #889494; /* Slightly adjusted color for better contrast */
+  background-color: #889494; 
 }
-
-
-
-/* 
-.line{
- width: 12rem;
-margin-bottom: 60px;
-height: 3px;
-}
-
-.line[data-status="waiting"]  {
-  background-color: rgb(191, 191, 191);
-}
-.line[data-status="inprogress"]  {
-  background: linear-gradient(to right, rgb(191, 191, 191), #97B980);
-}
-.line[data-status="executed"] {
-  background-color: rgb(136, 148, 148);
-} */
-/* .timeline::before {
-  content: '';
-  position: absolute;
-  top: 20px;
-  left: 0;
-  right: 0;
-  height: 3px;
-  background-color: #c4c2c2;
-  z-index: 1;
-  margin-left: 80px;
-  margin-right: 100px;
-} */
-
-
 
 
 .timeline-item {
@@ -333,7 +299,7 @@ height: 3px;
   justify-content: center;
   margin-bottom: 10px;
   position: relative;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2); /* Adds subtle shadow */
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2); 
 }
 
 .timeline-content {
@@ -344,68 +310,6 @@ height: 3px;
   font-weight: bold;
   margin-bottom: 5px;
 }
-
-
-
-/* ...other styles for coloring based on status... */
-/* 
- .timeline-container {
-  display: flex;
-  justify-content: center;
-  padding: 20px;
-}
-
-.timeline {
-  position: relative;
-  width: 100%;
-  list-style: none;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-
-}
-
-.timeline::before {
-  content: '';
-  position: absolute;
-  top: 20px;
-  left: 0;
-  height: 3px;
-  width: 100%;
-  background-color: #ddd; 
-  z-index: 1;
-} 
-
-.timeline-item {
-  position: relative;
-  padding: 0 10px;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  text-align: center;
-  z-index: 2;
-}
-
-
-.timeline-marker {
-  position: relative;
- 
-  height: 40px;
-
-  border: 3px solid #3498db; 
-}
-
-.timeline-content {
-  margin-top: 10px;
-}
-
-.timeline-time {
-  margin-bottom: 5px;
-  font-weight: bold;
-}
-
- */
-
 
 
 .timeline-item[data-status="waiting"] .timeline-marker {

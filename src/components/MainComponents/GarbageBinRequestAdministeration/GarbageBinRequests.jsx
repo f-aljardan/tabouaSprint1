@@ -19,35 +19,10 @@ import Select from "react-select";
 export default function GarbageBinRequests() {
  
   const [requests, setRequests] = useState([]);
-  // const [selectedRequest, setSelectedRequest] = useState(null);
   const [statusFilter, setStatusFilter] = useState(""); 
   const [searchQuery, setSearchQuery] = useState('');
   const [searchResults, setSearchResults] = useState([]);
-  // const [showRequestInfo, setShowRequestInfo] = useState(false);
-
-
-  // const handleRequestInfo = () =>  setShowRequestInfo(!showRequestInfo);
-
-
-  //function to open the request details window
-  // const handleViewRequestClick = (request) => {
-  //   const requestDoc = doc(db, 'requestedGarbageBin', request.id);
-  //   const unsubscribe = onSnapshot(requestDoc, (requestSnapshot) => {
-  //     if (requestSnapshot.exists()) {
-  //       const requestData = requestSnapshot.data();
-  //       // Update selectedRequest with the latest data from Firebase
-  //       setSelectedRequest({ ...request, ...requestData });
-  //       setShowRequestInfo(true);
-  //     }
-  //   });
-    
-  //   return () => {
-  //     unsubscribe();
-  //   };
-  // };
-
-
-
+ 
   //Fetch all requests
   useEffect(() => {
     const q = query(collection(db, "requestedGarbageBin"));
@@ -66,7 +41,6 @@ export default function GarbageBinRequests() {
     };
     
   }, []);
-
 
 
 
@@ -97,7 +71,7 @@ export default function GarbageBinRequests() {
   const reactSelectStyles = {
     container: (provided) => ({
       ...provided,
-      width: "100%", // Adjust the width as needed
+      width: "100%", 
     }),
   };
   
@@ -128,7 +102,7 @@ export default function GarbageBinRequests() {
             styles={reactSelectStyles}
           />
 
-           <div className="w-full md:w-72">
+          <div className="w-full md:w-72">
                 <Input
                   icon={<MagnifyingGlassIcon className="h-5 w-5" />}
                   placeholder="البحث برقم الطلب"
@@ -137,7 +111,6 @@ export default function GarbageBinRequests() {
                   className="custom-placeholder"
                 />
               </div>
-
         </div>
 
         <table className="  table-auto  mt-4  ">
@@ -199,14 +172,7 @@ export default function GarbageBinRequests() {
             a.requestDate?.toDate() - b.requestDate?.toDate()
         )
         .map((request) => (
-          // .map((request) => {
-          // return (
             <tr key={request.id}>
-             {/* <td className="p-4 text-right cursor-pointer hover:text-red" onClick={() => handleViewRequestClick(request)}>
-              <Typography  color="teal">
-                 <span>{request.requestNo}</span>
-               </Typography>
-</td> */}
 <td className="p-4 text-right cursor-pointer hover:text-red"
                   > 
                     <Link to={`${request.id}`}>
@@ -216,8 +182,7 @@ export default function GarbageBinRequests() {
                     </Link>
                   </td>
 
-
-   <td className="p-4 text-right">
+  <td className="p-4 text-right">
                 {request.requestDate?.toDate().toISOString().slice(0,10) || 'N/A'}
               </td>
               <td className="p-4 text-center">
@@ -245,9 +210,9 @@ export default function GarbageBinRequests() {
       )
       )) 
    
-     : filteredRequests.length === 0 ? (
+    : filteredRequests.length === 0 ? (
       <tr>
-       <td className="p-4 border-b border-blue-gray-50 text-center" colSpan="3">
+      <td className="p-4 border-b border-blue-gray-50 text-center" colSpan="3">
         <Typography variant="small" color="red" className="font-bold">
         <span>لا يوجد طلبات مطابقة للتصنيف</span>  
         </Typography>
@@ -256,15 +221,10 @@ export default function GarbageBinRequests() {
     ) : (
       filteredRequests.map((request) => (
         <tr key={request.id}>
-          {/* <td className="p-4 text-right cursor-pointer hover:text-red" onClick={() => handleViewRequestClick(request)}>
-            <Typography  color="teal">
-              <span>{request.requestNo}</span>
-            </Typography>
-          </td> */}
           <td
                     className="p-4 text-right cursor-pointer hover:text-red"
                   > 
-                   <Link to={`${request.id}`}>
+                  <Link to={`${request.id}`}>
   <Typography color="teal">
     <span>{request.requestNo}</span>
   </Typography>

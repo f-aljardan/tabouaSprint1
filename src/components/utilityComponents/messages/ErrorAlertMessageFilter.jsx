@@ -28,17 +28,7 @@ export default function ErrorAlertMessageFilter({open, handler, message}) {
         open={open}
         icon={<Icon/>}
         style={{background:"#FE5500", color:'#ffffff'}}
-        // action={
-        //   <Button
-        //     variant="text"
-        //     color="white"
-        //     size="sm"
-        //     className="!absolute top-3 left-0 "
-        //     onClick={handler}
-        //   >
-        //  <span> إغلاق</span> 
-        //   </Button>
-        // }
+        
       >
       <span className="ml-44 pl-2"> {message}</span> 
       </Alert>

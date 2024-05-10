@@ -17,7 +17,7 @@ import {
      setLocalImagePreviews(imagePreviews);
    }, [imagePreviews]);
  
-    // Perform necessary actions before confirming
+  
     const handleConfirm = () => {
       method();
       handler(); // handle close dialog
@@ -34,19 +34,7 @@ import {
         <DialogBody divider className="font-baloo text-right h-[20rem] overflow-y-scroll" >
             {complaintData ? (
                 <div className="flex flex-col gap-3 ">
-                {/* <Typography className="font-baloo text-right text-lg font-bold">تفاصيل البلاغ:</Typography>
-      
-                <Typography>
-                  <span>
-                    <span className="font-bold">رقم البلاغ :</span> {complaintData?.complaintNo}
-                  </span>
-                </Typography>
-                <Typography>
-                  <span>
-                    <span className="font-bold">وصف البلاغ:</span> {complaintData?.description}
-                  </span>
-                </Typography> */}
-      
+  
                 <Typography className="font-baloo text-right text-lg font-bold mt-3">تفاصيل الرد:</Typography>
       <hr/>
                 <Typography>

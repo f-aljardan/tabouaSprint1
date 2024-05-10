@@ -8,7 +8,7 @@ import SummaryComplaintResponse from "../../utilityComponents/messages/SummaryCo
 import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
 import Success from "../../utilityComponents/messages/Success"
 
-// Define constants for the Google Map
+// style size for the Google Map
 const containerStyle = {
     width: '400px', 
     height: '20vh', 
@@ -24,20 +24,20 @@ const containerStyle = {
 
 export default function ComplaintDetails({directRouteComplaint, setDirectRouteComplaint}) {
   const { id } = useParams();
-  const [zoom, setZoom] = useState(10); // set the initial zoom level
+
+  const [zoom, setZoom] = useState(10); 
   const [complaintDetails, setComplaintDetails] = useState(null);
   const [complainerInfo, setComplainerInfo] = useState(null);
-
   const [selectedStatus, setSelectedStatus] = useState("");
   const [message, setMessage] = useState(""); 
   const [errorMessage, setErrorMessage] = useState(""); 
   const [errorMessageStatus, setErrorMessageStatus] = useState(""); 
-  const [editMode, setEditMode] = useState(false); // New state variable
+  const [editMode, setEditMode] = useState(false); 
   const [selectedImages, setSelectedImages] = useState([]);
   const [imageUploadError, setImageUploadError] = useState('');
   const [imagePreviews, setImagePreviews] = useState([])
   const [showSuccessProcess, setShowSuccessProcess] = useState(false);
-  const [summeryComplaintOpen, setSummeryComplaintOpen] = useState(false);// State to manage the visibility of the summary center information
+  const [summeryComplaintOpen, setSummeryComplaintOpen] = useState(false);
   const [showSuccessResponse, setShowSuccessResponse] = useState(false);
 
   const handleSummeryComplaint = () =>setSummeryComplaintOpen(!summeryComplaintOpen); 
@@ -47,9 +47,6 @@ export default function ComplaintDetails({directRouteComplaint, setDirectRouteCo
   
   const navigate = useNavigate();
   
-  
-  
- 
   const responseData = {
     selectedStatus: selectedStatus,
     message: message,
@@ -62,27 +59,20 @@ export default function ComplaintDetails({directRouteComplaint, setDirectRouteCo
       try {
         const complaintDoc = doc(db, "complaints", id);
         
-        // Subscribe to real-time updates for the specific complaint document
         const unsubscribe = onSnapshot(complaintDoc, (docSnapshot) => {
           if (docSnapshot.exists()) {
             const data = docSnapshot.data();
             setComplaintDetails(data);
-
-            // Update other state as needed
-
             setZoom(20);
             center.lat = data.location._lat;
             center.lng = data.location._long;
           } else {
-            // Handle case where complaint with the given ID doesn't exist
             console.log("Complaint not found");
           }
         });
 
-        // Cleanup function to unsubscribe when component unmounts
         return () => unsubscribe();
       } catch (error) {
-        // Handle error during fetching
         console.error("Error fetching complaint details:", error);
       }
     };
@@ -91,16 +81,14 @@ export default function ComplaintDetails({directRouteComplaint, setDirectRouteCo
   }, [id]);
 
 
-
-
   useEffect(() => {
     const fetchUserInfo = async () => {
       try {
-        // Ensure that complaintDetails is available before accessing complainerId
+        // to ensure  complaintDetails is available before accessing complainerId
         if (!complaintDetails) {
           return;
         }
-  
+
         const complaintDoc = doc(db, "users", complaintDetails.complainerId);
         const docSnapshot = await getDoc(complaintDoc);
   
@@ -108,11 +96,9 @@ export default function ComplaintDetails({directRouteComplaint, setDirectRouteCo
           const data = docSnapshot.data();
           setComplainerInfo(data);
         } else {
-          // Handle case where user with the given ID doesn't exist
           console.log("User not found");
         }
       } catch (error) {
-        // Handle error during fetching
         console.error("Error fetching user details:", error);
       }
     };
@@ -123,85 +109,47 @@ export default function ComplaintDetails({directRouteComplaint, setDirectRouteCo
 
   const handleUpdateComplaint = async()  => {
     try {
-      console.log("selected in fun:"+ selectedStatus);
-      console.log("msg in fun:"+ message);
     
-      
     if(selectedStatus===complaintDetails.status){
       setErrorMessageStatus("   يجب أن يتم تغيير الحالة  ");
       return ;
-  }
+      }
 
     setErrorMessageStatus("");
       
-        if (selectedStatus === 'قيد التنفيذ') {
+    if (selectedStatus === 'قيد التنفيذ') {
           // Update complaint status to 'قيد التنفيذ' and add inprogressDate
           await handleProcessComplaint();
           setShowSuccessProcess(true);
           setMessage(""); 
-          // setEditMode(true);
         } 
-        // else if (selectedStatus === 'جديد') {
-        //   // Update complaint status to 'جديد' and remove inprogressDate
-        //   await handleNewComplaint();
-        //   setMessage(""); 
-        // }
-         else {
-         
+    else {
             if (message.trim() !== ""){
-
               setSummeryComplaintOpen(true);
-              console.log("here");
-             } 
-             //else if (complaintDetails.staffResponse) {
-            //   console.log("here2");
-            //   await handleComplaint(complaintDetails.staffResponse, status);
-            //   setEditMode(false);
-             
-            // }
-            else {
+               } 
+           else {
                 // Display an error message if the message is empty
                 setErrorMessage("   يجب أن تتم تعبئة الرسالة  ");
               }
-         
-        }
-        
+         }
       } catch (error) {
         console.error('Error updating complaint status:', error);
       }
   }
   
+
   const handleProcessComplaint = async()  => {
     try {
       const complaintRef = doc(db, 'complaints', id);
-      // Update request status to 'قيد التنفيذ' and store the in-progress date
       await updateDoc(complaintRef, {
         status: 'قيد التنفيذ',
         inprogressDate: new Date(),
-        // responseDate: deleteField(),
-        // staffResponse: deleteField(),
-        // ImagesOfStaffResponse: deleteField(),
       });
     } catch (error) {
       console.error('Error updating complaint status:', error);
     }
   };
 
-  // const handleNewComplaint = async()  => {
-  //   try {
-  //     const complaintRef = doc(db, 'complaints', id);
-  
-  //     await updateDoc(complaintRef, {
-  //       status: 'جديد',
-  //       // inprogressDate: deleteField(),
-  //       // responseDate: deleteField(),
-  //       // staffResponse: deleteField(),
-  //       // ImagesOfStaffResponse: deleteField(),
-  //     });
-  //   } catch (error) {
-  //     console.error('Error updating complaint status:', error);
-  //   }
-  // };
 
 const handleComplaintSubmit = async()=>{
   await handleComplaint(message, selectedStatus);
@@ -210,67 +158,51 @@ const handleComplaintSubmit = async()=>{
               setShowSuccessResponse(true);
 }
 
+
   const handleComplaint = async(message, status) => {
 
     const imageUrls = await uploadImagesToFirestore(); // Upload images and get URLs
     
         try {
             const complaintRef = doc(db, 'complaints', id);
-         
             await updateDoc(complaintRef, {
               status: status,
               responseDate: new Date(),
               staffResponse: message,
               ImagesOfStaffResponse: imageUrls, // Store image URLs in the complaint document
             });
-           
           } catch (error) {
             console.error('Error updating complaint info:', error);
           }
-   
   };
 
  
 // Handle image selection
 const handleImageSelection = (event) => {
+
   const files = event.target.files;
   if (files.length > 3) {
     setImageUploadError('يمكنك إرفاق ما يصل إلى 3 صور فقط.');
     return;
   }
-  setImageUploadError('');
-  // setSelectedImages(files);
-  // setSelectedImages([files]);
-  setSelectedImages(Array.from(files)); // Correct way to set files
 
-   // Create image URLs for preview
+  setImageUploadError('');
+  setSelectedImages(Array.from(files)); 
+
+   // creating image URLs for preview
    const fileArray = Array.from(files).map((file) =>
    URL.createObjectURL(file));
- 
- //  hold the preview URLs
- setImagePreviews(fileArray);
+   setImagePreviews(fileArray);
 };
 
-// // Make sure to clean up the object URLs when the component unmounts or images change
-// useEffect(() => {
-//   // Cleanup previews
-//   return () => {
-//     imagePreviews.forEach(url => URL.revokeObjectURL(url));
-//   };
-// }, [imagePreviews]);
 
 const deleteImage = (index) => {
-  // Filter out the image preview URL to delete
   const updatedImagePreviews = imagePreviews.filter((_, i) => i !== index);
   setImagePreviews(updatedImagePreviews);
-
-  // Filter out the file to delete from the selectedImages
   const updatedSelectedImages = selectedImages.filter((_, i) => i !== index);
   setSelectedImages(updatedSelectedImages);
-
 };
 
-// Simplified uploadImagesToFirestore function
 const uploadImagesToFirestore = async () => {
   const imageUrls = [];
   for (const image of selectedImages) {
@@ -279,29 +211,15 @@ const uploadImagesToFirestore = async () => {
     const downloadUrl = await getDownloadURL(snapshot.ref);
     imageUrls.push(downloadUrl);
   }
-  return imageUrls; // Return URLs of uploaded images
+  return imageUrls; 
 };
   
 
-  // all google map initilazation functions start here 
-  // Load Google Maps JavaScript API
-  const { isLoaded } = useJsApiLoader({
-    id: 'google-map-script',
-    googleMapsApiKey: "AIzaSyA_uotKtYzbjy44Y2IvoQFds2cCO6VmfMk",
-    libraries: googleMapsLibraries
-  })
-
-
   function calculateAge(dateOfBirth) {
-    
-    // convert dateOfBirth value into date object
-  var birthDate = new Date(dateOfBirth);
- 
- // get difference from current date;
- var difference=Date.now() - birthDate.getTime(); 
-    
- var  ageDate = new Date(difference); 
- var age = Math.abs(ageDate.getUTCFullYear() - 1970);
+    var birthDate = new Date(dateOfBirth);
+    var difference=Date.now() - birthDate.getTime(); 
+    var  ageDate = new Date(difference); 
+    var age = Math.abs(ageDate.getUTCFullYear() - 1970);
    return age;
  }
 
@@ -310,44 +228,43 @@ const uploadImagesToFirestore = async () => {
  const [activeIndexUser, setActiveIndexUser] = useState(0);
 
  useEffect(() => {
+
+   // if there's no data stop the timer
   if (!complaintDetails || !complaintDetails.ImagesOfStaffResponse || complaintDetails.ImagesOfStaffResponse.length === 0) {
-    // If there's no data, don't set up the timer
     return;
   }
 
-  if (complaintDetails.ImagesOfStaffResponse.length <= 1) return; // Stops the auto-slide if there's only one image
+   // stop auto slide when there's only one image
+  if (complaintDetails.ImagesOfStaffResponse.length <= 1) return; 
 
   if(complaintDetails){
   const timer = setTimeout(() => {
     setActiveIndex((prevIndex) => (prevIndex + 1) % complaintDetails.ImagesOfStaffResponse.length);
-  }, 3000); // Change slides every 3000 milliseconds (3 seconds)
-
+  }, 3000); 
   return () => clearTimeout(timer);
 }
-}, [activeIndex, complaintDetails?.ImagesOfStaffResponse?.length]); // Safely access images.length
+
+}, [activeIndex, complaintDetails?.ImagesOfStaffResponse?.length]); 
 
 const moveSlide = (step) => {
   setActiveIndex(prev => (prev + step + complaintDetails.ImagesOfStaffResponse.length) % complaintDetails.ImagesOfStaffResponse.length);
 };
 
-
-
-
+//same goes for ImagesOfUserComplaints
 useEffect(() => {
+
   if (!complaintDetails || !complaintDetails.ImagesOfUserComplaints || complaintDetails.ImagesOfUserComplaints.length === 0) {
-    // If there's no data, don't set up the timer
     return;
   }
 
   if (complaintDetails.ImagesOfUserComplaints.length <= 1) {
-    console.log("here time"); 
     return;
-  } // Stops the auto-slide if there's only one image
+  } 
 
   if(complaintDetails){
   const timer = setTimeout(() => {
     moveSlideUser(1);
-  }, 3000); // Change slides every 3000 milliseconds (3 seconds)
+  }, 3000); 
 
   return () => clearTimeout(timer);
 }
@@ -358,32 +275,44 @@ const moveSlideUser = (step) => {
 };
 
 
- return (
+  //  Google Maps JavaScript API
+  const { isLoaded } = useJsApiLoader({
+    id: 'google-map-script',
+    googleMapsApiKey: "AIzaSyA_uotKtYzbjy44Y2IvoQFds2cCO6VmfMk",
+    libraries: googleMapsLibraries
+  })
+
+  return (
+
     <>
       {complaintDetails ? (
-        <div className="m-5">
-      {directRouteComplaint? 
+
+      <div className="m-5">
+
+  {directRouteComplaint? 
       <div className="flex justify-between">
-      <Breadcrumbs fullWidth className="mb-3">
+
+  <Breadcrumbs fullWidth className="mb-3">
       <span className="opacity-80 text-lg font-bold" onClick={() => {navigate(-1);  setDirectRouteComplaint(false); }}>
         الخريطة الحرارية
       </span>
-      <span className="text-lg font-bold">
-        رقم البلاغ{" "}
-        {complaintDetails ? (
-          <>{complaintDetails.complaintNo}</>
-        ) : null}
-      </span>
-    </Breadcrumbs>
+            <span className="text-lg font-bold">
+              رقم البلاغ{" "}
+              {complaintDetails ? (
+                <>{complaintDetails.complaintNo}</>
+              ) : null}
+            </span>
+  </Breadcrumbs>
 
 
   <button onClick={() => {navigate(-1);  setDirectRouteComplaint(false); }}
-     className=" mb-4">
-    <IconButton variant="text" size="lg">
-   <i className="fas fa-arrow-left fa-lg" />
-   </IconButton>
+  className=" mb-4">
+  <IconButton variant="text" size="lg">
+  <i className="fas fa-arrow-left fa-lg" />
+  </IconButton>
   </button>
-</div>
+
+      </div>
 
       :
           <Breadcrumbs fullWidth className="mb-3">
@@ -396,58 +325,55 @@ const moveSlideUser = (step) => {
                     <>{complaintDetails.complaintNo}</>
                   ) : null}
                 </span>
-              </Breadcrumbs>
+          </Breadcrumbs>
 
                   }
 
-              <div className="timeline-container ">
- {!complaintDetails.inprogressDate && complaintDetails.status === "مرفوض" ? 
+  <div className="timeline-container ">
+     {!complaintDetails.inprogressDate && complaintDetails.status === "مرفوض" ? 
  <div className="timeline-reject">
+
   <>
     <div className="timeline-item" data-status="executed">
-    <div className="w-28">
+  <div className="w-28">
     <Chip
-                    size="sm"
-                    className="rounded-full text-sm text-white  font-bold text-center timeline-marker"
-                
-                    value={  <div>جديد</div>}
-                    color={ "teal"}
-                  /> </div>
+        size="sm"
+        className="rounded-full text-sm text-white  font-bold text-center timeline-marker"
+        value={  <div>جديد</div>}
+        color={ "teal"}
+    />
+  </div>
       <div className="timeline-content">
-      <p>تاريخ إستلام البلاغ</p>
-        <p className="timeline-time">{complaintDetails.complaintDate?.toDate().toLocaleDateString() || 'N/A'}</p>
-       
-       
+         <p>تاريخ إستلام البلاغ</p>
+         <p className="timeline-time">{complaintDetails.complaintDate?.toDate().toLocaleDateString() || 'N/A'}</p>
       </div>
+
     </div>
-   
     <div className="line-reject" data-status="executed"></div> 
      </>
-
 
      <div className="timeline-item" data-status={"rejected"}>
          <div className="w-28">
         <Chip
-                  size="sm"
-                   
-                    className="rounded-full text-sm text-white font-bold text-center timeline-marker "
-                    value={<div className="flex items-center">  {complaintDetails.status}</div>}
-                    color={
+             size="sm"
+             className="rounded-full text-sm text-white font-bold text-center timeline-marker "
+             value={<div className="flex items-center">  {complaintDetails.status}</div>}
+             color={
                       complaintDetails.status === "تم التنفيذ"
                         ? "green"
                         : complaintDetails.status === "مرفوض"
                         ? "red"
                         : "teal"
                     }
-                  /> </div>
+                  /> 
+        </div>
         <div className="timeline-content">
-        <p>تاريخ انتهاء التنفيذ</p>
+          <p>تاريخ انتهاء التنفيذ</p>
           <p className="timeline-time">{complaintDetails.responseDate?.toDate().toLocaleDateString() || 'N/A'}</p>
-         
-         
         </div>
       </div>
   </div>
+  
  :
 
   <div className="timeline">
@@ -456,96 +382,108 @@ const moveSlideUser = (step) => {
     <div className="timeline-item" data-status="inprogress">
     <div className="w-28">
     <Chip
-                    size="sm"
-                  
-                    className="rounded-full text-sm text-white  font-bold text-center timeline-marker"
-                    value={ <div>جديد</div>}
-                    color={ "teal"}
-                  /></div>
+        size="sm"
+        className="rounded-full text-sm text-white  font-bold text-center timeline-marker"
+        value={ <div>جديد</div>}
+        color={ "teal"}
+     />
+     </div>
       <div className="timeline-content">
       <p>تاريخ إستلام البلاغ</p>
-        <p className="timeline-time">{complaintDetails.complaintDate?.toDate().toLocaleDateString() || 'N/A'}</p>
-       
-       
+      <p className="timeline-time">{complaintDetails.complaintDate?.toDate().toLocaleDateString() || 'N/A'}</p>
       </div>
       </div> 
+
       <div className="line" data-status="inprogress"></div>
     </>
-    ) :(<>
+    ) 
+    :
+    (
+    <>
     <div className="timeline-item" data-status="executed">
     <div className="w-28">
     <Chip
-                    size="sm"
-                    className="rounded-full text-sm text-white  font-bold text-center timeline-marker"
-                
-                    value={  <div>جديد</div>}
-                    color={ "teal"}
-                  /> </div>
+        size="sm"
+        className="rounded-full text-sm text-white  font-bold text-center timeline-marker"
+        value={  <div>جديد</div>}
+        color={ "teal"}
+    /> 
+    </div>
       <div className="timeline-content">
       <p>تاريخ إستلام البلاغ</p>
-        <p className="timeline-time">{complaintDetails.complaintDate?.toDate().toLocaleDateString() || 'N/A'}</p>
-       
-       
+      <p className="timeline-time">{complaintDetails.complaintDate?.toDate().toLocaleDateString() || 'N/A'}</p> 
       </div>
     </div>
+
     {!complaintDetails.inprogressDate && complaintDetails.status === "مرفوض" ? 
     <div className="line-reject" data-status="executed"></div> :
-    <div className="line" data-status="executed"></div> }
-     </>)
+    <div className="line" data-status="executed"></div> 
+    }
+     </>
+    )
 }
 
     {complaintDetails.status === 'قيد التنفيذ'? (
-     <> <div className="timeline-item" data-status="inprogress">
-       <div className="w-28">
+     <> 
+     <div className="timeline-item" data-status="inprogress">
+     <div className="w-28">
       <Chip
-                  size="sm"
-                  className="rounded-full text-sm text-white font-bold text-center timeline-marker"
-                  value={<div>قيد التنفيذ</div>}
-                  color={"gray"}
-                /></div>
+            size="sm"
+            className="rounded-full text-sm text-white font-bold text-center timeline-marker"
+            value={<div>قيد التنفيذ</div>}
+            color={"gray"}
+       />
+      </div>
        <div className="timeline-content">
         <p>تاريخ بدء التنفيذ</p>
-          <p className="timeline-time">{complaintDetails.inprogressDate?.toDate().toLocaleDateString() || 'N/A'}</p>
-       
+        <p className="timeline-time">{complaintDetails.inprogressDate?.toDate().toLocaleDateString() || 'N/A'}</p>
       </div>
-    </div>  <div className="line" data-status="inprogress"></div> </>
-    ): complaintDetails.status === 'جديد'? (
-    <>  <div className="timeline-item" data-status="waiting">
-       <div className="w-28">
+
+      </div>  
+      <div className="line" data-status="inprogress"></div>
+     </>
+    )
+    : complaintDetails.status === 'جديد'? (
+    <>  
+    <div className="timeline-item" data-status="waiting">
+    <div className="w-28">
         <Chip
-                size="sm"
-                
-                    className="rounded-full text-sm text-white font-bold text-center timeline-marker"
-                    value={<><div>قيد التنفيذ</div></>}
-                    color={ "amber"}
-                  /></div>
+            size="sm"
+            className="rounded-full text-sm text-white font-bold text-center timeline-marker"
+            value={<><div>قيد التنفيذ</div></>}
+            color={ "amber"}
+         />
+    </div>
         <div className="timeline-content text-white ">
         <p>  .</p>
-          <p className="timeline-time"> .</p>
-          
-          
+        <p className="timeline-time"> .</p>
         </div>
-      </div>
- <div className="line" data-status="waiting"></div> </>
-    ): complaintDetails.inprogressDate?
-      (<>
+    </div>
+
+ <div className="line" data-status="waiting"></div>
+  </>
+    )
+    : complaintDetails.inprogressDate?
+    (
+    <>
       <div className="timeline-item" data-status="executed">
       <div className="w-28">
         <Chip
-                 size="sm"
-                  
-                    className="rounded-full text-sm text-white font-bold text-center timeline-marker"
-                    value={<div>قيد التنفيذ</div>}
-                    color={ "amber"}
-                  /> </div>
-        <div className="timeline-content">
+             size="sm"
+             className="rounded-full text-sm text-white font-bold text-center timeline-marker"
+             value={<div>قيد التنفيذ</div>}
+             color={ "amber"}
+         /> 
+      </div>
+      <div className="timeline-content">
         <p>تاريخ بدء التنفيذ</p>
-          <p className="timeline-time">{complaintDetails.inprogressDate?.toDate().toLocaleDateString() || 'N/A'}</p>
-          
-          
-        </div>
-      </div>  <div className="line" data-status="executed"></div> </>
-    ) :
+        <p className="timeline-time">{complaintDetails.inprogressDate?.toDate().toLocaleDateString() || 'N/A'}</p> 
+      </div>
+      </div>  
+      <div className="line" data-status="executed"></div> 
+    </>
+    ) 
+    :
     null 
   }
 
@@ -554,46 +492,43 @@ const moveSlideUser = (step) => {
       <div className="timeline-item" data-status={complaintDetails.status === 'مرفوض' ? "rejected" : "approved"}>
          <div className="w-28">
         <Chip
-                  size="sm"
-                   
-                    className="rounded-full text-sm text-white font-bold text-center timeline-marker "
-                    value={<div className="flex items-center">  {complaintDetails.status}</div>}
-                    color={
+             size="sm"
+             className="rounded-full text-sm text-white font-bold text-center timeline-marker "
+             value={<div className="flex items-center">  {complaintDetails.status}</div>}
+             color={
                       complaintDetails.status === "تم التنفيذ"
                         ? "green"
                         : complaintDetails.status === "مرفوض"
                         ? "red"
                         : "teal"
                     }
-                  /> </div>
+           /> 
+        </div>
         <div className="timeline-content">
         <p>تاريخ انتهاء التنفيذ</p>
-          <p className="timeline-time">{complaintDetails.responseDate?.toDate().toLocaleDateString() || 'N/A'}</p>
-         
-         
+        <p className="timeline-time">{complaintDetails.responseDate?.toDate().toLocaleDateString() || 'N/A'}</p>
         </div>
       </div>
-    ) :(
+    ) 
+    :
+    (
       <div className="timeline-item" data-status={"waiting"}>
          <div className="w-28">
         <Chip
-               size="sm"
-                  
-                    className="rounded-full text-sm text-white font-bold text-center timeline-marker"
-                    value={<div className="flex items-center"> انتهاء التنفيذ</div>}
-                    color={"gray"}
-                  /></div>
+             size="sm"
+             className="rounded-full text-sm text-white font-bold text-center timeline-marker"
+             value={<div className="flex items-center"> انتهاء التنفيذ</div>}
+             color={"gray"}
+         />
+        </div>
         <div className="timeline-content text-white">
         <p>  ...</p>
-          <p className="timeline-time">...</p>
-         
-         
+        <p className="timeline-time">...</p>
         </div>
       </div>
     )}
   </div>
 }
-
 </div> 
 
 
@@ -603,18 +538,13 @@ const moveSlideUser = (step) => {
             <div className=" pr-8 py-2 " style={{backgroundColor:'#07512D', color: "white" , borderRadius: "5px"}}>
             <Typography className="font-baloo text-right text-xl font-bold ">
                     بيانات البلاغ
-                  </Typography>
-                  </div>
+            </Typography>
+            </div>
 
-                      <hr/>
+             <hr/>
 
-
-              <div className="flex flex-col gap-5 mt-5 p-8">
-               
-
-             
-
- 
+            <div className="flex flex-col gap-5 mt-5 p-8">
+              
                 <div className="flex justify-between ">
                 {complainerInfo ? (
                   <div>
@@ -628,15 +558,17 @@ const moveSlideUser = (step) => {
                         {complainerInfo.firstName} {complainerInfo.lastName}
                       </span>
                     </Typography>
+
+
 {calculateAge(complainerInfo.DateOfBirth)!=0?
 ( <Typography>
   <span>
     <span className="font-bold">العمر:</span>{" "}
     {calculateAge(complainerInfo.DateOfBirth)}
   </span>
-</Typography>) : null}
+</Typography>) 
+: null}
                    
-
                     <Typography>
                       <span>
                         <span className="font-bold">رقم الهاتف:</span>{" "}
@@ -650,26 +582,28 @@ const moveSlideUser = (step) => {
                       </span>
                     </Typography>
                   </div>
-                ) : (
+               )
+               :
+               (
                   <div>تحميل معلومات العميل...</div>
-                )}
+               )}
          
 
   <div className="flex flex-col "> 
 
-<Typography className="font-baloo text-right text-lg font-bold text-gray-700">
-                            موقع البلاغ:
-                            </Typography> 
-                            <hr className=" mb-1 "/>
+                <Typography className="font-baloo text-right text-lg font-bold text-gray-700">
+                    موقع البلاغ:
+                </Typography> 
+                    <hr className=" mb-1 "/>
                 <Typography> 
                 <span className="font-bold">الموقع : </span>
-                <a
+ <a
     href={`https://www.google.com/maps/search/?api=1&query=${center.lat},${center.lng}`}
     target="_blank"
     rel="noopener noreferrer"
     style={{
-      color: 'teal', // Text color
-      textDecoration: 'none' // Removes the underline from the link
+    color: 'teal', // Text color
+    textDecoration: 'none' // Removes the underline from the link
     }}
     onMouseOver={(e) => e.target.style.textDecoration = 'underline'} // Underlines the text on hover
     onMouseOut={(e) => e.target.style.textDecoration = 'none'} // Removes the underline when not hovering
@@ -678,64 +612,60 @@ const moveSlideUser = (step) => {
   </a>
                 </Typography>
                    
-              {isLoaded  ? (
-                 <GoogleMap
-                 mapContainerStyle={containerStyle}
-                 center={center}
-                 zoom={zoom}
-                >
-                      <Marker
-            position={{ lat: center.lat, lng: center.lng }}
-            icon={{
-              url: "/complaintMarker.png",
-              scaledSize: new window.google.maps.Size(45, 45),
-            }}
-                      >  
-                         </Marker>
-                         </GoogleMap>
+{isLoaded ? (
+  <GoogleMap
+    mapContainerStyle={containerStyle}
+    center={center}
+    zoom={zoom}
+  >
+    <Marker
+      position={{ lat: center.lat, lng: center.lng }}
+      icon={{
+        url: "/complaintMarker.png",
+        scaledSize: new window.google.maps.Size(45, 45),
+      }}
+    />
+  </GoogleMap>
+) : null}
 
-               ) : null}
+         </div>
+         </div>
 
-              </div>
-                </div>
+         <div>
+  <Typography className="font-baloo text-right text-lg font-bold text-gray-700">
+    تفاصيل البلاغ:
+  </Typography>
+  <hr/>
 
-
-                    <div>
-
-                        <Typography className="font-baloo text-right text-lg font-bold text-gray-700">
-                      تفاصيل البلاغ:
-                    </Typography>
-                    <hr/>
-
-               
-                    <div className="flex flex-col gap-3">
-                    <Typography>  <span><span className="font-bold"> رقم البلاغ :</span>  {complaintDetails.complaintNo}</span></Typography>
-                   
-                    <span className="flex flex-col">
- <span className="font-bold"> نوع البلاغ :</span> 
- <span className="w-full max-w-[26rem]">
-  {complaintDetails.complaintType} {complaintDetails.complaintType==="أخرى"? <span>: {complaintDetails.complaintSubject}</span> : null}
-  </span> 
- </span>
+  <div className="flex flex-col gap-3">
+    <Typography>
+      <span>
+        <span className="font-bold">رقم البلاغ:</span> {complaintDetails.complaintNo}
+      </span>
+    </Typography>
 
     <span className="flex flex-col">
-    <span className="font-bold"> وصف البلاغ :</span> 
-    <span className="w-full max-w-[26rem]">{complaintDetails.description}</span> 
+      <span className="font-bold">نوع البلاغ:</span>
+      <span className="w-full max-w-[26rem]">
+        {complaintDetails.complaintType}
+        {complaintDetails.complaintType === "أخرى" ? <span>: {complaintDetails.complaintSubject}</span> : null}
+      </span>
     </span>
 
-                  
-                        </div>
-                        
-                         </div>            
-
-
-                   
-
+    <span className="flex flex-col">
+      <span className="font-bold">وصف البلاغ:</span>
+      <span className="w-full max-w-[26rem]">
+        {complaintDetails.description}
+      </span>
+    </span>
+  </div>
+</div>
+ 
 <div>
 <Typography className="font-baloo text-right text-lg font-bold text-gray-700">
-                           المرفقات :
-                            </Typography> 
-                            <hr />
+            المرفقات :
+</Typography> 
+               <hr />
 {complaintDetails.ImagesOfUserComplaints && complaintDetails.ImagesOfUserComplaints.length > 0 ? (
  <div className="carousel mt-3">
       <div className="carousel-items">
@@ -762,19 +692,12 @@ const moveSlideUser = (step) => {
   }
 
 </div>
-             
-
-
-              </div>
-  
-              
-            </Card>
-          </div>
+       </div>
+          </Card>
+            </div>
 
           <div style={{ overflowX: "auto", maxHeight: "200vh" }} className="mt-5">
             <Card className="max-w-4xl m-auto ">
-
-
 
             <div >
         {(complaintDetails.status === "تم التنفيذ" || complaintDetails.status === "مرفوض") ? (
@@ -793,10 +716,10 @@ const moveSlideUser = (step) => {
             تفاصيل رفض البلاغ
           </Typography>
           </div>)
-        
-     
-        ) : 
-( 
+    
+        ) 
+        : 
+        ( 
   <div className=" pr-8 py-2 " style={{ borderRadius: "5px"}}>
 <Typography className="font-baloo text-right text-xl font-bold text-gray-700">
 الإجراء :
@@ -804,9 +727,7 @@ const moveSlideUser = (step) => {
 </div>
 )}
 
-
         <hr  />
-
 
 <div className="px-8 pb-8">
            
@@ -827,18 +748,12 @@ const moveSlideUser = (step) => {
   <option value="قيد التنفيذ">قيد التنفيذ</option>
   <option value="تم التنفيذ" disabled={!complaintDetails || complaintDetails.status == 'جديد'}> قبول</option>
   <option value="مرفوض" > رفض</option>
-  {/* <option value="مرفوض" disabled={!complaintDetails || complaintDetails.status == 'جديد'}> رفض</option> */}
 </select>
 
 <Typography color="red"  className="font-semibold">
        <span>  {errorMessageStatus}</span>
 </Typography>
-
-
-
-
-
-       
+   
         { (selectedStatus === 'تم التنفيذ' || selectedStatus === 'مرفوض' || complaintDetails.status==='تم التنفيذ' || complaintDetails.status==="مرفوض")&&(selectedStatus != 'قيد التنفيذ') ? (
 <>
 {selectedStatus == "مرفوض" && (
@@ -854,7 +769,6 @@ const moveSlideUser = (step) => {
 
  )} 
   
-
   <div className="grid gap-3">
     
     <Textarea
@@ -880,7 +794,6 @@ const moveSlideUser = (step) => {
     )}
 
   </div>
-
 
 <div className="upload-images-section">
   <label htmlFor="image-upload" className="font-baloo text-right text-md font-bold mb-2">
@@ -909,14 +822,9 @@ const moveSlideUser = (step) => {
       ))}
     </div>
 
-
-
-
-
   </> ) 
   
   : null}
-
 
 {  message.trim() == "" && selectedStatus==="" ? <span>  يجب أن يتم تغيير الحالة حتى تتمكن من تحديث البلاغ  </span>:
       <Button
@@ -927,44 +835,31 @@ const moveSlideUser = (step) => {
                     className="text-sm mt-3 mb-3 "
                   >
                     <span>تحديث البلاغ</span>
-                  </Button>
-}
-                
+      </Button>
+}               
 </>
- )}
- </div>
+)}
 </div>
-
-
+</div>
 
 {(complaintDetails.status === "تم التنفيذ" || complaintDetails.status === "مرفوض" ) && (
   <div className="flex flex-col gap-2 px-8 pb-8">
-   
-   
     {(complaintDetails.status === "تم التنفيذ" || complaintDetails.status === "مرفوض") && (
   <>  
-
-
-   
-
     <Typography className="flex flex-col "> 
     <Typography className="font-baloo text-right text-lg font-bold text-gray-700">
     التعليق :
-                    </Typography>
-                    <hr/>
+    </Typography>
+      <hr/>
     <span className="w-full max-w-[48rem]">{complaintDetails.staffResponse}</span> 
- </Typography>
+    </Typography>
     
-
-
- {/* Display images */}
-   <div>
+  <div>
   
   <Typography className="font-baloo text-right text-lg font-bold text-gray-700">
   المرفقات :
-                    </Typography>
-                    <hr/>
-
+  </Typography>
+              <hr/>
   {complaintDetails.ImagesOfStaffResponse && complaintDetails.ImagesOfStaffResponse.length > 0 ? (
 <div className="carousel">
       <div className="carousel-items">
@@ -977,7 +872,7 @@ const moveSlideUser = (step) => {
           </div>
         ))}
       </div> 
-      {complaintDetails.ImagesOfStaffResponse.length > 1 && ( // Only show controls if there are more than one image
+      {complaintDetails.ImagesOfStaffResponse.length > 1 && ( 
       <>
       <a className="carousel-control prev" onClick={() => moveSlide(-1)}>&#10095;</a>
       <a className="carousel-control next" onClick={() => moveSlide(1)}>&#10094;</a>
@@ -990,40 +885,25 @@ const moveSlideUser = (step) => {
   <span style={{color: "dark-red"}}>لا توجد مرفقات</span>
   </Typography>
   }
- </div>
-
-
-</>
-
-
-    )}
-
 </div>
 
+</>
+    )}
+</div>
  )}
 
-
-
-
-            </Card>
-            
-
-        </div>
-
-
-        </div>
-      ) : (
+    </Card>
+    </div>
+    </div>
+      ) 
+      : 
+      (
         <div>تحميل تفاصيل البلاغ...</div>
       )}
-
-
 
 <Success open={showSuccessProcess} handler={handleSuccessProcess} message=" تم تحديث حالة البلاغ إلى (قيد التنفيذ) بنجاح" />
 <SummaryComplaintResponse  open={summeryComplaintOpen} handler={handleSummeryComplaint} complaintData={complaintDetails} method={handleComplaintSubmit} responseData={responseData} handleEdit={handleSummeryComplaintClose} imagePreviews={imagePreviews}/>
 <Success open={showSuccessResponse} handler={handleSuccessResponse} message=" تم معالجة البلاغ بنجاح" />
-  
-
     </>
-  );
-  
-      }  
+     );
+     }  

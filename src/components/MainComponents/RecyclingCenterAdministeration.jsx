@@ -34,7 +34,7 @@ const options = [
 
 // Define constants for the Google Map
 const containerStyle = {
-    width: '100%', // Set a width as needed
+    width: '100%', 
     height: '100%'
   };
 
@@ -49,17 +49,17 @@ const googleMapsLibraries = ["visualization"];
 const reactSelectStyles = {
   container: (provided) => ({
     ...provided,
-    width: "300px", // Adjust the width as needed
+    width: "300px", 
   }),
 };
 
 function RecyclingCentersMap() {
 
-    const [zoom, setZoom] = useState(10); // set the initial zoom level
+    const [zoom, setZoom] = useState(10); 
     const [recyclingCenters, setRecyclingCenters] = useState([]);
     const [selectedLocation, setSelectedLocation] = React.useState(false);
     const [centerData ,SetCenterData] = React.useState([]);
-    const [formVisible, setFormVisible] = useState(false); // To control confirmation message visibility
+    const [formVisible, setFormVisible] = useState(false); 
     const [newRecyclingCenterLocation, setNewRecyclingCenterLocation] = useState(null);
     const [showAlertZoom, setShowAlertZoom] = useState(false);
     const [showAlertBuilding, setShowAlertBuilding] = useState(false);
@@ -76,7 +76,7 @@ function RecyclingCentersMap() {
     const [isChangingCenterLocation, setIsChangingCenterLocation] = useState(false);
     const [selectedCenterType, setSelectedCenterType] = useState('');
     const [filteredRecyclingCenters, setFilteredRecyclingCenters] = useState([]);
-    const [centerCount, setCenterCount] = useState(0); // State to store the center count
+    const [centerCount, setCenterCount] = useState(0); 
     const [showCenterWasteType , setShowCenterWasteType] = useState(false);
     const [searchQuery, setSearchQuery] = useState('');
     const[ checkMessageVisible, setCheckMessageVisible] = useState(false);
@@ -129,7 +129,7 @@ const onUnmount = React.useCallback(function callback(map) {
   setMap(null)
 }, [])
 
- // Define the acceptable zoom level range
+ //  acceptable zoom level range
  const minZoomLevel = 18;
  const currentZoomLevelRef = useRef(null);
  const mapRef = useRef(null);
@@ -197,7 +197,6 @@ useEffect(() => {
           const map = mapRef.current;
           // Set the center of the map to the user's location
           map.setCenter(userPosition);
-          // Set the zoom level to focus on the user's location
           map.setZoom(18); 
         }
       });
@@ -220,8 +219,6 @@ const handleMarkerClick = async (recycleCenter) => {
 
     if (centerDocSnapshot.exists()) {
       SetCenterData(centerDocSnapshot.data());
-    
-      // You can use this data as needed in your component
     } else {
       console.error("Recycling center not found.");
     }
@@ -241,7 +238,7 @@ const handleChangeMarkerLocation = (centerID) => {
   setShowAlertLocation(true);
   setSelectedLocation(null);
   setCenterId(centerID);
-  setShowAlertLocation(true); // Show the alert when changing location
+  setShowAlertLocation(true); 
   setViewInfo(false);
  
 };
@@ -262,7 +259,7 @@ const onMapChangeLocationClick = async (lat , lng) => {
         prevRecyclingCenters.map((b) => (b.id === centerId ? { ...b, location: geoPoint } : b))
         );
 
-        setIsChangingCenterLocation(false); // Set the state back to indicate you're not changing a bin location
+        setIsChangingCenterLocation(false); 
         setShowAlertLocation(false);
         setShowAlertSuccessLocation(true);
         setCenterId(null);
@@ -487,8 +484,6 @@ const DeleteRecyclingCenter = async (centerId) => {
     else{
         setRecyclingCenters(filteredRecyclingCenters);
     }
-   
-
   }
   
   
@@ -582,7 +577,7 @@ const DeleteRecyclingCenter = async (centerId) => {
       ref={mapRef}
       options={{
         streetViewControl: false,
-        mapTypeControl: false, // This hides the map/satellite view control
+        mapTypeControl: false, 
         fullscreenControl: false, 
       
       }}

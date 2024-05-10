@@ -21,7 +21,7 @@ import Success from "../../utilityComponents/messages/Success"
 export default function GarbageBinRequestDetails() {
  
   const { id } = useParams();
-  const [zoom, setZoom] = useState(10); // set the initial zoom level
+  const [zoom, setZoom] = useState(10); //  initial zoom level
   const [requestDetails, setRequestDetails] = useState(null);
   const [requesterInfo, setRequesterInfo] = useState(null);
   const [selectedBinSize, setSelectedBinSize] = useState("");
@@ -29,9 +29,9 @@ export default function GarbageBinRequestDetails() {
   const [message, setMessage] = useState(""); 
   const [errorMessage, setErrorMessage] = useState(""); 
   const [errorMessageStatus, setErrorMessageStatus] = useState(""); 
-  const [editMode, setEditMode] = useState(false); // New state variable
+  const [editMode, setEditMode] = useState(false); 
   const [showSuccessProcess, setShowSuccessProcess] = useState(false);
-  const [summeryRequestOpen, setSummeryRequestOpen] = useState(false);// State to manage the visibility of the summary center information
+  const [summeryRequestOpen, setSummeryRequestOpen] = useState(false);
   const [showSuccessResponse, setShowSuccessResponse] = useState(false);
   const [showValidationMessage, setShowValidationMessage] = useState(false);
   const [Id, setId] = useState("");
@@ -41,9 +41,6 @@ export default function GarbageBinRequestDetails() {
   
   const navigate = useNavigate();
   
-  
-  
- 
   const responseData = {
     selectedStatus: selectedStatus,
     selectedBinSize: selectedBinSize,
@@ -56,27 +53,22 @@ export default function GarbageBinRequestDetails() {
       try {
         const requestDoc = doc(db, "requestedGarbageBin", id);
         
-        // Subscribe to real-time updates for the specific complaint document
         const unsubscribe = onSnapshot(requestDoc, (docSnapshot) => {
           if (docSnapshot.exists()) {
             const data = docSnapshot.data();
             setRequestDetails(data);
             setId(id);
-            // Update other state as needed
-
             setZoom(20);
             center.lat = data.location._lat;
             center.lng = data.location._long;
           } else {
-            // Handle case where complaint with the given ID doesn't exist
             console.log("request not found");
           }
         });
 
-        // Cleanup function to unsubscribe when component unmounts
         return () => unsubscribe();
-      } catch (error) {
-        // Handle error during fetching
+      } 
+      catch (error) {
         console.error("Error fetching request details:", error);
       }
     };
@@ -90,7 +82,7 @@ export default function GarbageBinRequestDetails() {
   useEffect(() => {
     const fetchUserInfo = async () => {
       try {
-        // Ensure that complaintDetails is available before accessing complainerId
+        // Ensure complaintDetails is available 
         if (!requestDetails) {
           return;
         }
@@ -102,11 +94,9 @@ export default function GarbageBinRequestDetails() {
           const data = docSnapshot.data();
           setRequesterInfo(data);
         } else {
-          // Handle case where user with the given ID doesn't exist
           console.log("User not found");
         }
       } catch (error) {
-        // Handle error during fetching
         console.error("Error fetching user details:", error);
       }
     };
@@ -116,24 +106,16 @@ export default function GarbageBinRequestDetails() {
 
 
 
-
-
-
-
   const handleUpdateRequestProcess = async()  => {
-    try {
-     
+    try { 
     if(selectedStatus===requestDetails.status){
       setErrorMessageStatus("   يجب أن يتم تغيير الحالة  ");
       return ;
   }
-    setErrorMessageStatus("");
-      
+          setErrorMessageStatus("");
           await handleProcessRequest();
           setShowSuccessProcess(true);
           setMessage(""); 
-        
-         
         
       } catch (error) {
         console.error('Error updating request :', error);
@@ -147,20 +129,12 @@ export default function GarbageBinRequestDetails() {
     if(selectedStatus==="تم التنفيذ" && selectedBinSize===""){
           setSelectedBinSize(requestDetails.garbageSize);
   }
-//     setErrorMessageStatus("");
-      
-       
-         console.log("message "+message)
             if (message.trim() == ""){
                 setErrorMessage("   يجب أن تتم تعبئة الرسالة  ");
-                console.log("message false "+message)
                 return false;
              } else{
-                console.log("message true "+message)
                 return true;
              } 
-        
-        
       } catch (error) {
         console.error('Error updating request :', error);
       }
@@ -182,35 +156,22 @@ export default function GarbageBinRequestDetails() {
 
   
 
-
-
-
   // all google map initilazation functions start here 
-  // Load Google Maps JavaScript API
+  //  Google Maps JavaScript API
   const { isLoaded } = useJsApiLoader({
     id: 'google-map-script',
     googleMapsApiKey: "AIzaSyA_uotKtYzbjy44Y2IvoQFds2cCO6VmfMk",
     libraries: googleMapsLibraries
   })
 
-
   function calculateAge(dateOfBirth) {
     
-    // convert dateOfBirth value into date object
   var birthDate = new Date(dateOfBirth);
- 
- // get difference from current date;
- var difference=Date.now() - birthDate.getTime(); 
-    
- var  ageDate = new Date(difference); 
- var age = Math.abs(ageDate.getUTCFullYear() - 1970);
-   return age;
- }
-
-
-
-
-
+  var difference=Date.now() - birthDate.getTime();  
+  var  ageDate = new Date(difference); 
+  var age = Math.abs(ageDate.getUTCFullYear() - 1970);
+  return age;
+}
 
 
  return (
@@ -292,17 +253,14 @@ export default function GarbageBinRequestDetails() {
     <>  <div className="timeline-item" data-status="waiting">
        <div className="w-28">
         <Chip
-                size="sm"
-                
+                    size="sm"
                     className="rounded-full text-sm text-white font-bold text-center timeline-marker"
                     value={<><div>قيد التنفيذ</div></>}
                     color={ "amber"}
                   /></div>
         <div className="timeline-content text-white ">
         <p>  .</p>
-          <p className="timeline-time"> .</p>
-          
-          
+        <p className="timeline-time"> .</p> 
         </div>
       </div>
  <div className="line" data-status="waiting"></div> </>
@@ -310,28 +268,26 @@ export default function GarbageBinRequestDetails() {
       <div className="timeline-item" data-status="executed">
       <div className="w-28">
         <Chip
-                 size="sm"
-                  
+                    size="sm"
                     className="rounded-full text-sm text-white font-bold text-center timeline-marker"
                     value={<div>قيد التنفيذ</div>}
                     color={ "amber"}
-                  /> </div>
+        /> 
+        </div>
         <div className="timeline-content">
         <p>تاريخ بدء التنفيذ</p>
-          <p className="timeline-time">{requestDetails.inprogressDate?.toDate().toLocaleDateString() || 'N/A'}</p>
-          
-          
+        <p className="timeline-time">{requestDetails.inprogressDate?.toDate().toLocaleDateString() || 'N/A'}</p> 
         </div>
-      </div>  <div className="line" data-status="executed"></div> </>
+        </div> 
+        <div className="line" data-status="executed"></div> </>
     )}
 
     
     {(requestDetails.status === 'مرفوض' || requestDetails.status === 'تم التنفيذ') ? (
       <div className="timeline-item" data-status={requestDetails.status === 'مرفوض' ? "rejected" : "approved"}>
-         <div className="w-28">
+        <div className="w-28">
         <Chip
-                  size="sm"
-                   
+                    size="sm"
                     className="rounded-full text-sm text-white font-bold text-center timeline-marker "
                     value={<div className="flex items-center">  {requestDetails.status}</div>}
                     color={
@@ -344,26 +300,21 @@ export default function GarbageBinRequestDetails() {
                   /> </div>
         <div className="timeline-content">
         <p>تاريخ انتهاء التنفيذ</p>
-          <p className="timeline-time">{requestDetails.responseDate?.toDate().toLocaleDateString() || 'N/A'}</p>
-         
-         
+        <p className="timeline-time">{requestDetails.responseDate?.toDate().toLocaleDateString() || 'N/A'}</p>
         </div>
       </div>
     ) :(
       <div className="timeline-item" data-status={"waiting"}>
          <div className="w-28">
         <Chip
-               size="sm"
-                  
+                    size="sm"
                     className="rounded-full text-sm text-white font-bold text-center timeline-marker"
                     value={<div className="flex items-center"> انتهاء التنفيذ</div>}
                     color={"gray"}
                   /></div>
         <div className="timeline-content text-white">
         <p>  ...</p>
-          <p className="timeline-time">...</p>
-         
-         
+        <p className="timeline-time">...</p>
         </div>
       </div>
     )}
@@ -377,18 +328,13 @@ export default function GarbageBinRequestDetails() {
             <div className=" pr-8 py-2 " style={{backgroundColor:'#07512D', color: "white" , borderRadius: "5px"}}>
             <Typography className="font-baloo text-right text-xl font-bold ">
                     بيانات الطلب
-                  </Typography>
+            </Typography>
                   </div>
 
                       <hr/>
 
-
               <div className="flex flex-col gap-5 mt-5 p-8">
-               
-
-             
-
- 
+      
                 <div className="flex justify-between ">
                 {requesterInfo ? (
                   <div>
@@ -408,7 +354,8 @@ export default function GarbageBinRequestDetails() {
     <span className="font-bold">العمر:</span>{" "}
     {calculateAge(requesterInfo.DateOfBirth)}
   </span>
-</Typography>) : null}
+</Typography>) 
+: null}
                    
 
                     <Typography>
@@ -428,12 +375,11 @@ export default function GarbageBinRequestDetails() {
                   <div>تحميل معلومات العميل...</div>
                 )}
          
-
   <div className="flex flex-col "> 
 
 <Typography className="font-baloo text-right text-lg font-bold text-gray-700">
                             موقع الطلب:
-                            </Typography> 
+</Typography> 
                             <hr className=" mb-1 "/>
                 <Typography> 
                 <span className="font-bold">الموقع : </span>
@@ -453,54 +399,38 @@ export default function GarbageBinRequestDetails() {
                 </Typography>
                    
                 <RequestGarbageMap id={id} request={requestDetails} type={"show"} validation={handleUpdateRequest}  responseData={responseData} handleSuccessResponse={handleSuccessResponse} /> 
-
-              
-             
               </div>
                 </div>
 
-
                     <div>
-
-                        <Typography className="font-baloo text-right text-lg font-bold text-gray-700">
+                    <Typography className="font-baloo text-right text-lg font-bold text-gray-700">
                       تفاصيل الطلب:
                     </Typography>
                     <hr/>
 
-               
                     <div className="flex flex-col gap-3">
                     <Typography>  <span><span className="font-bold"> رقم الطلب :</span>  {requestDetails.requestNo}</span></Typography>
-                   
                     <Typography>  <span><span className="font-bold">حجم الحاوية المطلوب:</span> {requestDetails.garbageSize}</span></Typography>
-                   
-
+      
     <span className="flex flex-col">
     <span className="font-bold"> سبب الطلب :</span> 
     <span className="w-full max-w-[26rem]">{requestDetails.requestReason}</span> 
     </span>
-
-                  
-                        </div>
-                        
-                         </div>            
-
-
-
-              </div>
+    </div>
+    </div>            
+    </div>
   
-              
             </Card>
-          </div>
+            </div>
 
           <div style={{ overflowX: "auto", maxHeight: "200vh" }} className="mt-5">
             <Card className="max-w-4xl m-auto ">
 
 
-
             <div >
         {(requestDetails.status === "تم التنفيذ" || requestDetails.status === "مرفوض") ? (
 
-           requestDetails.status === "تم التنفيذ" ? 
+          requestDetails.status === "تم التنفيذ" ? 
           (<div className=" pr-8 py-2 " style={{backgroundColor:'#97B980', color: "white", borderRadius: "5px"}}>
   
           <Typography className="font-baloo text-right text-xl font-bold ">
@@ -514,8 +444,7 @@ export default function GarbageBinRequestDetails() {
             تفاصيل رفض الطلب
           </Typography>
           </div>)
-        
-     
+  
         ) : 
 ( 
   <div className=" pr-8 py-2 " style={{ borderRadius: "5px"}}>
@@ -525,9 +454,7 @@ export default function GarbageBinRequestDetails() {
 </div>
 )}
 
-
         <hr  />
-
 
 <div className="px-8 pb-8">
            
@@ -537,7 +464,6 @@ export default function GarbageBinRequestDetails() {
 <Typography className="font-baloo text-right text-md font-bold mt-5 mb-3">
     <span> تغيير حالة الطلب :</span>
 </Typography>
-
 
 <select
   value={selectedStatus || requestDetails.status }
@@ -551,7 +477,7 @@ export default function GarbageBinRequestDetails() {
 </select>
 
 <Typography color="red"  className="font-semibold">
-       <span>  {errorMessageStatus}</span>
+      <span>  {errorMessageStatus}</span>
 </Typography>
 
 { (selectedStatus === 'تم التنفيذ' || requestDetails.status==='تم التنفيذ' )&&(selectedStatus != 'قيد التنفيذ') ? (
@@ -580,28 +506,24 @@ export default function GarbageBinRequestDetails() {
 ) : null }
 
 
-
-       
-        { (selectedStatus === 'تم التنفيذ' || selectedStatus === 'مرفوض' || requestDetails.status==='تم التنفيذ' || requestDetails.status==="مرفوض")&&(selectedStatus != 'قيد التنفيذ') ? (
+{ (selectedStatus === 'تم التنفيذ' || selectedStatus === 'مرفوض' || requestDetails.status==='تم التنفيذ' || requestDetails.status==="مرفوض")&&(selectedStatus != 'قيد التنفيذ') ? (
 <>
 {selectedStatus == "مرفوض" && (
     <Typography className="font-baloo text-right text-md font-bold ">
     <span>  توضيح سبب الرفض :</span>
-     </Typography>
+    </Typography>
 )} 
-     
-     {selectedStatus =='تم التنفيذ'&& (
+
+    {selectedStatus =='تم التنفيذ'&& (
     <Typography className="font-baloo text-right text-md font-bold ">
     <span> التعليق :</span>
-     </Typography>
-
+    </Typography>
  )} 
   
 
   <div className="grid ">
     
     <Textarea
-      
       value={message || requestDetails.staffComment}
       onChange={(e) => {
         setMessage(e.target.value.slice(0, 500));
@@ -610,7 +532,7 @@ export default function GarbageBinRequestDetails() {
       maxLength={500}
     />
 
-   <div className="image-upload-instructions">
+  <div className="image-upload-instructions">
     <span>
       عدد الأحرف المتبقية: {500 - message.length}
     </span>
@@ -618,25 +540,19 @@ export default function GarbageBinRequestDetails() {
 
   {errorMessage && (
       <Typography color="red"  className="font-semibold">
-       <span> {errorMessage}</span>
+      <span> {errorMessage}</span>
       </Typography>
     )}
-
   </div>
-
-
   </> ) 
-  
   : null}
 
-
-
 { (selectedStatus === 'تم التنفيذ' )&&(selectedStatus != 'قيد التنفيذ') ? (
-     <div className="mt-3">
-     <Typography className="font-baloo text-right text-md font-bold ">
+    <div className="mt-3">
+    <Typography className="font-baloo text-right text-md font-bold ">
       <span> تحديد موقع الحاوية :</span>
-       </Typography>
-       <Typography variant="small"><span>لتعديل موقع الحاوية قم بسحب المؤشر الى الموقع المحدد والالتزام بحدود الطرق ومدار الموقع</span></Typography>
+      </Typography>
+      <Typography variant="small"><span>لتعديل موقع الحاوية قم بسحب المؤشر الى الموقع المحدد والالتزام بحدود الطرق ومدار الموقع</span></Typography>
       
   <RequestGarbageMap id={id} request={requestDetails} type={"accept"} validation={handleUpdateRequest} responseData={responseData} handleSuccessResponse={handleSuccessResponse}/> 
   </div>
@@ -664,69 +580,61 @@ selectedStatus==="قيد التنفيذ" ||selectedStatus==="جديد"  ? (
         null ) }
                 
 </>
- )}
+)}
 
- </div>
+</div>
 </div>
 
 
 
 {requestDetails.status === "تم التنفيذ" && (
   <div className="flex justify-between gap-2 px-8 pb-8">
-   
-   
-     <div className="flex flex-col">
+    <div className="flex flex-col">
     <Typography className="font-baloo text-right text-lg font-bold text-gray-700">
-         حجم الحاوية المنفذ:
-         <hr/>   
-                    </Typography>  
+        حجم الحاوية المنفذ:
+        <hr/>   
+    </Typography>  
                   
-                    <span> {requestDetails.SelectedGarbageSize}</span>
+    <span> {requestDetails.SelectedGarbageSize}</span>
        
-                    <Typography className="flex flex-col mt-2"> 
+<Typography className="flex flex-col mt-2"> 
     <Typography className="font-baloo text-right text-lg font-bold text-gray-700">
     التعليق :
-                    </Typography>
+    </Typography>
                     <hr/>
     <span className="w-full max-w-[48rem]">{requestDetails.staffComment}</span> 
- </Typography>
+</Typography>
   </div>
-
-
 
 
 <div className="flex flex-col">
   <Typography className="font-baloo text-right text-lg font-bold text-gray-700">
        <span>  موقع الحاوية المنفذ:</span>
        <hr className="mb-2"/>
-                    </Typography>
+  </Typography>
                  
-                <Typography> 
+  <Typography> 
                 <span className="font-bold">الموقع : </span>
                 <a
     href={`https://www.google.com/maps/search/?api=1&query=${requestDetails.newlocation?._lat},${requestDetails.newlocation?._long}`}
     target="_blank"
     rel="noopener noreferrer"
     style={{
-      color: 'teal', // Text color
-      textDecoration: 'none' // Removes the underline from the link
+    color: 'teal', 
+    textDecoration: 'none' 
     }}
-    onMouseOver={(e) => e.target.style.textDecoration = 'underline'} // Underlines the text on hover
-    onMouseOut={(e) => e.target.style.textDecoration = 'none'} // Removes the underline when not hovering
+    onMouseOver={(e) => e.target.style.textDecoration = 'underline'}
+    onMouseOut={(e) => e.target.style.textDecoration = 'none'} 
   >
     {requestDetails.newlocalArea}
   </a>
-                </Typography>
+  </Typography>
 
   <RequestGarbageMap  id={id} request={requestDetails} type={"accept"} validation={handleUpdateRequest} responseData={responseData} handleSuccessResponse={handleSuccessResponse}/> 
   
   </div>
-
-    
-
 </div>
-
- )}
+)}
 
 
 {requestDetails.status === "مرفوض" && (
@@ -739,18 +647,10 @@ selectedStatus==="قيد التنفيذ" ||selectedStatus==="جديد"  ? (
                     <hr/>
     <span className="w-full max-w-[48rem]">{requestDetails.staffComment}</span> 
  </Typography>
-    
-
 </div>
-
  )}
-
-            </Card>
-            
-
-        </div>
-
-
+ </Card>
+       </div>
         </div>
       ) : (
         <div>تحميل تفاصيل الطلب...</div>
@@ -759,10 +659,7 @@ selectedStatus==="قيد التنفيذ" ||selectedStatus==="جديد"  ? (
 
 
 <Success open={showSuccessProcess} handler={handleSuccessProcess} message=" تم تحديث حالة الطلب إلى (قيد التنفيذ) بنجاح" />
-{/* <SummaryHandleRequest  open={summeryRequestOpen} handler={handleSummeryRequest} complaintData={requestDetails} method={handleComplaintSubmit} responseData={responseData} handleEdit={handleSummeryRequestClose} /> */}
 <Success open={showSuccessResponse} handler={handleSuccessResponse} message=" تم معالجة الطلب بنجاح" />
-  
-
     </>
   );
   

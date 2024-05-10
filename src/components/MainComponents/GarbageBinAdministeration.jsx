@@ -84,14 +84,14 @@ function GarbageBinMap() {
 
 
  // all google map initilization related function starts here
-  // Load Google Maps JavaScript API
+  //  Google Maps JavaScript API
   const { isLoaded } = useJsApiLoader({
     id: 'google-map-script',
     googleMapsApiKey: "AIzaSyA_uotKtYzbjy44Y2IvoQFds2cCO6VmfMk",
     libraries: googleMapsLibraries
   })
 
-// Define the acceptable zoom level range
+// acceptable zoom level range
 const minZoomLevel = 18;
 const currentZoomLevelRef = useRef(null);
 const mapRef = useRef(null);
@@ -204,8 +204,6 @@ const handleBinSizeSelect = (selectedOption) => {
 
           // Set the center of the map to the user's location
           map.setCenter(userPosition);
-
-          // Set the zoom level to focus on the user's location
           map.setZoom(18); 
         }
       });
@@ -220,14 +218,13 @@ const handleBinSizeSelect = (selectedOption) => {
  //function to handle the view details of the bin
   const handleMarkerClick = async (bin) => {
     try {
-      // Fetch data for the selected garbage Bin  using its ID
+     
       const BinDocRef = doc(db, "garbageBins", bin.id);
       const BinDocSnapshot = await getDoc(BinDocRef);
   
       if (BinDocSnapshot.exists()) {
         SetBinData(BinDocSnapshot.data());
         setBinId(bin.id);
-        // You can use this data as needed in your component
       } else {
         console.error("Bin not found.");
       }
@@ -246,7 +243,7 @@ const handleChangeMarkerLocation = (binId) => {
   setShowAlertLocation(true);
   setSelectedLocation(null);
   setBinId(binId);
-  setShowAlertLocation(true); // Show the alert when changing location
+  setShowAlertLocation(true); 
   setViewInfo(false);
  
 };
@@ -267,7 +264,7 @@ const onMapChangeLocationClick = async (lat , lng) => {
           prevGarbageBins.map((b) => (b.id === binId ? { ...b, location: geoPoint } : b))
         );
 
-        setIsChangingBinLocation(false); // Set the state back to indicate you're not changing a bin location
+        setIsChangingBinLocation(false); 
         setShowAlertLocation(false);
         setShowAlertSuccessLocation(true);
         setBinId(null);
@@ -467,7 +464,7 @@ return isLoaded ? (
         ref={mapRef}
         options={{
           streetViewControl: false,
-          mapTypeControl: false, // This hides the map/satellite view control
+          mapTypeControl: false, 
           fullscreenControl: false, 
         
         }}
@@ -486,7 +483,6 @@ return isLoaded ? (
           }}
           
           ref={(marker) => {
-            // Store a reference to the Marker object in the state
             markerRefs[bin.id] = marker;
           }}
         >                        

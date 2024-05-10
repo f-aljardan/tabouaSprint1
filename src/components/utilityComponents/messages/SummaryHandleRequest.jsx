@@ -78,7 +78,7 @@ import {
               onClick={handleEdit}
             >
               <span aria-hidden="true">تعديل</span>
-            </Button>
+      </Button>
      
     </DialogFooter>
   </Dialog>

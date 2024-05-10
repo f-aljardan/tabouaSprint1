@@ -2,17 +2,11 @@ import React , {useState, useEffect, useRef} from 'react'
 import { GoogleMap, useJsApiLoader, Marker , InfoWindow, Circle  } from '@react-google-maps/api';
 import { db } from "/src/firebase";
 import { getDocs, collection, addDoc, GeoPoint, doc , Timestamp,updateDoc } from "firebase/firestore"; // Import the necessary Firestore functions
-import { Button , Typography} from "@material-tailwind/react";
-import Success from "../../utilityComponents/messages/Success"
+import { Button} from "@material-tailwind/react";
 import Confirm from "../../utilityComponents/messages/Confirm"
-import GarbageBinForm from "../../utilityComponents/forms/GarbageBinRequestForm"
 import ErrorAlertMessage from "../../utilityComponents/messages/ErrorAlertMessage"
-import MessageDialog from "../../utilityComponents/messages/MessageDialog" ;
 import { v4 as uuidv4 } from 'uuid';
-import Select from 'react-select';
-import makeAnimated from 'react-select/animated';
 import SummaryHandleRequest from "../../utilityComponents/messages/SummaryHandleRequest"
-import { el } from 'date-fns/locale';
 
 // Define constants for the Google Map
 const containerStyle = {
@@ -32,49 +26,34 @@ const containerStyleRequest = {
     lng: 46.6753
   };
  
-
-
-
-   const libraries = ["visualization"];
+  const libraries = ["visualization"];
 
 
   export default function RequestGarbageMap({id, request, type, validation, responseData, handleSuccessResponse}) {
 
     const [map, setMap] = useState(null)
-    const [zoom, setZoom] = useState(15); // set the initial zoom level
+    const [zoom, setZoom] = useState(15); 
     const [garbageBins, setGarbageBins] = useState([]);
-    const [formVisible, setFormVisible] = useState(false);// To control confirmation message visibility
     const [newGarbageBinLocation, setNewGarbageBinLocation] = useState(null);
     const [showAlertStreet, setShowAlertStreet] = useState(false);
     const [showAlertZoom, setShowAlertZoom] = useState(false);
-    const [showSuccessAlert, setShowSuccessAlert] = useState(false);
     const [ checkMessageVisible, setCheckMessageVisible] = useState(false);
     const [draggedLocation, setDraggedLocation] = useState(null);
-
-    const[acceptMessageVisible, setAcceptMessageVisible] = useState(false); 
-    const[ rejectMessageVisible, setRejectMessageVisible] = useState(false); 
-    const[ showAlertSuccessReject, setAlertSuccessReject] = useState(false);
     const [address, setAddress] = useState('');
     const [openInfoWindowId, setOpenInfoWindowId] = useState(null);
-   
 
- const handleForm = () => setFormVisible(!formVisible);
  const handleAlertStreet = () => setShowAlertStreet(!showAlertStreet);
  const handleAlertZoom = () => setShowAlertZoom(!showAlertZoom);
- const handleSuccessAlert = () => setShowSuccessAlert(!showSuccessAlert);
- const handleAlertSuccessReject = () => setAlertSuccessReject(!showAlertSuccessReject);
  const handleCheckMessage= () => { 
        handleAlertStreet(); 
        setCheckMessageVisible(!checkMessageVisible); 
       }
-  const handleRejectMessage= () => {setRejectMessageVisible(!rejectMessageVisible);}
-  const handleAcceptMessage= () => {setAcceptMessageVisible(!acceptMessageVisible);}
   
-  const [acceptSummeryRequestOpen, setAcceptSummeryRequestOpen] = useState(false);// State to manage the visibility of the summary center information
+  const [acceptSummeryRequestOpen, setAcceptSummeryRequestOpen] = useState(false);
   const handleAcceptSummeryRequest = () =>setAcceptSummeryRequestOpen(!acceptSummeryRequestOpen); 
   const handleAcceptSummeryRequestClose = () =>{  setAcceptSummeryRequestOpen(false); }
 
-  const [rejectSummeryRequestOpen, setRejectSummeryRequestOpen] = useState(false);// State to manage the visibility of the summary center information
+  const [rejectSummeryRequestOpen, setRejectSummeryRequestOpen] = useState(false);
   const handleRejectSummeryRequest = () =>setRejectSummeryRequestOpen(!rejectSummeryRequestOpen); 
   const handleRejectSummeryRequestClose = () =>{  setRejectSummeryRequestOpen(false); }
 
@@ -87,7 +66,7 @@ const containerStyleRequest = {
     libraries
   })
 
-   // Define the acceptable zoom level range
+   // acceptable zoom level range
  const minZoomLevel = 18;
  const currentZoomLevelRef = useRef(null);
  const mapRef = useRef(null);
@@ -95,7 +74,7 @@ const containerStyleRequest = {
 
 // Callback function when the map loads
 const onLoad = React.useCallback(function callback(map) {
-  mapRef.current = map; // Store the map object in the ref
+  mapRef.current = map; 
   
   // Get the initial zoom level and store it in currentZoomLevelRef
   if (map.getZoom) {
@@ -109,13 +88,11 @@ const onLoad = React.useCallback(function callback(map) {
   }
 }, []);
 
-
 // Callback function when the component unmounts
 const onUnmount = React.useCallback(function callback(map) {
   mapRef.current = null;
   setMap(null)
 }, [])
-
 
 // Function to handle zoom level change
 const onZoomChanged = () => {
@@ -125,7 +102,6 @@ const onZoomChanged = () => {
   }
 };
 
-
 // Attach the onZoomChanged event listener
 useEffect(() => {
 if (mapRef.current) {
@@ -134,9 +110,6 @@ if (mapRef.current) {
 }, []);
 
 // all google map initilazation functions ends here 
-
-
-
 
 
 
@@ -254,8 +227,6 @@ const calculateDistance = (lat1, lon1, lat2, lon2) => {
 
 // function to handle the accept request
   const handleAcceptRequest = async () => {
-
-    // Update the request status based on the selected option
     const requestRef = doc(db, 'requestedGarbageBin', id);
    
     await updateDoc(requestRef, {
@@ -263,7 +234,6 @@ const calculateDistance = (lat1, lon1, lat2, lon2) => {
       responseDate: Timestamp.fromDate(new Date()),
       staffComment: responseData.message,
       SelectedGarbageSize: responseData.selectedBinSize
-     
     });    
    
   
@@ -279,7 +249,6 @@ const calculateDistance = (lat1, lon1, lat2, lon2) => {
         newlocalArea: request.localArea
       });
     }
-
     handleSuccessResponse();
   };
   
@@ -331,8 +300,6 @@ function generateSerialNumber() {
   }
 
 
- 
-
 // function to check the condtion and act after that
 const checkLocationCondtion = async (lat ,lng) =>{
 
@@ -354,7 +321,6 @@ const checkLocationCondtion = async (lat ,lng) =>{
 
    }
    
-
 
 
  // function to check the location type called by checkLocationCondtion function
@@ -401,13 +367,9 @@ const checkLocationCondtion = async (lat ,lng) =>{
      console.log("heream")
       setRejectSummeryRequestOpen(true);  
      }  
-    }
-      
-       
+    }   
   };
   
-
-
 //check the dragged distance, and set the address
     const handleDragEnd = (e) => {
 
@@ -444,12 +406,8 @@ const checkLocationCondtion = async (lat ,lng) =>{
     };
     
 
-
   return isLoaded ?  ( type==="accept"  ? ( 
     <div className='flex flex-col gap-2'> 
-    
-
-
 
 <div style={{ position: 'relative',}}>
    
@@ -466,9 +424,8 @@ const checkLocationCondtion = async (lat ,lng) =>{
          ref={mapRef}
          options={{
           streetViewControl: false,
-          mapTypeControl: false, // This hides the map/satellite view control
+          mapTypeControl: false, 
           fullscreenControl: false, 
-        
         }}
         >
   
@@ -484,20 +441,16 @@ const checkLocationCondtion = async (lat ,lng) =>{
           >  
 
           {openInfoWindowId === bin.id && (
-             <InfoWindow
+            <InfoWindow
           position={{ lat: bin.location._lat, lng: bin.location._long }}
-         
           onCloseClick={() => setOpenInfoWindowId(null)}
           >
-             
             <div className="flex flex-col items-center  pr-5">
               {bin.size}
             </div>
                 </InfoWindow>   
                 )}     
-
           </Marker>
-         
           ))}
       
     
@@ -575,8 +528,7 @@ const checkLocationCondtion = async (lat ,lng) =>{
   
 <SummaryHandleRequest open={acceptSummeryRequestOpen} handler={handleAcceptSummeryRequest} requestProcessedData={requestProcessedData} method={AddGarbageBin}  status="قبول"  handleEdit={handleAcceptSummeryRequestClose}/>
 <Confirm open={checkMessageVisible} handler={handleCheckMessage} method={()=>{ setAcceptSummeryRequestOpen(true);   setCheckMessageVisible(false);}} message="هل انت متأكد من أن الموقع المحدد يقع على شارع؟" />  
-        
-        </GoogleMap>
+       </GoogleMap>
       
 </div> 
 
@@ -653,7 +605,6 @@ const checkLocationCondtion = async (lat ,lng) =>{
         
       
               
-     
           {request && (
             <>
             <Marker
@@ -664,7 +615,7 @@ const checkLocationCondtion = async (lat ,lng) =>{
               zIndex={1000}
               icon={{
                 url:"/greenMarker.png" ,
-                scaledSize: new window.google.maps.Size(40, 40), // Adjust the size if needed
+                scaledSize: new window.google.maps.Size(40, 40), 
               }}
             >
               <InfoWindow

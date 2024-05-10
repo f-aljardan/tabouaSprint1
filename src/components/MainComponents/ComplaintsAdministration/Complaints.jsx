@@ -5,7 +5,6 @@ import {Card, Typography, Chip,Input , IconButton} from "@material-tailwind/reac
 import { db } from "../../../firebase";
 import {
   collection,
-  doc,
   onSnapshot,
   query,
 } from "firebase/firestore";
@@ -13,28 +12,21 @@ import Select from "react-select";
 // import ViewRequestInfo from "../../utilityComponents/viewInfo/ViewRequestInfo"
 
 export default function Complaints({directRoute,setDirectRoute, typeFilter, setTypeFilter, statusFilter, setStatusFilter, dateFilter ,setDateFilter , neighborhoodFilter, setNeighborhoodFilter }){
- 
+
 
   const navigate = useNavigate();
   const [complaints, setComplaints] = useState([]);
-  // const [statusFilter, setStatusFilter] = useState(""); 
-  // const [typeFilter, setTypeFilter] = useState(""); 
   const [searchQuery, setSearchQuery] = useState('');
   const [searchResults, setSearchResults] = useState([]);
- 
-
- 
   const [neighborhoodOptions, setNeighborhoodOptions] = useState([]);
 
-  
 const extractNeighborhood = (localArea) => {
-  // Check if localArea starts with a postal code (sequence of digits followed by a comma)
+  // Check if localArea starts with a postal code 
   const postalCodeRegex = /^\d+\s*,\s*/;
   if (postalCodeRegex.test(localArea)) {
-    // Extract the part after the postal code and comma
     return localArea.replace(postalCodeRegex, '').trim();
   } else {
-    // Assume the first part before any comma is the neighborhood name
+    //  first part is the neighborhood name
     return localArea.split(',')[0].trim();
   }
 };
@@ -50,15 +42,8 @@ const extractNeighborhood = (localArea) => {
       });
 
       setComplaints(updatedComplaints);
-
-      // Generate neighborhood options from complaints
       const neighborhoods = Array.from(new Set(updatedComplaints.map(complaint => extractNeighborhood(complaint.localArea)))).sort();
-      setNeighborhoodOptions(neighborhoods.map(n => ({ value: n, label: n })));
-
-      console.log("date: "+ dateFilter)
-     
-    
-      
+      setNeighborhoodOptions(neighborhoods.map(n => ({ value: n, label: n })));  
     });
 
     return () => {
@@ -66,9 +51,6 @@ const extractNeighborhood = (localArea) => {
     };
     
   }, []);
-
-
-
 
   // Update searchResults when requests change
   useEffect(() => {
@@ -82,8 +64,6 @@ const extractNeighborhood = (localArea) => {
     }
   }, [searchQuery, complaints]);
 
-
-
 //options for the select component
   const statusOptions = [
     { value: "الكل", label: "الكل" },
@@ -93,7 +73,6 @@ const extractNeighborhood = (localArea) => {
     { value: "مرفوض", label: "مرفوض" },
   ];
 
-  
 //options for the select component
 const typeOptions = [
   { value: "الكل", label: "الكل" },
@@ -110,13 +89,10 @@ const typeOptions = [
   const reactSelectStyles = {
     container: (provided) => ({
       ...provided,
-      width: "300px", // Adjust the width as needed
+      width: "300px", 
     }),
   };
   
- 
-
-
   const filteredComplaints = complaints
   .filter(
     (complaint) =>
@@ -126,9 +102,6 @@ const typeOptions = [
       (dateFilter === "" ? true :  `${complaint.complaintDate?.toDate().getFullYear()}-${complaint.complaintDate?.toDate().getMonth() + 1}` === dateFilter)
   )
   .sort((a, b) => a.complaintDate?.toDate() - b.complaintDate?.toDate());
-
-
- 
 
   return (
     <> <div className="m-5"><div  style={{ overflowX: "auto",    maxHeight: "110vh",}}>
@@ -146,19 +119,16 @@ const typeOptions = [
                   setNeighborhoodFilter('');
                   setDateFilter(''); 
                 }}
-                   className=" mb-4">
+                className=" mb-4">
+
                   <IconButton variant="text" size="lg">
-                 <i className="fas fa-arrow-left fa-lg" />
-                 </IconButton>
+                  <i className="fas fa-arrow-left fa-lg" />
+                  </IconButton>
                 </button>
             ) : null}
 
         </div>
-      
-
         <div className="mb-4 flex items-center gap-3">
-
-        
           <Select
             placeholder="تصفية حسب حالة البلاغ"
             options={statusOptions}
@@ -166,7 +136,8 @@ const typeOptions = [
             onChange={(selectedOption) => setStatusFilter(selectedOption.value)}
             styles={reactSelectStyles}
           />
-           <Select
+
+          <Select
             placeholder="تصفية حسب نوع البلاغ"
             options={typeOptions}
             value={typeOptions.find((option) => option.value === typeFilter)}
@@ -182,9 +153,7 @@ const typeOptions = [
                 styles={reactSelectStyles}
               />
 
-
-
-           <div className="w-full md:w-72">
+          <div className="w-full md:w-72">
                 <Input
                   icon={<MagnifyingGlassIcon className="h-5 w-5" />}
                   placeholder="البحث برقم البلاغ"
@@ -192,12 +161,10 @@ const typeOptions = [
                   onChange={(e) => setSearchQuery(e.target.value)}
                   className="custom-placeholder"
                 />
-              </div>
-
+          </div>
         </div>
 
-        <table className="  table-auto  mt-4  ">
-        
+        <table className="  table-auto  mt-4  "> 
   <thead>
     <tr>
       <th className="border-b border-blue-gray-100 bg-blue-gray-50 p-4">
@@ -286,8 +253,7 @@ const typeOptions = [
                       </Typography>
                     </Link>
                   </td>
-               
-   <td className="p-4 text-right">
+              <td className="p-4 text-right">
                 {complaint.complaintDate?.toDate().toISOString().slice(0,10) || 'N/A'}
               </td>    
 
@@ -319,27 +285,15 @@ const typeOptions = [
                 </div>
               </td>
 
-           
+          
             </tr>
-         
+        
         ) 
       )
       )) 
-   
-    // : complaints
-    //   .filter(
-    //     (complaint) =>
-    //     (statusFilter === '' || statusFilter === 'الكل' || complaint.status === statusFilter) &&
-    //     (typeFilter === '' || typeFilter === 'الكل' || complaint.complaintType === typeFilter) &&
-    //     (neighborhoodFilter === '' || neighborhoodFilter === 'الكل' ||extractNeighborhood(complaint.localArea) === neighborhoodFilter)
-    //   )
-    //   .sort(
-    //     (a, b) =>
-    //       a.complaintDate?.toDate() - b.complaintDate?.toDate()
-    //   )
     : filteredComplaints.length === 0 ? (
       <tr>
-       <td className="p-4 border-b border-blue-gray-50 text-center" colSpan="5">
+      <td className="p-4 border-b border-blue-gray-50 text-center" colSpan="5">
         <Typography variant="small" color="red" className="font-bold">
         <span>لا يوجد بلاغات مطابقة للتصنيف</span>  
         </Typography>
@@ -350,25 +304,25 @@ const typeOptions = [
         // Render your complaint row here
         <tr key={complaint.id}>
         <td
-                 className="p-4 text-right cursor-pointer hover:text-red"
-               > 
-                <Link to={`${complaint.id}`}>
+        className="p-4 text-right cursor-pointer hover:text-red"
+        > 
+          <Link to={`${complaint.id}`}>
 <Typography color="teal">
- <span>{complaint.complaintNo}</span>
+<span>{complaint.complaintNo}</span>
 </Typography>
 </Link>
-               </td>
-       <td className="p-4 text-right">
-         {complaint.complaintDate?.toDate().toISOString().slice(0,10) || 'N/A'}
-       </td>
+      </td>
+      <td className="p-4 text-right">
+        {complaint.complaintDate?.toDate().toISOString().slice(0,10) || 'N/A'}
+      </td>
 
-       <td className="p-4 text-right">
-           <span>{complaint.complaintType} </span>
-           </td> 
+      <td className="p-4 text-right">
+          <span>{complaint.complaintType} </span>
+          </td> 
            
-           <td className="p-4 text-right">
-           <span>{extractNeighborhood(complaint.localArea)} </span>
-           </td>
+          <td className="p-4 text-right">
+          <span>{extractNeighborhood(complaint.localArea)} </span>
+          </td>
 
        <td className="p-4 text-center">
          <div className="w-20">

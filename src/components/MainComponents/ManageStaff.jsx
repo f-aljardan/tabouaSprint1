@@ -325,10 +325,7 @@ return (
     <tr key={index}>
       <td className="p-4 border-b border-blue-gray-50 text-right">
           {isEditMode && editedStaffData.id === `${staffMember.id}` ? (
-            // Render the edited data when in edit mode
-           
-            
-
+          
             <>
             <div className="mb-2">
               

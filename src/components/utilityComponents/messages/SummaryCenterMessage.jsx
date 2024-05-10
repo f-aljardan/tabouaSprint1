@@ -57,7 +57,7 @@ export default function SummaryCenterMessage({ open, handler, formData, addMetho
   
             <p className="pt-2"><span className="font-semibold">إسم المركز:</span> {formData.name}</p>
             <p className="pt-1"><span className="font-semibold">وصف المركز:</span> {formData.description}</p>
-            <p className="pt-1"><span className="font-semibold">أنواع النفايات المستقبلة:</span> : {formData.types.join(", ")}</p>
+            <p className="pt-1"><span className="font-semibold">أنواع النفايات المستقبلة:</span>  {formData.types.join(", ")}</p>
             <p className="pt-1"><span className="font-semibold">ساعات العمل:</span></p>
             <ul>
               <span>-أيام الاسبوع: من {formattedWeekdaysFrom} إلى {formattedWeekdaysTo}</span>

@@ -15,7 +15,7 @@ export default function Confirm({open, handler , method, message}){
        
         <DialogBody divider className="font-baloo text-right">
 
-        {message} {/* pass message form other pages */}
+        {message} 
         </DialogBody>
 
         <DialogFooter className="flex gap-3 justify-center ">

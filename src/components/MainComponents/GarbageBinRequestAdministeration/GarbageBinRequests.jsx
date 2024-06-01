@@ -22,7 +22,8 @@ export default function GarbageBinRequests() {
   const [statusFilter, setStatusFilter] = useState(""); 
   const [searchQuery, setSearchQuery] = useState('');
   const [searchResults, setSearchResults] = useState([]);
- 
+  const [dataLoaded, setDataLoaded] = useState(false);
+
   //Fetch all requests
   useEffect(() => {
     const q = query(collection(db, "requestedGarbageBin"));
@@ -34,6 +35,7 @@ export default function GarbageBinRequests() {
       });
 
       setRequests(updatedRequests);
+      setDataLoaded(true)
     });
 
     return () => {
@@ -210,7 +212,7 @@ export default function GarbageBinRequests() {
       )
       )) 
    
-    : filteredRequests.length === 0 ? (
+    : dataLoaded? (filteredRequests.length === 0 ? (
       <tr>
       <td className="p-4 border-b border-blue-gray-50 text-center" colSpan="3">
         <Typography variant="small" color="red" className="font-bold">
@@ -254,7 +256,15 @@ export default function GarbageBinRequests() {
           </td>
         </tr>
          ))
-         )}
+         ) ) 
+         : 
+         <tr>
+    <td className="p-4 border-b border-blue-gray-50 text-center" colSpan="5">
+      <Typography variant="small" color="gray" className="font-bold">
+        <span> يتم تحميل الطلبات   </span>
+      </Typography>
+    </td>
+  </tr>}
 </tbody>
 
 

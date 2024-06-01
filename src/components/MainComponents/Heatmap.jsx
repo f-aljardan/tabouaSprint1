@@ -130,6 +130,7 @@ export default function Heatmap({setDirectRoute, setDirectRouteComplaint, setTyp
 
  // all google map initilization related function ends here
 
+ const [dataLoaded, setDataLoaded] = useState(false);
 
   // Load all complaint data from database
   useEffect(() => {
@@ -148,6 +149,9 @@ export default function Heatmap({setDirectRoute, setDirectRouteComplaint, setTyp
 
         // Store  bin data for filtering
         SetComplaintData(complaintData);
+
+// Set dataLoaded to true when complaints data is fetched
+setDataLoaded(true);
 
       } catch (error) {
         console.error('Error fetching garbage bins:', error);
@@ -296,11 +300,7 @@ const typesOptions = {
       averageResolutionTime: formattedAverageResolutionTime.join(', ') || 'أقل من دقيقة'
     };
   };
-  
-
-  
-
-
+ 
 
 
 useEffect(() => {
@@ -792,7 +792,10 @@ return isLoaded ? (
              <ErrorAlertMessage open={true} handler={handleAlert}
               message="لا يوجد بيانات بهذا التصنيف" /> </div> 
          )
-         : null
+         : dataLoaded? null
+          : <div style={{  marginTop:10,  width: '100%', height: '100%'}}>
+          <ErrorAlertMessage open={true} handler={handleAlert}
+           message="  يتم تحميل البيانات  " /> </div> 
          } 
 
           </div>

@@ -17,6 +17,8 @@ export default function ManageStaff(){
   const [staffMembers, setStaffMembers] = useState([]); // to store staff infromation
   const [searchTerm, setSearchTerm] = useState(""); // state to search staff name
   const [isEditMode, setIsEditMode] = useState(false);
+  const [dataLoaded, setDataLoaded] = useState(false);
+
   const [editedStaffData, setEditedStaffData] = useState({
     id: null,
     firstName: '',
@@ -64,6 +66,7 @@ const [errors, setErrors] = useState({});
       });
   
       setStaffMembers(staffData);// store staff information
+      setDataLoaded(true);
     });
   
     // Return the cleanup function to unsubscribe from the listener
@@ -423,7 +426,7 @@ return (
       </td>
     </tr>
   ))
-) : (
+) : dataLoaded? (
   <tr>
     <td className="p-4 border-b border-blue-gray-50 text-center" colSpan="3">
       <Typography variant="small" color="red" className="font-bold">
@@ -431,7 +434,15 @@ return (
       </Typography>
     </td>
   </tr>
-)}
+)
+:
+<tr>
+    <td className="p-4 border-b border-blue-gray-50 text-center" colSpan="5">
+      <Typography variant="small" color="gray" className="font-bold">
+        <span> يتم تحميل بيانات الموظفين   </span>
+      </Typography>
+    </td>
+  </tr>}
 
 </tbody>
 

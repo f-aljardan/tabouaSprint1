@@ -19,6 +19,7 @@ export default function Complaints({directRoute,setDirectRoute, typeFilter, setT
   const [searchQuery, setSearchQuery] = useState('');
   const [searchResults, setSearchResults] = useState([]);
   const [neighborhoodOptions, setNeighborhoodOptions] = useState([]);
+  const [dataLoaded, setDataLoaded] = useState(false);
 
 const extractNeighborhood = (localArea) => {
   // Check if localArea starts with a postal code 
@@ -44,7 +45,11 @@ const extractNeighborhood = (localArea) => {
       setComplaints(updatedComplaints);
       const neighborhoods = Array.from(new Set(updatedComplaints.map(complaint => extractNeighborhood(complaint.localArea)))).sort();
       setNeighborhoodOptions(neighborhoods.map(n => ({ value: n, label: n })));  
+      // Set dataLoaded to true when complaints data is fetched
+      setDataLoaded(true);
     });
+
+        
 
     return () => {
       unsubscribe();
@@ -291,13 +296,13 @@ const typeOptions = [
         ) 
       )
       )) 
-    : filteredComplaints.length === 0 ? (
+    : dataLoaded ? ( filteredComplaints.length === 0 ? (
       <tr>
-      <td className="p-4 border-b border-blue-gray-50 text-center" colSpan="5">
-        <Typography variant="small" color="red" className="font-bold">
-        <span>لا يوجد بلاغات مطابقة للتصنيف</span>  
-        </Typography>
-      </td>
+        <td className="p-4 border-b border-blue-gray-50 text-center" colSpan="5">
+          <Typography variant="small" color="red" className="font-bold">
+            <span>لا يوجد بلاغات مطابقة للتصنيف</span>
+          </Typography>
+        </td>
       </tr>
     ) : (
       filteredComplaints.map((complaint) => (
@@ -345,7 +350,13 @@ const typeOptions = [
        </td>
      </tr>
       ))
-    )}
+    ) ) : <tr>
+    <td className="p-4 border-b border-blue-gray-50 text-center" colSpan="5">
+      <Typography variant="small" color="gray" className="font-bold">
+        <span> يتم تحميل البلاغات   </span>
+      </Typography>
+    </td>
+  </tr> }
      
 </tbody>
 

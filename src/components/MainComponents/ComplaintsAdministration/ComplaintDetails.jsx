@@ -559,8 +559,7 @@ const moveSlideUser = (step) => {
                       </span>
                     </Typography>
 
-
-{calculateAge(complainerInfo.DateOfBirth)!=0?
+{(calculateAge(complainerInfo.DateOfBirth)!=0 && complainerInfo.DateOfBirth)?
 ( <Typography>
   <span>
     <span className="font-bold">العمر:</span>{" "}
@@ -568,6 +567,8 @@ const moveSlideUser = (step) => {
   </span>
 </Typography>) 
 : null}
+
+
                    
                     <Typography>
                       <span>

@@ -267,7 +267,7 @@ const typesOptions = {
     if (resolutionTimes.length === 0) {
       return {
         resolutionTimes: [],
-        averageResolutionTime: 'No data'
+        averageResolutionTime: 'لا يوجد'
       };
     }
   
